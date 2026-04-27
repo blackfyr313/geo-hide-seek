@@ -8,7 +8,7 @@ export function SocketProvider({ children }) {
   const [connected, setConnected] = useState(false)
 
   useEffect(() => {
-    const socket = io('http://localhost:4000', { autoConnect: true })
+    const socket = io(import.meta.env.VITE_SERVER_URL || 'http://localhost:4000', { autoConnect: true })
     socket.on('connect',    () => setConnected(true))
     socket.on('disconnect', () => setConnected(false))
     socketRef.current = socket

@@ -538,7 +538,7 @@ function PublicRooms({ onQuickJoin }) {
 
   useEffect(() => {
     const load = () => {
-      fetch('http://localhost:4000/public-rooms')
+      fetch(`${import.meta.env.VITE_SERVER_URL || 'http://localhost:4000'}/public-rooms`)
         .then(r => r.json())
         .then(data => { setRooms(data.slice(0, 2)); setLoading(false) })
         .catch(() => setLoading(false))
