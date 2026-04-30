@@ -58,6 +58,13 @@ const LOCATIONS = [
 const rooms         = {};
 const timers        = {};
 const gracePeriodTimers = {}; // socketId → timeout — 30 s grace window for mid-game reconnects
+const recentEvents  = []; // rolling feed of real game events for the landing page
+const connectedSockets = new Set(); // tracks every open browser tab on the site
+
+function addEvent(msg, loc, flag) {
+  recentEvents.unshift({ msg, loc, flag, ts: Date.now() });
+  if (recentEvents.length > 20) recentEvents.pop();
+}
 
 function generateRoomCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -313,6 +320,14 @@ function endGame(code) {
   if (!room) return;
   room.status = "finished";
   room.phase  = "finished";
+  const { red, blue } = room.scores;
+  if (red !== blue) {
+    const winner = red > blue ? "Red" : "Blue";
+    const margin = Math.abs(red - blue);
+    addEvent(`Team ${winner} won!`, `by ${margin.toLocaleString()} pts`, "🏆");
+  } else {
+    addEvent("It's a tie!", `${red.toLocaleString()} pts each`, "🤝");
+  }
   io.to(code).emit("game_over", {
     scores: room.scores,
     players: Object.values(room.players),
@@ -372,12 +387,32 @@ app.get("/health", (_req, res) => res.json({ ok: true }));
 app.get("/public-rooms", (_req, res) => {
   const publicRooms = Object.values(rooms)
     .filter(r => r.isPublic && r.status === "lobby")
-    .map(r => ({
-      code: r.code,
-      playerCount: Object.keys(r.players).length,
-      totalRounds: r.totalRounds,
-    }));
+    .map(r => {
+      const host = Object.values(r.players).find(p => p.isHost);
+      return {
+        code: r.code,
+        playerCount: Object.keys(r.players).length,
+        totalRounds: r.totalRounds,
+        hostName: host?.name ?? "Unknown",
+        createdAt: r.createdAt,
+      };
+    })
+    .sort((a, b) => b.createdAt - a.createdAt);
   res.json(publicRooms);
+});
+
+app.get("/stats", (_req, res) => {
+  const allRooms = Object.values(rooms);
+  const activePlayers = allRooms.reduce(
+    (sum, r) => sum + Object.values(r.players).filter(p => p.isConnected !== false).length, 0
+  );
+  const activeGames = allRooms.filter(r => r.status === "playing").length;
+  const lobbyRooms  = allRooms.filter(r => r.status === "lobby").length;
+  res.json({ activePlayers, activeGames, lobbyRooms, visitors: connectedSockets.size });
+});
+
+app.get("/recent-events", (_req, res) => {
+  res.json(recentEvents.slice(0, 10));
 });
 
 // ─────────────────────────────────────────────
@@ -385,6 +420,8 @@ app.get("/public-rooms", (_req, res) => {
 // ─────────────────────────────────────────────
 io.on("connection", (socket) => {
   console.log(`[+] Connected: ${socket.id}`);
+  connectedSockets.add(socket.id);
+  io.emit("visitor_count", { count: connectedSockets.size });
 
   // ── CREATE ROOM ──────────────────────────────
   socket.on("create_room", ({ name, isPublic, totalRounds }, callback) => {
@@ -395,6 +432,7 @@ io.on("connection", (socket) => {
       socket.join(room.code);
       callback({ success: true, room: getRoomSnapshot(room.code) });
       io.to(room.code).emit("room_updated", getRoomSnapshot(room.code));
+      if (isPublic) addEvent("New public room created", `by ${name.trim()}`, "🎮");
     } catch (err) {
       console.error(err);
       callback({ error: "Failed to create room." });
@@ -478,6 +516,8 @@ io.on("connection", (socket) => {
       callback({ success: true, room: snapshot });
       io.to(roomCode).emit("room_updated", snapshot);
       socket.to(roomCode).emit("player_joined", { name: name.trim(), message: `${name.trim()} joined the game!` });
+      const joinCount = Object.keys(rooms[roomCode].players).length;
+      addEvent(`${joinCount} player${joinCount !== 1 ? "s" : ""} in lobby`, `Room ${roomCode}`, "👥");
     } catch (err) {
       console.error(err);
       callback({ error: "Failed to join room." });
@@ -587,6 +627,8 @@ io.on("connection", (socket) => {
     room.explorerIds.red  = redExplorers[0];
     room.explorerIds.blue = blueExplorers[0];
 
+    const playerCount = Object.keys(room.players).length;
+    addEvent(`${playerCount} player${playerCount !== 1 ? "s" : ""} started a match`, `Room ${code}`, "🎮");
     startRound(code);
     callback?.({ success: true });
   });
@@ -693,6 +735,8 @@ io.on("connection", (socket) => {
   // ── DISCONNECT ───────────────────────────────
   socket.on("disconnect", () => {
     console.log(`[-] Disconnected: ${socket.id}`);
+    connectedSockets.delete(socket.id);
+    io.emit("visitor_count", { count: connectedSockets.size });
     for (const code of Object.keys(rooms)) {
       if (rooms[code]?.players[socket.id]) { handleDisconnect(socket, code); break; }
     }

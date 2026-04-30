@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   FiGlobe, FiUsers, FiHash, FiArrowRight, FiX,
@@ -81,9 +81,16 @@ function WorldGrid() {
 }
 
 /* ─── Animated globe (right panel) ─────────────────────────────────────── */
-function AnimatedGlobe() {
+function AnimatedGlobe({ stats = {}, recentEvents = [] }) {
   const [liveIdx, setLiveIdx] = useState(0)
   const [activity, setActivity] = useState({ idx: 0, visible: false })
+  const allEventsRef = useRef(ACTIVITY_EVENTS)
+
+  // Keep the events ref current so the cycling closure always sees the latest list
+  useEffect(() => {
+    const realFormatted = recentEvents.map(e => ({ msg: e.msg, loc: e.loc, flag: e.flag }))
+    allEventsRef.current = [...realFormatted, ...ACTIVITY_EVENTS].slice(0, 15)
+  }, [recentEvents])
 
   useEffect(() => {
     const id = setInterval(() => setLiveIdx(i => (i + 1) % LIVE_LOCATIONS.length), 3000)
@@ -93,7 +100,7 @@ function AnimatedGlobe() {
   useEffect(() => {
     let idx = 0
     const cycle = () => {
-      idx = (idx + 1) % ACTIVITY_EVENTS.length
+      idx = (idx + 1) % allEventsRef.current.length
       setActivity({ idx, visible: true })
       setTimeout(() => setActivity(s => ({ ...s, visible: false })), 2800)
     }
@@ -103,7 +110,9 @@ function AnimatedGlobe() {
   }, [])
 
   const live = LIVE_LOCATIONS[liveIdx]
-  const evt  = ACTIVITY_EVENTS[activity.idx]
+  const events = allEventsRef.current
+  const evt = events[activity.idx % events.length]
+  const displayActiveGames = (stats.activeGames > 0) ? stats.activeGames.toLocaleString() : '1,248'
 
   return (
     <div className="relative flex items-center justify-center w-full h-full">
@@ -189,8 +198,14 @@ function AnimatedGlobe() {
       <motion.div className="absolute top-10 right-4 rounded-2xl px-5 py-3"
         style={{ background: 'rgba(14,22,37,0.9)', border: '1px solid #1a2540', backdropFilter: 'blur(12px)' }}
         initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1 }}>
-        <p className="text-xs font-mono" style={{ color: '#475569' }}>Active Games</p>
-        <p className="text-3xl font-black" style={{ fontFamily: "'Syne',sans-serif", color: '#00d4aa' }}>1,248</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <p className="text-xs font-mono" style={{ color: '#475569' }}>Active Games</p>
+          {stats.activeGames > 0 && (
+            <motion.div style={{ width: 5, height: 5, borderRadius: '50%', background: '#00d4aa' }}
+              animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.2, repeat: Infinity }} />
+          )}
+        </div>
+        <p className="text-3xl font-black" style={{ fontFamily: "'Syne',sans-serif", color: '#00d4aa' }}>{displayActiveGames}</p>
       </motion.div>
 
       {/* BOTTOM-LEFT — Countries */}
@@ -512,17 +527,29 @@ function JoinModal({ onClose, initialCode = '' }) {
 }
 
 /* ─── Stats bar ─────────────────────────────────────────────────────────── */
-function StatsBar() {
+function StatsBar({ activePlayers = 0 }) {
+  const stats = [
+    { value: '10K+',   label: 'Games Played',  live: false },
+    { value: '195',    label: 'Countries',      live: false },
+    { value: activePlayers > 0 ? activePlayers.toLocaleString() : '1,248', label: 'Active Now', live: activePlayers > 0 },
+    { value: '847 km', label: 'Avg Guess',      live: false },
+  ]
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }}
       style={{ display: 'flex', background: 'rgba(255,255,255,0.02)',
         border: '1px solid #1a2540', borderRadius: 16, overflow: 'hidden', marginTop: 22 }}>
-      {SITE_STATS.map((s, i) => (
+      {stats.map((s, i) => (
         <div key={i} style={{ flex: 1, padding: '13px 10px', textAlign: 'center',
           borderRight: i < 3 ? '1px solid #1a2540' : 'none' }}>
-          <div style={{ fontSize: 17, fontWeight: 900, color: '#00d4aa',
-            fontFamily: "'Syne',sans-serif" }}>{s.value}</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+            <span style={{ fontSize: 17, fontWeight: 900, color: '#00d4aa',
+              fontFamily: "'Syne',sans-serif" }}>{s.value}</span>
+            {s.live && (
+              <motion.div style={{ width: 5, height: 5, borderRadius: '50%', background: '#00d4aa', flexShrink: 0 }}
+                animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.2, repeat: Infinity }} />
+            )}
+          </div>
           <div style={{ fontSize: 9, color: '#475569', fontFamily: "'JetBrains Mono',monospace",
             marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{s.label}</div>
         </div>
@@ -535,12 +562,13 @@ function StatsBar() {
 function PublicRooms({ onQuickJoin }) {
   const [rooms, setRooms] = useState([])
   const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
     const load = () => {
       fetch(`${import.meta.env.VITE_SERVER_URL || 'http://localhost:4000'}/public-rooms`)
         .then(r => r.json())
-        .then(data => { setRooms(data.slice(0, 2)); setLoading(false) })
+        .then(data => { setRooms(data); setLoading(false) })
         .catch(() => setLoading(false))
     }
     load()
@@ -548,19 +576,53 @@ function PublicRooms({ onQuickJoin }) {
     return () => clearInterval(id)
   }, [])
 
+  const filtered = search.trim()
+    ? rooms.filter(r =>
+        r.code.toLowerCase().includes(search.toLowerCase()) ||
+        r.hostName?.toLowerCase().includes(search.toLowerCase())
+      )
+    : rooms
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
       style={{ marginTop: 14 }}>
+      {/* Header row */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
           <FiMap size={12} style={{ color: '#00d4aa' }} />
           <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono',monospace", color: '#475569',
             textTransform: 'uppercase', letterSpacing: '0.12em' }}>Open Rooms</span>
+          {rooms.length > 0 && (
+            <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: '#334155',
+              background: 'rgba(0,212,170,0.08)', border: '1px solid rgba(0,212,170,0.15)',
+              borderRadius: 99, padding: '1px 7px' }}>{rooms.length}</span>
+          )}
         </div>
         <motion.div style={{ width: 5, height: 5, borderRadius: '50%', background: '#00d4aa' }}
           animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
       </div>
+
+      {/* Search input — only shown when there are rooms */}
+      {rooms.length > 0 && (
+        <div style={{ position: 'relative', marginBottom: 8 }}>
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search by code or host…"
+            style={{
+              width: '100%', background: 'rgba(255,255,255,0.025)',
+              border: '1px solid #1a2540', borderRadius: 10, padding: '8px 12px 8px 34px',
+              color: '#fff', fontSize: 12, fontFamily: "'DM Sans',sans-serif",
+              outline: 'none', boxSizing: 'border-box',
+            }}
+            onFocus={e => { e.currentTarget.style.borderColor = 'rgba(0,212,170,0.35)' }}
+            onBlur={e => { e.currentTarget.style.borderColor = '#1a2540' }}
+          />
+          <FiMap size={11} style={{ position: 'absolute', left: 12, top: '50%',
+            transform: 'translateY(-50%)', color: '#334155', pointerEvents: 'none' }} />
+        </div>
+      )}
 
       {loading ? (
         <div style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid #1a2540',
@@ -573,30 +635,44 @@ function PublicRooms({ onQuickJoin }) {
           <FiGlobe size={13} style={{ color: '#1e2d45', flexShrink: 0 }} />
           <span style={{ fontSize: 12, color: '#334155' }}>No public rooms right now — create one!</span>
         </div>
+      ) : filtered.length === 0 ? (
+        <div style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid #1a2540',
+          borderRadius: 12, fontSize: 11, color: '#334155', fontFamily: "'JetBrains Mono',monospace" }}>
+          No rooms match "{search}"
+        </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {rooms.map(r => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6,
+          maxHeight: 180, overflowY: 'auto', scrollbarWidth: 'none' }}>
+          {filtered.map(r => (
             <div key={r.code}
               style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px',
                 background: 'rgba(255,255,255,0.025)', border: '1px solid #1a2540',
-                borderRadius: 12, transition: 'border-color 0.2s' }}
+                borderRadius: 12, transition: 'border-color 0.2s', flexShrink: 0 }}
               onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(0,212,170,0.22)'}
               onMouseLeave={e => e.currentTarget.style.borderColor = '#1a2540'}>
               <span style={{ fontFamily: "'JetBrains Mono',monospace", fontWeight: 900,
-                fontSize: 13, color: '#00d4aa', letterSpacing: '0.1em' }}>{r.code}</span>
-              <div style={{ flex: 1, display: 'flex', gap: 6, alignItems: 'center' }}>
-                <span style={{ fontSize: 11, color: '#475569' }}>{r.playerCount} players</span>
-                <span style={{ color: '#1a2540' }}>·</span>
-                <span style={{ fontSize: 11, color: '#475569' }}>{r.totalRounds} rounds</span>
+                fontSize: 13, color: '#00d4aa', letterSpacing: '0.1em', flexShrink: 0 }}>{r.code}</span>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <span style={{ fontSize: 11, color: '#e2e8f0', fontWeight: 600,
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {r.hostName}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <span style={{ fontSize: 10, color: '#475569' }}>{r.playerCount} player{r.playerCount !== 1 ? 's' : ''}</span>
+                  <span style={{ color: '#1a2540' }}>·</span>
+                  <span style={{ fontSize: 10, color: '#475569' }}>{r.totalRounds} rounds</span>
+                </div>
               </div>
               <button onClick={() => onQuickJoin(r.code)}
-                style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px',
-                  borderRadius: 7, border: '1px solid rgba(0,212,170,0.3)', cursor: 'pointer',
-                  background: 'rgba(0,212,170,0.08)', color: '#00d4aa',
+                style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px',
+                  borderRadius: 8, border: '1px solid rgba(0,212,170,0.3)', cursor: 'pointer',
+                  background: 'rgba(0,212,170,0.08)', color: '#00d4aa', flexShrink: 0,
                   fontSize: 11, fontFamily: "'Syne',sans-serif", fontWeight: 700, transition: 'background 0.15s' }}
                 onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,212,170,0.18)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,212,170,0.08)'}>
-                <FiPlay size={9} /> Quick Join
+                <FiPlay size={9} /> Join Room
               </button>
             </div>
           ))}
@@ -642,7 +718,10 @@ export default function LandingPage() {
   const [modal, setModal] = useState(null)
   const [joinPrefill, setJoinPrefill] = useState('')
   const [cityIdx, setCityIdx] = useState(0)
-  const { connected } = useSocket()
+  const [serverStats, setServerStats] = useState({ activePlayers: 0, activeGames: 0, lobbyRooms: 0 })
+  const [recentEvents, setRecentEvents] = useState([])
+  const [visitors, setVisitors] = useState(0)
+  const { socket, connected } = useSocket()
 
   // Auto-open join modal when a ?code= param is present in the URL
   useEffect(() => {
@@ -654,6 +733,35 @@ export default function LandingPage() {
     const id = setInterval(() => setCityIdx(i => (i + 1) % HERO_CITIES.length), 2500)
     return () => clearInterval(id)
   }, [])
+
+  // Poll server stats and recent events every 10 s
+  useEffect(() => {
+    const BASE = import.meta.env.VITE_SERVER_URL || 'http://localhost:4000'
+    const load = () => {
+      fetch(`${BASE}/stats`)
+        .then(r => r.json())
+        .then(data => {
+          setServerStats(data)
+          if (data.visitors > 0) setVisitors(data.visitors)
+        })
+        .catch(() => {})
+      fetch(`${BASE}/recent-events`)
+        .then(r => r.json())
+        .then(data => setRecentEvents(data))
+        .catch(() => {})
+    }
+    load()
+    const id = setInterval(load, 10000)
+    return () => clearInterval(id)
+  }, [])
+
+  // Real-time visitor count via socket event (no polling delay)
+  useEffect(() => {
+    if (!socket) return
+    const handle = ({ count }) => setVisitors(count)
+    socket.on('visitor_count', handle)
+    return () => socket.off('visitor_count', handle)
+  }, [socket])
 
   const openQuickJoin = (code) => { setJoinPrefill(code); setModal('join') }
 
@@ -678,16 +786,27 @@ export default function LandingPage() {
               GEO HIDE & SEEK
             </span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 99,
-            background: 'rgba(255,255,255,0.04)', border: '1px solid #1a2540' }}>
-            <div style={{ width: 7, height: 7, borderRadius: '50%',
-              background: connected ? '#00d4aa' : '#f87171',
-              boxShadow: connected ? '0 0 8px #00d4aa' : 'none',
-              animation: connected ? 'pulse 2s infinite' : 'none' }} />
-            <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono',monospace",
-              color: connected ? '#00d4aa' : '#f87171' }}>
-              {connected ? 'Server Live' : 'Offline'}
-            </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {visitors > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 99,
+                background: 'rgba(255,255,255,0.04)', border: '1px solid #1a2540' }}>
+                <FiUsers size={11} style={{ color: '#475569' }} />
+                <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono',monospace", color: '#475569' }}>
+                  {visitors.toLocaleString()} online
+                </span>
+              </div>
+            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 99,
+              background: 'rgba(255,255,255,0.04)', border: '1px solid #1a2540' }}>
+              <div style={{ width: 7, height: 7, borderRadius: '50%',
+                background: connected ? '#00d4aa' : '#f87171',
+                boxShadow: connected ? '0 0 8px #00d4aa' : 'none',
+                animation: connected ? 'pulse 2s infinite' : 'none' }} />
+              <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono',monospace",
+                color: connected ? '#00d4aa' : '#f87171' }}>
+                {connected ? 'Server Live' : 'Offline'}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -761,7 +880,7 @@ export default function LandingPage() {
           </motion.div>
 
           {/* ── Stats bar ── */}
-          <StatsBar />
+          <StatsBar activePlayers={serverStats.activePlayers} />
 
           {/* ── Public rooms ── */}
           <PublicRooms onQuickJoin={openQuickJoin} />
@@ -776,7 +895,7 @@ export default function LandingPage() {
         <div style={{ position: 'absolute', inset: 24, borderRadius: 28,
           background: 'rgba(14,22,37,0.35)', border: '1px solid rgba(26,37,64,0.7)', backdropFilter: 'blur(6px)' }} />
         <div style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%', padding: 40 }}>
-          <AnimatedGlobe />
+          <AnimatedGlobe stats={serverStats} recentEvents={recentEvents} />
         </div>
       </div>
 
