@@ -3,8 +3,6 @@ const express    = require("express");
 const http       = require("http");
 const { Server } = require("socket.io");
 const cors       = require("cors");
-const nodemailer = require("nodemailer");
-
 const app = express();
 const server = http.createServer(app);
 
@@ -17,94 +15,6 @@ const io = new Server(server, {
 
 app.use(cors());
 app.use(express.json());
-
-// ─────────────────────────────────────────────
-//  Email notifications
-// ─────────────────────────────────────────────
-const transporter = (process.env.EMAIL_USER && process.env.EMAIL_PASS)
-  ? nodemailer.createTransport({
-      service: "gmail",
-      family: 4, // force IPv4 — avoids ENETUNREACH on hosts without IPv6
-      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-    })
-  : null;
-
-if (transporter) {
-  transporter.verify((err) => {
-    if (err) console.error("[Email] SMTP verify failed:", err.message);
-    else     console.log("[Email] SMTP ready");
-  });
-} else {
-  console.warn("[Email] No EMAIL_USER/EMAIL_PASS — milestone emails disabled");
-}
-
-let lastMilestoneNotified = 0; // tracks the highest milestone emailed so far
-
-async function sendViewerMilestoneEmail(count) {
-  console.log(`[Email] called — count=${count} transporter=${!!transporter}`);
-  if (!transporter) return;
-  const to = process.env.NOTIFY_EMAIL || process.env.EMAIL_USER;
-  if (!to) { console.log("[Email] ❌ No recipient — set NOTIFY_EMAIL in .env"); return; }
-  console.log(`[Email] 📤 Sending to ${to}…`);
-
-  const allRooms     = Object.values(rooms);
-  const activeGames  = allRooms.filter(r => r.status === "playing").length;
-  const openLobbies  = allRooms.filter(r => r.status === "lobby").length;
-  const totalPlayers = allRooms.reduce(
-    (s, r) => s + Object.values(r.players).filter(p => p.isConnected !== false).length, 0
-  );
-  const now = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
-
-  try {
-    await transporter.sendMail({
-      from: `"Geo Hide & Seek 🌍" <${process.env.EMAIL_USER}>`,
-      to,
-      subject: `🎉 ${count} viewers on Geo Hide & Seek right now!`,
-      html: `
-        <div style="font-family:'Segoe UI',sans-serif;max-width:480px;margin:0 auto;
-                    background:#050912;color:#e2e8f0;padding:40px;border-radius:16px;
-                    border:1px solid #1a2540;">
-          <p style="margin:0 0 4px;font-size:11px;letter-spacing:0.15em;
-                     text-transform:uppercase;color:#00d4aa;font-family:monospace;">
-            Geo Hide &amp; Seek · Viewer Milestone
-          </p>
-          <h1 style="margin:0 0 6px;font-size:48px;font-weight:900;color:#fff;line-height:1;">
-            ${count}
-          </h1>
-          <p style="margin:0 0 32px;color:#64748b;font-size:15px;">
-            people are on your site right now
-          </p>
-          <table style="width:100%;border-collapse:collapse;">
-            <tr>
-              <td style="padding:12px 0;border-top:1px solid #1a2540;
-                          color:#475569;font-size:13px;">Active games</td>
-              <td style="padding:12px 0;border-top:1px solid #1a2540;
-                          text-align:right;color:#00d4aa;font-weight:700;">${activeGames}</td>
-            </tr>
-            <tr>
-              <td style="padding:12px 0;border-top:1px solid #1a2540;
-                          color:#475569;font-size:13px;">Open lobbies</td>
-              <td style="padding:12px 0;border-top:1px solid #1a2540;
-                          text-align:right;color:#00d4aa;font-weight:700;">${openLobbies}</td>
-            </tr>
-            <tr>
-              <td style="padding:12px 0;border-top:1px solid #1a2540;
-                          color:#475569;font-size:13px;">Players in rooms</td>
-              <td style="padding:12px 0;border-top:1px solid #1a2540;
-                          text-align:right;color:#00d4aa;font-weight:700;">${totalPlayers}</td>
-            </tr>
-          </table>
-          <p style="margin:32px 0 0;font-size:12px;color:#334155;line-height:1.7;">
-            Next alert at <strong style="color:#475569">${count + 5} viewers</strong>.<br/>
-            ${now} IST
-          </p>
-        </div>`,
-    });
-    console.log(`[Email] Milestone notification sent — ${count} viewers`);
-  } catch (err) {
-    console.error("[Email] Failed to send:", err.code, err.message);
-  }
-}
 
 // ─────────────────────────────────────────────
 //  Locations database
@@ -513,14 +423,6 @@ io.on("connection", (socket) => {
   connectedSockets.add(socket.id);
   const visitorCount = connectedSockets.size;
   io.emit("visitor_count", { count: visitorCount });
-  console.log(`[Visitors] count=${visitorCount} lastMilestone=${lastMilestoneNotified} mod=${visitorCount % 5} → milestone=${visitorCount % 5 === 0} greaterThanLast=${visitorCount > lastMilestoneNotified}`);
-  if (visitorCount % 5 === 0 && visitorCount > lastMilestoneNotified) {
-    lastMilestoneNotified = visitorCount;
-    console.log(`[Visitors] ✅ Milestone hit — triggering email for ${visitorCount} viewers`);
-    sendViewerMilestoneEmail(visitorCount);
-  } else if (visitorCount % 5 === 0) {
-    console.log(`[Visitors] ⚠️ Multiple of 5 but lastMilestone=${lastMilestoneNotified} already covers it — skipping`);
-  }
 
   // ── CREATE ROOM ──────────────────────────────
   socket.on("create_room", ({ name, isPublic, totalRounds }, callback) => {
@@ -836,13 +738,6 @@ io.on("connection", (socket) => {
     console.log(`[-] Disconnected: ${socket.id}`);
     connectedSockets.delete(socket.id);
     const countAfter = connectedSockets.size;
-    const newMilestone = Math.floor(countAfter / 5) * 5;
-    if (newMilestone < lastMilestoneNotified) {
-      lastMilestoneNotified = newMilestone;
-      console.log(`[Visitors] count=${countAfter} (after disconnect) — lastMilestone reset to ${lastMilestoneNotified}`);
-    } else {
-      console.log(`[Visitors] count=${countAfter} (after disconnect)`);
-    }
     io.emit("visitor_count", { count: countAfter });
     for (const code of Object.keys(rooms)) {
       if (rooms[code]?.players[socket.id]) { handleDisconnect(socket, code); break; }
