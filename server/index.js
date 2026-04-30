@@ -31,6 +31,7 @@ const transporter = (process.env.EMAIL_USER && process.env.EMAIL_PASS)
 let lastMilestoneNotified = 0; // tracks the highest milestone emailed so far
 
 async function sendViewerMilestoneEmail(count) {
+  console.log(`[Email] sendViewerMilestoneEmail called — count=${count} transporter=${!!transporter} EMAIL_USER=${process.env.EMAIL_USER} NOTIFY_EMAIL=${process.env.NOTIFY_EMAIL}`);
   if (!transporter) return;
   const to = process.env.NOTIFY_EMAIL || process.env.EMAIL_USER;
   if (!to) return;
@@ -501,8 +502,10 @@ io.on("connection", (socket) => {
   connectedSockets.add(socket.id);
   const visitorCount = connectedSockets.size;
   io.emit("visitor_count", { count: visitorCount });
+  console.log(`[Visitors] count=${visitorCount} lastMilestone=${lastMilestoneNotified} mod=${visitorCount % 5}`);
   if (visitorCount % 5 === 0 && visitorCount > lastMilestoneNotified) {
     lastMilestoneNotified = visitorCount;
+    console.log(`[Visitors] Milestone hit — sending email for ${visitorCount} viewers`);
     sendViewerMilestoneEmail(visitorCount);
   }
 
@@ -819,6 +822,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`[-] Disconnected: ${socket.id}`);
     connectedSockets.delete(socket.id);
+    console.log(`[Visitors] count=${connectedSockets.size} (after disconnect)`);
     io.emit("visitor_count", { count: connectedSockets.size });
     for (const code of Object.keys(rooms)) {
       if (rooms[code]?.players[socket.id]) { handleDisconnect(socket, code); break; }
