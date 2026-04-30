@@ -3,7 +3,7 @@ const express    = require("express");
 const http       = require("http");
 const { Server } = require("socket.io");
 const cors       = require("cors");
-const { Resend } = require("resend");
+const nodemailer = require("nodemailer");
 
 const app = express();
 const server = http.createServer(app);
@@ -19,17 +19,32 @@ app.use(cors());
 app.use(express.json());
 
 // ─────────────────────────────────────────────
-//  Email notifications (Resend — HTTP, no SMTP)
+//  Email notifications
 // ─────────────────────────────────────────────
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
-if (resend) console.log("[Email] Resend client ready");
-else        console.warn("[Email] No RESEND_API_KEY — milestone emails disabled");
+const transporter = (process.env.EMAIL_USER && process.env.EMAIL_PASS)
+  ? nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      family: 4, // force IPv4 — avoids ENETUNREACH on hosts without IPv6
+      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+    })
+  : null;
+
+if (transporter) {
+  transporter.verify((err) => {
+    if (err) console.error("[Email] SMTP verify failed:", err.message);
+    else     console.log("[Email] SMTP ready");
+  });
+} else {
+  console.warn("[Email] No EMAIL_USER/EMAIL_PASS — milestone emails disabled");
+}
 
 let lastMilestoneNotified = 0; // tracks the highest milestone emailed so far
 
 async function sendViewerMilestoneEmail(count) {
-  console.log(`[Email] called — count=${count} resend=${!!resend} NOTIFY_EMAIL=${process.env.NOTIFY_EMAIL}`);
-  if (!resend) { console.log("[Email] ❌ No Resend client — set RESEND_API_KEY in .env"); return; }
+  console.log(`[Email] called — count=${count} transporter=${!!transporter}`);
+  if (!transporter) return;
   const to = process.env.NOTIFY_EMAIL || process.env.EMAIL_USER;
   if (!to) { console.log("[Email] ❌ No recipient — set NOTIFY_EMAIL in .env"); return; }
   console.log(`[Email] 📤 Sending to ${to}…`);
@@ -43,8 +58,8 @@ async function sendViewerMilestoneEmail(count) {
   const now = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
 
   try {
-    const { error } = await resend.emails.send({
-      from: "Geo Hide & Seek <onboarding@resend.dev>",
+    await transporter.sendMail({
+      from: `"Geo Hide & Seek 🌍" <${process.env.EMAIL_USER}>`,
       to,
       subject: `🎉 ${count} viewers on Geo Hide & Seek right now!`,
       html: `
@@ -87,10 +102,9 @@ async function sendViewerMilestoneEmail(count) {
           </p>
         </div>`,
     });
-    if (error) console.error("[Email] Resend error:", error.message);
-    else       console.log(`[Email] Milestone notification sent — ${count} viewers`);
+    console.log(`[Email] Milestone notification sent — ${count} viewers`);
   } catch (err) {
-    console.error("[Email] Failed to send:", err.message);
+    console.error("[Email] Failed to send:", err.code, err.message);
   }
 }
 
