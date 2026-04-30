@@ -23,10 +23,19 @@ app.use(express.json());
 // ─────────────────────────────────────────────
 const transporter = (process.env.EMAIL_USER && process.env.EMAIL_PASS)
   ? nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false, // STARTTLS on 587 instead of SSL on 465
       auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
     })
   : null;
+
+if (transporter) {
+  transporter.verify((err) => {
+    if (err) console.error("[Email] SMTP verify failed:", err.message);
+    else console.log("[Email] SMTP ready on smtp.gmail.com:587");
+  });
+}
 
 let lastMilestoneNotified = 0; // tracks the highest milestone emailed so far
 
@@ -92,7 +101,7 @@ async function sendViewerMilestoneEmail(count) {
     });
     console.log(`[Email] Milestone notification sent — ${count} viewers`);
   } catch (err) {
-    console.error("[Email] Failed to send:", err.message);
+    console.error("[Email] Failed to send:", err.code, err.message);
   }
 }
 
