@@ -825,8 +825,15 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`[-] Disconnected: ${socket.id}`);
     connectedSockets.delete(socket.id);
-    console.log(`[Visitors] count=${connectedSockets.size} (after disconnect)`);
-    io.emit("visitor_count", { count: connectedSockets.size });
+    const countAfter = connectedSockets.size;
+    const newMilestone = Math.floor(countAfter / 5) * 5;
+    if (newMilestone < lastMilestoneNotified) {
+      lastMilestoneNotified = newMilestone;
+      console.log(`[Visitors] count=${countAfter} (after disconnect) — lastMilestone reset to ${lastMilestoneNotified}`);
+    } else {
+      console.log(`[Visitors] count=${countAfter} (after disconnect)`);
+    }
+    io.emit("visitor_count", { count: countAfter });
     for (const code of Object.keys(rooms)) {
       if (rooms[code]?.players[socket.id]) { handleDisconnect(socket, code); break; }
     }
