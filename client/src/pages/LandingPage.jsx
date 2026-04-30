@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   FiGlobe, FiUsers, FiHash, FiArrowRight, FiX,
   FiLoader, FiLock, FiUnlock, FiChevronRight,
-  FiEye, FiTarget, FiAward, FiMap, FiPlay
+  FiEye, FiTarget, FiAward, FiMap, FiPlay, FiRefreshCw, FiAlertCircle
 } from 'react-icons/fi'
 import { useSocket } from '../context/SocketContext'
 import { useGame } from '../context/GameContext'
@@ -333,7 +333,7 @@ function CreateModal({ onClose }) {
   const { setRoom, setPlayer, setPage, pushNotification } = useGame()
   const [name, setName] = useState('')
   const [rounds, setRounds] = useState(5)
-  const [isPublic, setIsPublic] = useState(false)
+  const [isPublic, setIsPublic] = useState(true)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -562,15 +562,19 @@ function StatsBar({ activePlayers = 0 }) {
 function PublicRooms({ onQuickJoin }) {
   const [rooms, setRooms] = useState([])
   const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState(false)
   const [search, setSearch] = useState('')
 
+  const load = () => {
+    setFetchError(false)
+    const url = `${import.meta.env.VITE_SERVER_URL || 'http://localhost:4000'}/public-rooms`
+    fetch(url)
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
+      .then(data => { setRooms(Array.isArray(data) ? data : []); setLoading(false) })
+      .catch(err => { console.error('[PublicRooms] fetch failed:', err); setFetchError(true); setLoading(false) })
+  }
+
   useEffect(() => {
-    const load = () => {
-      fetch(`${import.meta.env.VITE_SERVER_URL || 'http://localhost:4000'}/public-rooms`)
-        .then(r => r.json())
-        .then(data => { setRooms(data); setLoading(false) })
-        .catch(() => setLoading(false))
-    }
     load()
     const id = setInterval(load, 8000)
     return () => clearInterval(id)
@@ -599,8 +603,17 @@ function PublicRooms({ onQuickJoin }) {
               borderRadius: 99, padding: '1px 7px' }}>{rooms.length}</span>
           )}
         </div>
-        <motion.div style={{ width: 5, height: 5, borderRadius: '50%', background: '#00d4aa' }}
-          animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button onClick={load} title="Refresh"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2,
+              color: fetchError ? '#f87171' : '#334155', display: 'flex', alignItems: 'center' }}
+            onMouseEnter={e => e.currentTarget.style.color = '#00d4aa'}
+            onMouseLeave={e => e.currentTarget.style.color = fetchError ? '#f87171' : '#334155'}>
+            <FiRefreshCw size={11} />
+          </button>
+          <motion.div style={{ width: 5, height: 5, borderRadius: '50%', background: '#00d4aa' }}
+            animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
+        </div>
       </div>
 
       {/* Search input — only shown when there are rooms */}
@@ -628,6 +641,19 @@ function PublicRooms({ onQuickJoin }) {
         <div style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid #1a2540',
           borderRadius: 12, fontSize: 11, color: '#334155', fontFamily: "'JetBrains Mono',monospace" }}>
           Scanning for rooms…
+        </div>
+      ) : fetchError ? (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
+          padding: '11px 14px', background: 'rgba(255,77,109,0.06)', border: '1px solid rgba(255,77,109,0.2)', borderRadius: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <FiAlertCircle size={13} style={{ color: '#f87171', flexShrink: 0 }} />
+            <span style={{ fontSize: 12, color: '#f87171' }}>Could not reach server</span>
+          </div>
+          <button onClick={load}
+            style={{ fontSize: 11, color: '#f87171', background: 'none', border: '1px solid rgba(255,77,109,0.3)',
+              borderRadius: 6, padding: '3px 8px', cursor: 'pointer', fontFamily: "'JetBrains Mono',monospace' " }}>
+            Retry
+          </button>
         </div>
       ) : rooms.length === 0 ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px',
