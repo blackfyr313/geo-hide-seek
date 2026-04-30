@@ -23,9 +23,7 @@ app.use(express.json());
 // ─────────────────────────────────────────────
 const transporter = (process.env.EMAIL_USER && process.env.EMAIL_PASS)
   ? nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
+      service: "gmail",
       family: 4, // force IPv4 — avoids ENETUNREACH on hosts without IPv6
       auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
     })
