@@ -926,6 +926,20 @@ export default function LandingPage() {
         {modal === 'create' && <CreateModal onClose={() => setModal(null)} />}
         {modal === 'join'   && <JoinModal   onClose={() => setModal(null)} initialCode={joinPrefill} />}
       </AnimatePresence>
+
+      {/* ── Signature ── */}
+      <div style={{
+        position: 'fixed', bottom: 16, left: '50%', transform: 'translateX(-50%)',
+        zIndex: 50, pointerEvents: 'none',
+      }}>
+        <p style={{
+          fontFamily: "'JetBrains Mono',monospace", fontSize: 11,
+          color: 'rgba(71,85,105,0.7)', letterSpacing: '0.12em',
+          textTransform: 'lowercase', userSelect: 'none',
+        }}>
+          crafted by <span style={{ color: 'rgba(0,212,170,0.6)', fontWeight: 700 }}>blackfyre</span>
+        </p>
+      </div>
     </div>
   )
 }
