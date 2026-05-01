@@ -71,22 +71,48 @@ function useCountdown(endsAt) {
 }
 
 // ─── Street View (3D Panorama) ───────────────────────────────────────────────
-function StreetView({ lat, lng }) {
-  const ref    = useRef(null)
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+function StreetView({ lat, lng, onLocationConfirmed, onNoStreetView }) {
+  const ref             = useRef(null)
+  const confirmedRef    = useRef(false)
+  const onConfirmedRef  = useRef(onLocationConfirmed)
+  const onNoSVRef       = useRef(onNoStreetView)
+  const apiKey          = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+
+  useEffect(() => { onConfirmedRef.current = onLocationConfirmed }, [onLocationConfirmed])
+  useEffect(() => { onNoSVRef.current = onNoStreetView }, [onNoStreetView])
 
   useEffect(() => {
+    confirmedRef.current = false
     if (!apiKey || !ref.current) return
     loadGoogleMaps(apiKey, () => {
       if (!ref.current || !window.google) return
-      new window.google.maps.StreetViewPanorama(ref.current, {
-        position:         { lat, lng },
-        addressControl:   false,
-        showRoadLabels:   false,
-        motionTracking:   false,
-        fullscreenControl: false,
-        zoomControl:      true,
-      })
+      const svc = new window.google.maps.StreetViewService()
+      svc.getPanorama(
+        { location: { lat, lng }, radius: 20000, preference: 'nearest',
+          source: window.google.maps.StreetViewSource.OUTDOOR },
+        (data, status) => {
+          if (!ref.current) return
+          if (status === window.google.maps.StreetViewStatus.OK && data?.location) {
+            const actualLat = data.location.latLng.lat()
+            const actualLng = data.location.latLng.lng()
+            const panoId    = data.location.pano
+            new window.google.maps.StreetViewPanorama(ref.current, {
+              pano:             panoId,
+              addressControl:   false,
+              showRoadLabels:   false,
+              motionTracking:   false,
+              fullscreenControl: false,
+              zoomControl:      true,
+            })
+            if (!confirmedRef.current && onConfirmedRef.current) {
+              confirmedRef.current = true
+              onConfirmedRef.current(actualLat, actualLng, panoId)
+            }
+          } else {
+            if (onNoSVRef.current) onNoSVRef.current()
+          }
+        }
+      )
     })
   }, [lat, lng, apiKey])
 
@@ -591,10 +617,20 @@ function ExplorerHiding({ room, location, activeClues }) {
     socket.emit('explorer_done', { code: room.code })
   }, [socket, room.code])
 
+  const handleLocationConfirmed = useCallback((lat, lng, panoId) => {
+    socket.emit('location_confirmed', { code: room.code, lat, lng, panoId })
+  }, [socket, room.code])
+
+  const handleNoStreetView = useCallback(() => {
+    socket.emit('request_new_location', { code: room.code })
+  }, [socket, room.code])
+
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', minHeight: 0, position: 'relative' }}>
       <div style={{ flex: 1, padding: isMobile ? 8 : 14, minWidth: 0 }}>
-        <StreetView lat={location.lat} lng={location.lng} />
+        <StreetView lat={location.lat} lng={location.lng}
+          onLocationConfirmed={handleLocationConfirmed}
+          onNoStreetView={handleNoStreetView} />
       </div>
       <CluePanel
         clues={activeClues} isExplorer

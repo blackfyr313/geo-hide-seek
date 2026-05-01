@@ -19,47 +19,56 @@ app.use(cors());
 app.use(express.json());
 
 // ─────────────────────────────────────────────
-//  Locations database
+//  Random worldwide Street View location picker
 // ─────────────────────────────────────────────
-const LOCATIONS = [
-  { id:  1, lat:  48.8584,  lng:   2.2945,  name: "Eiffel Tower",        city: "Paris, France" },
-  { id:  2, lat:  35.6892,  lng: 139.6917,  name: "Shibuya Crossing",    city: "Tokyo, Japan" },
-  { id:  3, lat: -22.9519,  lng: -43.2105,  name: "Copacabana Beach",    city: "Rio de Janeiro, Brazil" },
-  { id:  4, lat: -33.8568,  lng: 151.2153,  name: "Sydney Opera House",  city: "Sydney, Australia" },
-  { id:  5, lat:  40.7580,  lng: -73.9855,  name: "Times Square",        city: "New York, USA" },
-  { id:  6, lat:  30.0444,  lng:  31.2357,  name: "Tahrir Square",       city: "Cairo, Egypt" },
-  { id:  7, lat:  18.9220,  lng:  72.8347,  name: "Gateway of India",    city: "Mumbai, India" },
-  { id:  8, lat: -33.9628,  lng:  18.4098,  name: "Table Mountain",      city: "Cape Town, South Africa" },
-  { id:  9, lat:  51.5007,  lng:  -0.1246,  name: "Big Ben",             city: "London, UK" },
-  { id: 10, lat:  41.8902,  lng:  12.4922,  name: "Colosseum",           city: "Rome, Italy" },
-  { id: 11, lat:  52.5163,  lng:  13.3777,  name: "Brandenburg Gate",    city: "Berlin, Germany" },
-  { id: 12, lat:  55.7539,  lng:  37.6208,  name: "Red Square",          city: "Moscow, Russia" },
-  { id: 13, lat:  39.9087,  lng: 116.3975,  name: "Tiananmen Square",    city: "Beijing, China" },
-  { id: 14, lat:   1.2838,  lng: 103.8591,  name: "Marina Bay Sands",    city: "Singapore" },
-  { id: 15, lat:  25.1972,  lng:  55.2744,  name: "Burj Khalifa",        city: "Dubai, UAE" },
-  { id: 16, lat:  37.9715,  lng:  23.7267,  name: "Acropolis",           city: "Athens, Greece" },
-  { id: 17, lat:  41.0086,  lng:  28.9802,  name: "Hagia Sophia",        city: "Istanbul, Turkey" },
-  { id: 18, lat: -13.1631,  lng: -72.5450,  name: "Machu Picchu",        city: "Cusco, Peru" },
-  { id: 19, lat:  27.1751,  lng:  78.0421,  name: "Taj Mahal",           city: "Agra, India" },
-  { id: 20, lat:  59.9311,  lng:  30.3609,  name: "Palace Square",       city: "St. Petersburg, Russia" },
-  { id: 21, lat:  43.7230,  lng:  10.3966,  name: "Leaning Tower",       city: "Pisa, Italy" },
-  { id: 22, lat:  40.4168,  lng:  -3.7038,  name: "Puerta del Sol",      city: "Madrid, Spain" },
-  { id: 23, lat: -34.6037,  lng: -58.3816,  name: "Plaza de Mayo",       city: "Buenos Aires, Argentina" },
-  { id: 24, lat:  13.7563,  lng: 100.5018,  name: "Grand Palace",        city: "Bangkok, Thailand" },
-  { id: 25, lat:  -1.2921,  lng:  36.8219,  name: "Nairobi CBD",         city: "Nairobi, Kenya" },
-  { id: 26, lat:  60.1699,  lng:  24.9384,  name: "Senate Square",       city: "Helsinki, Finland" },
-  { id: 27, lat:  47.4979,  lng:  19.0402,  name: "Buda Castle",         city: "Budapest, Hungary" },
-  { id: 28, lat:  50.0755,  lng:  14.4378,  name: "Old Town Square",     city: "Prague, Czech Republic" },
-  { id: 29, lat:  33.6844,  lng:  73.0479,  name: "Faisal Mosque",       city: "Islamabad, Pakistan" },
-  { id: 30, lat:  -4.3250,  lng:  15.3222,  name: "Central Boulevard",   city: "Kinshasa, DR Congo" },
+// Weighted coverage zones [latMin, latMax, lngMin, lngMax, weight]
+// Weight ∝ Google Street View coverage density in that region
+const SV_ZONES = [
+  [ 25,  49, -124,  -67, 35], // USA
+  [ 44,  60, -130,  -58,  8], // Canada
+  [ 15,  30, -117,  -87,  5], // Mexico / Central America
+  [ 35,  60,  -11,   25, 28], // Western & Central Europe
+  [ 50,  58,  -10,    2,  4], // UK / Ireland
+  [ 55,  71,    5,   32,  5], // Scandinavia
+  [ 41,  56,   14,   40,  5], // Eastern Europe / Balkans
+  [ 30,  46,  128,  145, 12], // Japan
+  [ 34,  38,  126,  130,  4], // South Korea
+  [-40, -10,  112,  153, 10], // Australia
+  [-47, -34,  166,  178,  3], // New Zealand
+  [-35,   5,  -73,  -35,  8], // Brazil
+  [-55, -22,  -73,  -53,  4], // Argentina / Chile
+  [ -5,  12,  -80,  -60,  3], // Colombia / Venezuela / Peru
+  [  8,  30,   68,   90,  7], // India
+  [  1,  22,   98,  140,  6], // Southeast Asia
+  [ 22,  42,  108,  125,  5], // Eastern China
+  [ 50,  65,   30,  100,  5], // Russia (populated belt)
+  [-35, -20,   16,   35,  4], // South Africa
+  [-12,  12,   30,   45,  3], // East Africa
+  [  4,  15,  -18,   15,  2], // West Africa
+  [ 20,  38,   32,   62,  3], // Middle East
+  [ 22,  26,  114,  122,  3], // Taiwan / Hong Kong
 ];
+
+function pickRandomCoords() {
+  const total = SV_ZONES.reduce((s, z) => s + z[4], 0);
+  let r = Math.random() * total;
+  let zone = SV_ZONES[0];
+  for (const z of SV_ZONES) { r -= z[4]; if (r <= 0) { zone = z; break; } }
+  const [latMin, latMax, lngMin, lngMax] = zone;
+  const lat = +(latMin + Math.random() * (latMax - latMin)).toFixed(5);
+  const lng = +(lngMin + Math.random() * (lngMax - lngMin)).toFixed(5);
+  const latStr = `${Math.abs(lat).toFixed(3)}°${lat >= 0 ? 'N' : 'S'}`;
+  const lngStr = `${Math.abs(lng).toFixed(3)}°${lng >= 0 ? 'E' : 'W'}`;
+  return { lat, lng, name: `${latStr}, ${lngStr}`, city: 'Random Location', id: Date.now() };
+}
 
 // ─────────────────────────────────────────────
 //  In-memory store
 // ─────────────────────────────────────────────
-const rooms         = {};
-const timers        = {};
-const gracePeriodTimers = {}; // socketId → timeout — 30 s grace window for mid-game reconnects
+const rooms               = {};
+const timers              = {};
+const gracePeriodTimers   = {}; // socketId → timeout — 30 s grace window for mid-game reconnects
+const locationConfirmTimers = {}; // roomCode → timeout — fallback if explorer never confirms coords
 const recentEvents  = []; // rolling feed of real game events for the landing page
 const connectedSockets = new Set(); // tracks every open browser tab on the site
 
@@ -83,12 +92,8 @@ function haversineKm(lat1, lng1, lat2, lng2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-function pickLocation(room) {
-  const available = LOCATIONS.filter(l => !room.usedLocationIds.includes(l.id));
-  const pool = available.length > 0 ? available : LOCATIONS;
-  const loc = pool[Math.floor(Math.random() * pool.length)];
-  room.usedLocationIds.push(loc.id);
-  return loc;
+function pickLocation() {
+  return pickRandomCoords();
 }
 
 function createRoom({ hostId, hostName, isPublic, totalRounds }) {
@@ -110,7 +115,7 @@ function createRoom({ hostId, hostName, isPublic, totalRounds }) {
     roundResults: null,
     phaseEndsAt: null,
     explorersDone: { red: false, blue: false },
-    usedLocationIds: [],
+    locationConfirmed: false,
     createdAt: Date.now(),
     currentTeamPlaying: null,
     redTeamRoundsCompleted: 0,
@@ -188,7 +193,7 @@ function resetRoomToLobby(room) {
   room.phaseEndsAt = null;
   room.explorersDone = { red: false, blue: false };
   room.explorerIds = { red: null, blue: null };
-  room.usedLocationIds = [];
+  room.locationConfirmed = false;
   room.currentTeamPlaying = null;
   room.redTeamRoundsCompleted = 0;
   room.blueTeamRoundsCompleted = 0;
@@ -221,7 +226,8 @@ function startRound(code) {
   room.guesses = {};
   room.roundResults = null;
   room.explorersDone = { red: false, blue: false };
-  room.currentLocation = pickLocation(room);
+  room.currentLocation = pickLocation();
+  room.locationConfirmed = false;
   room.phaseEndsAt = Date.now() + HIDING_SECS * 1000;
 
   // Use the pre-selected explorer for this team (set at game start)
@@ -239,16 +245,22 @@ function startRound(code) {
   const snap = getRoomSnapshot(code);
   io.to(code).emit("room_updated", snap);
 
-  // Send secret location to the explorer AND to spectators (so they can watch Street View)
+  // Send seed to explorer only — they confirm the actual panorama coords back via location_confirmed
+  // Spectators get the confirmed coords shortly after; fallback sends seed after 10 s
   if (explorerId) {
     io.to(explorerId).emit("location_assigned", { location: room.currentLocation });
   }
-  Object.values(room.players)
-    .filter(p => p.role === "spectator")
-    .forEach(p => io.to(p.id).emit("location_assigned", { location: room.currentLocation }));
+  clearTimeout(locationConfirmTimers[code]);
+  locationConfirmTimers[code] = setTimeout(() => {
+    if (rooms[code] && !rooms[code].locationConfirmed) {
+      Object.values(rooms[code].players)
+        .filter(p => p.role === "spectator")
+        .forEach(p => io.to(p.id).emit("location_assigned", { location: rooms[code].currentLocation }));
+    }
+  }, 10000);
 
   const explorer = room.players[explorerId];
-  console.log(`[Game] ${code} Sub-round ${room.round} — Team: ${activeTeam} — Explorer: ${explorer?.name}, loc: ${room.currentLocation.city}`);
+  console.log(`[Game] ${code} Round ${room.round} — Team: ${activeTeam} — Explorer: ${explorer?.name}, seed: ${room.currentLocation.name}`);
 
   clearTimeout(timers[code]);
   timers[code] = setTimeout(() => transitionToGuessing(code), HIDING_SECS * 1000);
@@ -690,6 +702,45 @@ io.on("connection", (socket) => {
 
     if (allGuessed) { clearTimeout(timers[code]); transitionToResults(code); }
     if (callback) callback({ success: true });
+  });
+
+  // ── LOCATION CONFIRMED (explorer snapped to actual panorama) ────────────────
+  socket.on("location_confirmed", ({ code, lat, lng, panoId }) => {
+    const room = rooms[code];
+    if (!room || room.phase !== "hiding") return;
+    const player = room.players[socket.id];
+    if (!player || player.role !== "explorer") return;
+    const latStr = `${Math.abs(lat).toFixed(3)}°${lat >= 0 ? 'N' : 'S'}`;
+    const lngStr = `${Math.abs(lng).toFixed(3)}°${lng >= 0 ? 'E' : 'W'}`;
+    room.currentLocation = { lat, lng, name: `${latStr}, ${lngStr}`, city: 'Random Location', id: room.currentLocation.id, panoId };
+    room.locationConfirmed = true;
+    clearTimeout(locationConfirmTimers[code]);
+    // Now tell spectators the confirmed real position
+    Object.values(room.players)
+      .filter(p => p.role === "spectator")
+      .forEach(p => io.to(p.id).emit("location_assigned", { location: room.currentLocation }));
+    console.log(`[Game] ${code} location confirmed: ${room.currentLocation.name}`);
+  });
+
+  // ── REQUEST NEW LOCATION (explorer found no Street View nearby) ─────────────
+  socket.on("request_new_location", ({ code }) => {
+    const room = rooms[code];
+    if (!room || room.phase !== "hiding") return;
+    const player = room.players[socket.id];
+    if (!player || player.role !== "explorer") return;
+    room.currentLocation = pickLocation();
+    room.locationConfirmed = false;
+    socket.emit("location_assigned", { location: room.currentLocation });
+    // Reset the spectator fallback timer
+    clearTimeout(locationConfirmTimers[code]);
+    locationConfirmTimers[code] = setTimeout(() => {
+      if (rooms[code] && !rooms[code].locationConfirmed) {
+        Object.values(rooms[code].players)
+          .filter(p => p.role === "spectator")
+          .forEach(p => io.to(p.id).emit("location_assigned", { location: rooms[code].currentLocation }));
+      }
+    }, 10000);
+    console.log(`[Game] ${code} retrying location — new seed: ${room.currentLocation.name}`);
   });
 
   // ── REMATCH ──────────────────────────────────
