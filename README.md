@@ -1,6 +1,8 @@
-# Geo Hide & Seek
+# GeoHiders
 
 A real-time multiplayer geography game where one team hides inside a Google Street View location while the other team decodes clues and pins their best guess on a world map. The closer the guess, the more points scored.
+
+**Live:** [https://geohiders.com](https://geohiders.com)
 
 ---
 
@@ -27,22 +29,31 @@ A real-time multiplayer geography game where one team hides inside a Google Stre
 6. **Teams alternate** — Red team plays, then Blue team plays. This repeats for the configured number of rounds.
 7. **Winner** — The team with the most total points after all rounds wins.
 
+Not sure how it works? Click **Rules** on the landing page for an animated walkthrough.
+
 ---
 
 ## Features
 
 - Real-time multiplayer via Socket.io — no page refreshes needed
-- Google Street View panorama for the Explorer
-- Interactive dark-mode world map for Agents to pin guesses
-- Spectator mode — the opposing team watches Street View and live guess markers while the active team plays
+- Google Street View panorama for the Explorer — truly random worldwide locations every round
+- Interactive dark-mode world map for Agents to pin guesses, with Map/Satellite toggle
+- Spectator mode — the opposing team watches Street View (same exact panorama as the Explorer) and live guess markers
+- Explorer/Spectator location sync — panorama is shared by `panoId` so everyone sees the identical location, never a nearby alternative
 - Shareable room links — URL updates to `?code=XXXXXX` so anyone can join by just opening the link
-- Host controls — assign roles, auto-balance teams, start game
+- Host controls — assign roles, auto-balance teams, configure rounds, start game
 - Reconnect support — if a player drops mid-game they have 30 seconds to rejoin by name and resume their role
 - Auto-advance — if the Explorer disconnects the game skips to guessing after 5 seconds; if all Agents disconnect the round ends immediately
 - Round results screen with a map showing all guesses and polylines to the real location
+- Reverse-geocoded location reveal — city and country shown after each round
 - Game over screen with final scores, rematch, and return-to-lobby options
 - In-game toasts for player join/disconnect/reconnect events
 - Public room browser on the landing page
+- Animated Rules modal on landing page — visual walkthrough of all game phases
+- Fully mobile-responsive layout across all pages
+- Dark theme with readable contrast across all UI states
+- Google AdSense integration — auto ads + reusable AdBanner component for manual placement
+- Ad blocking recovery via Google Funding Choices
 
 ---
 
@@ -50,14 +61,15 @@ A real-time multiplayer geography game where one team hides inside a Google Stre
 
 | Layer | Technology |
 |---|---|
-| Frontend | React 18, Vite, Tailwind CSS |
+| Frontend | React 18, Vite |
 | Animation | Framer Motion |
 | Icons | React Icons (Feather) |
 | Maps | Google Maps JavaScript API (Street View + Maps) |
 | Backend | Node.js, Express |
 | Real-time | Socket.io |
-| Styling | Inline styles + Tailwind utility classes |
-| Fonts | Syne, DM Sans, JetBrains Mono (Google Fonts) |
+| Styling | Inline styles |
+| Fonts | Special Elite, Syne, DM Sans, JetBrains Mono (Google Fonts) |
+| Monetisation | Google AdSense, Google Funding Choices |
 
 ---
 
@@ -70,21 +82,21 @@ geo-hide-seek/
 │   ├── package.json
 │   └── .env.example
 └── client/
-    ├── index.html
+    ├── index.html        — AdSense + Funding Choices scripts in <head>
     ├── vite.config.js
-    ├── tailwind.config.js
-    ├── postcss.config.js
     ├── package.json
     ├── .env.example
     └── src/
         ├── main.jsx              — React entry point
         ├── App.jsx               — Page router + URL sync
         ├── index.css             — Global styles + font imports
+        ├── components/
+        │   └── AdBanner.jsx      — Reusable manual ad unit component
         ├── context/
         │   ├── SocketContext.jsx — Socket.io connection + connected state
         │   └── GameContext.jsx   — Global game state (room, player, page, notifications)
         └── pages/
-            ├── LandingPage.jsx   — Home, create/join modals, public room browser
+            ├── LandingPage.jsx   — Home, create/join/rules modals, public room browser
             ├── LobbyPage.jsx     — Team columns, role assignment, ready/start flow
             └── GamePage.jsx      — All in-game views (explorer, agent, spectator, results)
 ```
@@ -144,6 +156,8 @@ npm run dev
 
 Open **http://localhost:3000** in your browser.
 
+> Note: Google AdSense does not serve ads on `localhost` — blank space is expected in development.
+
 ---
 
 ## Environment Variables
@@ -153,7 +167,7 @@ Open **http://localhost:3000** in your browser.
 | Variable | Required | Description |
 |---|---|---|
 | `VITE_GOOGLE_MAPS_API_KEY` | Yes | Google Maps JS API key (enables Street View and guess map) |
-| `VITE_SERVER_URL` | Production only | Full URL of the backend server e.g. `https://api.yourdomain.com` |
+| `VITE_SERVER_URL` | Production only | Full URL of the backend server e.g. `https://api.geohiders.com` |
 
 ### Server (`server/.env`)
 
@@ -190,9 +204,13 @@ The Explorer can end the hiding phase early by clicking **Done Exploring**. All 
 |---|---|---|
 | Explorer | Host (lobby) | Street View panorama + clue input |
 | Agent | Host (lobby) | Clue list + interactive guess map |
-| Spectator | Auto (opposing team) | Street View + live guess markers on map |
+| Spectator | Auto (opposing team) | Street View (same panoId as Explorer) + live guess markers on map |
 
 One Explorer is required per team. All other players on that team are Agents. The opposing team automatically becomes spectators for that round.
+
+### Location sync
+
+After the Explorer's Street View resolves via `getPanorama`, the actual `panoId` is confirmed back to the server and broadcast to all spectators. Spectators load the panorama directly by `panoId` — bypassing a second `getPanorama` call — so everyone sees the identical location rather than a potentially different nearby panorama.
 
 ### Rounds
 
@@ -210,6 +228,8 @@ If a player loses connection during a live game:
 ---
 
 ## Deployment
+
+The live production deployment is at **[https://geohiders.com](https://geohiders.com)**.
 
 When deploying to a live domain you need to update two things in the client and one thing in the server.
 
@@ -229,7 +249,7 @@ fetch(`${import.meta.env.VITE_SERVER_URL || 'http://localhost:4000'}/public-room
 
 Then set in your hosting platform (Vercel, Netlify, etc.):
 ```
-VITE_SERVER_URL=https://api.yourdomain.com
+VITE_SERVER_URL=https://api.geohiders.com
 VITE_GOOGLE_MAPS_API_KEY=your_production_key
 ```
 
@@ -237,7 +257,7 @@ VITE_GOOGLE_MAPS_API_KEY=your_production_key
 
 Set on your server host (Railway, Render, Heroku, etc.):
 ```
-CLIENT_URL=https://yourdomain.com
+CLIENT_URL=https://geohiders.com
 PORT=4000
 ```
 
@@ -245,12 +265,22 @@ PORT=4000
 
 In Google Cloud Console go to **Credentials → your API key → Application restrictions** and add your domain to the **HTTP referrers** list:
 ```
-https://yourdomain.com/*
+https://geohiders.com/*
+```
+
+### AdSense manual ad units
+
+To place an ad in a specific location, create an ad unit in your AdSense dashboard and use the `AdBanner` component:
+
+```jsx
+import AdBanner from '../components/AdBanner'
+
+<AdBanner adSlot="YOUR_AD_SLOT_ID" style={{ margin: '24px 0' }} />
 ```
 
 ### Ports
 
-| Service | Local port | URL |
+| Service | Local port | Production |
 |---|---|---|
-| Backend (Socket.io + Express) | 4000 | http://localhost:4000 |
-| Frontend (Vite dev server) | 3000 | http://localhost:3000 |
+| Backend (Socket.io + Express) | 4000 | https://api.geohiders.com |
+| Frontend (Vite dev server) | 3000 | https://geohiders.com |
