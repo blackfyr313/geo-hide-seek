@@ -919,13 +919,32 @@ export default function LandingPage() {
           background: 'rgba(14,22,37,0.35)', border: '1px solid rgba(26,37,64,0.7)', backdropFilter: 'blur(6px)' }} />
         <div style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%', padding: 40, display: 'flex', flexDirection: 'column' }}>
           <AnimatedGlobe stats={serverStats} recentEvents={recentEvents} />
-          <p style={{
-            fontFamily: "'JetBrains Mono',monospace", fontSize: 11, textAlign: 'right',
-            color: 'rgba(71,85,105,0.7)', letterSpacing: '0.12em',
-            textTransform: 'lowercase', userSelect: 'none', marginTop: 12,
-          }}>
-            crafted by <span style={{ color: 'rgba(0,212,170,0.6)', fontWeight: 700 }}>blackfyre</span>
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, marginTop: 12 }}>
+            <p style={{
+              fontFamily: "'JetBrains Mono',monospace", fontSize: 11,
+              color: 'rgba(71,85,105,0.6)', letterSpacing: '0.12em',
+              textTransform: 'lowercase', userSelect: 'none', margin: 0,
+            }}>
+              crafted by
+            </p>
+            <motion.span
+              style={{
+                fontFamily: "'JetBrains Mono',monospace", fontSize: 11,
+                fontWeight: 700, letterSpacing: '0.12em', textTransform: 'lowercase',
+                color: '#00d4aa', userSelect: 'none', cursor: 'default',
+              }}
+              animate={{
+                textShadow: [
+                  '0 0 4px rgba(0,212,170,0.2)',
+                  '0 0 16px rgba(0,212,170,1), 0 0 32px rgba(0,212,170,0.5)',
+                  '0 0 4px rgba(0,212,170,0.2)',
+                ],
+              }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              🔥 blackfyre
+            </motion.span>
+          </div>
         </div>
       </div>
 
