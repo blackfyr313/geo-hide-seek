@@ -123,7 +123,7 @@ function PlayerCard({ p, currentPlayerId, isHostViewing, onSwitch, onSetRole, te
               </span>
             </div>
           ) : (
-            <div style={{ fontSize: 10, color: '#334155', marginTop: 2,
+            <div style={{ fontSize: 10, color: '#64748b', marginTop: 2,
               fontFamily: "'JetBrains Mono',monospace" }}>No role assigned</div>
           )}
         </div>
@@ -133,10 +133,10 @@ function PlayerCard({ p, currentPlayerId, isHostViewing, onSwitch, onSetRole, te
           {isMe && (
             <button onClick={onSwitch} title="Switch team"
               style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid #1a2540',
-                borderRadius: 7, padding: '5px 7px', cursor: 'pointer', color: '#475569',
+                borderRadius: 7, padding: '5px 7px', cursor: 'pointer', color: '#94a3b8',
                 transition: 'all 0.15s' }}
-              onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = '#334155' }}
-              onMouseLeave={e => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = '#1a2540' }}>
+              onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = '#475569' }}
+              onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = '#1a2540' }}>
               <FiRefreshCw size={11} />
             </button>
           )}
@@ -185,7 +185,7 @@ function TeamColumn({ teamName, players, currentPlayerId, isHostViewing, onSwitc
           {label}
         </span>
         <span style={{ marginLeft: 'auto', fontFamily: "'JetBrains Mono',monospace",
-          fontSize: 10, color: '#334155' }}>
+          fontSize: 10, color: '#64748b' }}>
           {players.length}/5
         </span>
       </div>
@@ -196,12 +196,12 @@ function TeamColumn({ teamName, players, currentPlayerId, isHostViewing, onSwitc
           borderRadius: 7, fontSize: 10, fontFamily: "'JetBrains Mono',monospace",
           border: explorerCount === 1 ? '1px solid rgba(245,158,11,0.4)' : '1px solid #1a2540',
           background: explorerCount === 1 ? 'rgba(245,158,11,0.08)' : 'rgba(255,255,255,0.02)',
-          color: explorerCount === 1 ? '#f59e0b' : (noExplorer ? '#ef4444' : '#334155') }}>
+          color: explorerCount === 1 ? '#f59e0b' : (noExplorer ? '#ef4444' : '#64748b') }}>
           🔭 {explorerCount} Explorer{explorerCount !== 1 ? 's' : ''}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 9px',
           borderRadius: 7, fontSize: 10, fontFamily: "'JetBrains Mono',monospace",
-          border: '1px solid #1a2540', background: 'rgba(255,255,255,0.02)', color: '#475569' }}>
+          border: '1px solid #1a2540', background: 'rgba(255,255,255,0.02)', color: '#94a3b8' }}>
           🕵️ {agentCount} Agent{agentCount !== 1 ? 's' : ''}
         </div>
       </div>
@@ -236,7 +236,7 @@ function TeamColumn({ teamName, players, currentPlayerId, isHostViewing, onSwitc
           ))}
         </AnimatePresence>
         {players.length === 0 && (
-          <div style={{ textAlign: 'center', color: '#1e2d45', fontSize: 12, padding: '28px 0' }}>
+          <div style={{ textAlign: 'center', color: '#475569', fontSize: 12, padding: '28px 0' }}>
             Waiting for players…
           </div>
         )}
@@ -410,7 +410,7 @@ export default function LobbyPage() {
             <FiGlobe size={15} style={{ color: '#00d4aa' }} />
           </div>
           <div>
-            <div style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: '#334155',
+            <div style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: '#64748b',
               textTransform: 'uppercase', letterSpacing: '0.15em' }}>Game Lobby</div>
             <div style={{ fontSize: 14, fontFamily: "'Syne',sans-serif", fontWeight: 900,
               color: '#fff', lineHeight: 1.2 }}>GeoHiders.com</div>
@@ -430,7 +430,7 @@ export default function LobbyPage() {
         ].map(({ icon: Icon, label }) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 12px',
             borderRadius: 9, background: 'rgba(255,255,255,0.03)', border: '1px solid #1a2540',
-            fontSize: 12, color: '#475569' }}>
+            fontSize: 12, color: '#94a3b8' }}>
             <Icon size={12} style={{ color: '#00d4aa' }} /> {label}
           </div>
         ))}
@@ -455,10 +455,10 @@ export default function LobbyPage() {
         <button onClick={leave}
           style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '9px 16px',
             borderRadius: 11, background: 'transparent', border: '1px solid #1a2540',
-            cursor: 'pointer', fontSize: 12, color: '#475569', fontFamily: 'inherit',
+            cursor: 'pointer', fontSize: 12, color: '#94a3b8', fontFamily: 'inherit',
             transition: 'all 0.2s' }}
           onMouseEnter={e => { e.currentTarget.style.color = '#f87171'; e.currentTarget.style.borderColor = 'rgba(248,113,113,0.3)' }}
-          onMouseLeave={e => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = '#1a2540' }}>
+          onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = '#1a2540' }}>
           <FiLogOut size={13} /> Leave
         </button>
       </motion.div>
@@ -502,11 +502,11 @@ export default function LobbyPage() {
           <div style={{ marginBottom: 14, padding: '12px 20px', borderRadius: 14,
             background: 'rgba(14,22,37,0.7)', border: '1px solid #1a2540',
             maxWidth: 440, width: '100%' }}>
-            <div style={{ fontSize: 11, color: '#475569', fontFamily: "'JetBrains Mono',monospace",
+            <div style={{ fontSize: 11, color: '#94a3b8', fontFamily: "'JetBrains Mono',monospace",
               textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>
               How to play
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12, color: '#475569' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12, color: '#94a3b8' }}>
               <div>🔭 <strong style={{ color: '#f59e0b' }}>Explorer</strong> — sees Street View, drops clues</div>
               <div>🕵️ <strong style={{ color: '#00d4aa' }}>Agents</strong> — decode clues, pin guess on map</div>
               <div>🔴 Red plays first, then 🔵 Blue spectates — teams alternate each round</div>
@@ -520,7 +520,7 @@ export default function LobbyPage() {
                 borderRadius: 14, background: 'rgba(14,22,37,0.8)', border: '1px solid #1a2540',
                 marginBottom: 14, maxWidth: 440, width: '100%' }}>
               <span style={{ fontSize: 18 }}>⏳</span>
-              <div style={{ fontSize: 12, color: '#475569' }}>{startHint}</div>
+              <div style={{ fontSize: 12, color: '#94a3b8' }}>{startHint}</div>
             </motion.div>
           )}
 

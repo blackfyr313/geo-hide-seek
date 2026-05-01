@@ -475,7 +475,7 @@ function AnimatedGlobe({ stats = {}, recentEvents = [] }) {
               <span style={{ fontSize: 16 }}>{evt.flag}</span>
               <div>
                 <span style={{ fontSize: 12, color: '#e2e8f0', fontWeight: 600 }}>{evt.msg}</span>
-                <span style={{ fontSize: 11, color: '#475569', marginLeft: 8,
+                <span style={{ fontSize: 11, color: '#94a3b8', marginLeft: 8,
                   fontFamily: "'JetBrains Mono',monospace" }}>{evt.loc}</span>
               </div>
             </div>
@@ -518,7 +518,7 @@ function AnimatedGlobe({ stats = {}, recentEvents = [] }) {
             initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
             transition={{ duration: 0.4 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <p className="text-xs font-mono" style={{ color: '#475569' }}>Active Games</p>
+              <p className="text-xs font-mono" style={{ color: '#94a3b8' }}>Active Games</p>
               <motion.div style={{ width: 5, height: 5, borderRadius: '50%', background: '#00d4aa' }}
                 animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.2, repeat: Infinity }} />
             </div>
@@ -533,7 +533,7 @@ function AnimatedGlobe({ stats = {}, recentEvents = [] }) {
       <motion.div className="absolute bottom-16 left-4 rounded-2xl px-5 py-3"
         style={{ background: 'rgba(14,22,37,0.9)', border: '1px solid #1a2540', backdropFilter: 'blur(12px)' }}
         initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1.4 }}>
-        <p className="text-xs font-mono" style={{ color: '#475569' }}>Countries</p>
+        <p className="text-xs font-mono" style={{ color: '#94a3b8' }}>Countries</p>
         <p className="text-3xl font-black text-white" style={{ fontFamily: "'Syne',sans-serif" }}>195+</p>
       </motion.div>
 
@@ -544,7 +544,7 @@ function AnimatedGlobe({ stats = {}, recentEvents = [] }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
           <motion.div style={{ width: 5, height: 5, borderRadius: '50%', background: '#00d4aa' }}
             animate={{ opacity: [1, 0.2, 1] }} transition={{ duration: 1.4, repeat: Infinity }} />
-          <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: '#475569',
+          <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: '#94a3b8',
             textTransform: 'uppercase', letterSpacing: '0.12em' }}>Scanning</span>
         </div>
         <AnimatePresence mode="wait">
@@ -552,8 +552,8 @@ function AnimatedGlobe({ stats = {}, recentEvents = [] }) {
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
             style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 11, lineHeight: 1.9 }}>
-            <span style={{ color: '#334155' }}>LAT </span><span style={{ color: '#e2e8f0' }}>{live.lat}</span><br/>
-            <span style={{ color: '#334155' }}>LNG </span><span style={{ color: '#e2e8f0' }}>{live.lng}</span>
+            <span style={{ color: '#64748b' }}>LAT </span><span style={{ color: '#e2e8f0' }}>{live.lat}</span><br/>
+            <span style={{ color: '#64748b' }}>LNG </span><span style={{ color: '#e2e8f0' }}>{live.lng}</span>
           </motion.div>
         </AnimatePresence>
       </motion.div>
@@ -565,7 +565,7 @@ function AnimatedGlobe({ stats = {}, recentEvents = [] }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
           <motion.div style={{ width: 6, height: 6, borderRadius: '50%', background: '#00d4aa', flexShrink: 0 }}
             animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.5, repeat: Infinity }} />
-          <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: '#475569',
+          <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: '#94a3b8',
             textTransform: 'uppercase', letterSpacing: '0.12em' }}>Live Game</span>
         </div>
         <AnimatePresence mode="wait">
@@ -576,7 +576,7 @@ function AnimatedGlobe({ stats = {}, recentEvents = [] }) {
               display: 'flex', alignItems: 'center', gap: 7, marginBottom: 2 }}>
               <span style={{ fontSize: 18 }}>{live.flag}</span>{live.city}
             </div>
-            <div style={{ fontSize: 10, color: '#475569', marginBottom: 4 }}>{live.country}</div>
+            <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 4 }}>{live.country}</div>
             <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono',monospace", color: '#00d4aa' }}>
               {live.lat} · {live.lng}
             </div>
@@ -590,7 +590,7 @@ function AnimatedGlobe({ stats = {}, recentEvents = [] }) {
           background: 'rgba(14,22,37,0.9)', border: '1px solid rgba(0,212,170,0.2)',
           backdropFilter: 'blur(12px)', padding: '8px 16px', whiteSpace: 'nowrap' }}
         initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 2.5 }}>
-        <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: '#475569',
+        <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: '#94a3b8',
           textTransform: 'uppercase', letterSpacing: '0.12em' }}>🎯 Best accuracy · </span>
         <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: '#00d4aa',
           fontWeight: 700 }}>0.1 km</span>
@@ -638,7 +638,7 @@ function Field({ label, icon: Icon, ...props }) {
   const [focused, setFocused] = useState(false)
   return (
     <div className="flex flex-col gap-2">
-      <label style={{ fontSize: 11, fontFamily: "'JetBrains Mono',monospace", color: '#475569', textTransform: 'uppercase', letterSpacing: '0.16em' }}>
+      <label style={{ fontSize: 11, fontFamily: "'JetBrains Mono',monospace", color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.16em' }}>
         {label}
       </label>
       <div className="relative">
@@ -694,7 +694,7 @@ function CreateModal({ onClose }) {
         </div>
         <div>
           <h2 style={{ fontSize: 22, fontWeight: 900, color: '#fff', fontFamily: "'Syne',sans-serif", marginBottom: 2 }}>Create a Room</h2>
-          <p style={{ fontSize: 13, color: '#475569' }}>Set up your game and invite friends</p>
+          <p style={{ fontSize: 13, color: '#94a3b8' }}>Set up your game and invite friends</p>
         </div>
       </div>
 
@@ -704,10 +704,10 @@ function CreateModal({ onClose }) {
           onKeyDown={e => e.key === 'Enter' && handle()} />
 
         <div>
-          <label style={{ display: 'block', fontSize: 11, fontFamily: "'JetBrains Mono',monospace", color: '#475569', textTransform: 'uppercase', letterSpacing: '0.16em', marginBottom: 4 }}>
+          <label style={{ display: 'block', fontSize: 11, fontFamily: "'JetBrains Mono',monospace", color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.16em', marginBottom: 4 }}>
             Rounds per team
           </label>
-          <p style={{ fontSize: 11, color: '#334155', marginBottom: 10, fontFamily: "'DM Sans',sans-serif" }}>
+          <p style={{ fontSize: 11, color: '#94a3b8', marginBottom: 10, fontFamily: "'DM Sans',sans-serif" }}>
             Each team plays this many rounds (both teams play alternately)
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8 }}>
@@ -733,7 +733,7 @@ function CreateModal({ onClose }) {
             {isPublic ? <FiUnlock size={16} style={{ color: '#00d4aa' }} /> : <FiLock size={16} style={{ color: '#475569' }} />}
             <div>
               <p style={{ fontSize: 14, color: '#fff', fontWeight: 600 }}>{isPublic ? 'Public Room' : 'Private Room'}</p>
-              <p style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>{isPublic ? 'Anyone can discover and join' : 'Only joinable via room code'}</p>
+              <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{isPublic ? 'Anyone can discover and join' : 'Only joinable via room code'}</p>
             </div>
           </div>
           <button onClick={() => setIsPublic(v => !v)}
@@ -959,7 +959,7 @@ function JoinModal({ onClose, initialCode = '' }) {
         </div>
         <div>
           <h2 style={{ fontSize: 22, fontWeight: 900, color: '#fff', fontFamily: "'Syne',sans-serif", marginBottom: 2 }}>Join a Room</h2>
-          <p style={{ fontSize: 13, color: '#475569' }}>Enter the room code from your friend</p>
+          <p style={{ fontSize: 13, color: '#94a3b8' }}>Enter the room code from your friend</p>
         </div>
       </div>
 
@@ -968,7 +968,7 @@ function JoinModal({ onClose, initialCode = '' }) {
           value={name} onChange={e => setName(e.target.value)} maxLength={20} />
 
         <div>
-          <label style={{ display: 'block', fontSize: 11, fontFamily: "'JetBrains Mono',monospace", color: '#475569', textTransform: 'uppercase', letterSpacing: '0.16em', marginBottom: 10 }}>
+          <label style={{ display: 'block', fontSize: 11, fontFamily: "'JetBrains Mono',monospace", color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.16em', marginBottom: 10 }}>
             Room Code
           </label>
           <input
@@ -1039,7 +1039,7 @@ function WorldFactCard() {
           <span style={{ fontSize: 26, flexShrink: 0, lineHeight: 1 }}>{fact.flag}</span>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
-              <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: '#334155',
+              <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: '#64748b',
                 textTransform: 'uppercase', letterSpacing: '0.12em' }}>🌍 World Fact</span>
               <div style={{ flex: 1, height: '1px', background: '#1a2540' }} />
               <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace', color: '#1a2540'" }}>
@@ -1048,7 +1048,7 @@ function WorldFactCard() {
             </div>
             <p style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0',
               fontFamily: "'Syne',sans-serif", lineHeight: 1.3, marginBottom: 4 }}>{fact.fact}</p>
-            <p style={{ fontSize: 11, color: '#475569', fontFamily: "'JetBrains Mono',monospace",
+            <p style={{ fontSize: 11, color: '#94a3b8', fontFamily: "'JetBrains Mono',monospace",
               lineHeight: 1.5 }}>{fact.detail}</p>
           </div>
         </motion.div>
@@ -1100,10 +1100,10 @@ function PublicRooms({ onQuickJoin }) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
           <FiMap size={12} style={{ color: '#00d4aa' }} />
-          <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono',monospace", color: '#475569',
+          <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono',monospace", color: '#94a3b8',
             textTransform: 'uppercase', letterSpacing: '0.12em' }}>Open Rooms</span>
           {rooms.length > 0 && (
-            <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: '#334155',
+            <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: '#64748b',
               background: 'rgba(0,212,170,0.08)', border: '1px solid rgba(0,212,170,0.15)',
               borderRadius: 99, padding: '1px 7px' }}>{rooms.length}</span>
           )}
@@ -1111,9 +1111,9 @@ function PublicRooms({ onQuickJoin }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <button onClick={load} title="Refresh"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2,
-              color: fetchError ? '#f87171' : '#334155', display: 'flex', alignItems: 'center' }}
+              color: fetchError ? '#f87171' : '#64748b', display: 'flex', alignItems: 'center' }}
             onMouseEnter={e => e.currentTarget.style.color = '#00d4aa'}
-            onMouseLeave={e => e.currentTarget.style.color = fetchError ? '#f87171' : '#334155'}>
+            onMouseLeave={e => e.currentTarget.style.color = fetchError ? '#f87171' : '#64748b'}>
             <FiRefreshCw size={11} />
           </button>
           <motion.div style={{ width: 5, height: 5, borderRadius: '50%', background: '#00d4aa' }}
@@ -1138,13 +1138,13 @@ function PublicRooms({ onQuickJoin }) {
             onBlur={e => { e.currentTarget.style.borderColor = '#1a2540' }}
           />
           <FiMap size={11} style={{ position: 'absolute', left: 12, top: '50%',
-            transform: 'translateY(-50%)', color: '#334155', pointerEvents: 'none' }} />
+            transform: 'translateY(-50%)', color: '#475569', pointerEvents: 'none' }} />
         </div>
       )}
 
       {loading ? (
         <div style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid #1a2540',
-          borderRadius: 12, fontSize: 11, color: '#334155', fontFamily: "'JetBrains Mono',monospace" }}>
+          borderRadius: 12, fontSize: 11, color: '#64748b', fontFamily: "'JetBrains Mono',monospace" }}>
           Scanning for rooms…
         </div>
       ) : fetchError ? (
@@ -1163,12 +1163,12 @@ function PublicRooms({ onQuickJoin }) {
       ) : rooms.length === 0 ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px',
           background: 'rgba(255,255,255,0.02)', border: '1px solid #1a2540', borderRadius: 12 }}>
-          <FiGlobe size={13} style={{ color: '#1e2d45', flexShrink: 0 }} />
-          <span style={{ fontSize: 12, color: '#334155' }}>No public rooms right now — create one!</span>
+          <FiGlobe size={13} style={{ color: '#475569', flexShrink: 0 }} />
+          <span style={{ fontSize: 12, color: '#94a3b8' }}>No public rooms right now — create one!</span>
         </div>
       ) : filtered.length === 0 ? (
         <div style={{ padding: '10px 14px', background: 'rgba(255,255,255,0.02)', border: '1px solid #1a2540',
-          borderRadius: 12, fontSize: 11, color: '#334155', fontFamily: "'JetBrains Mono',monospace" }}>
+          borderRadius: 12, fontSize: 11, color: '#64748b', fontFamily: "'JetBrains Mono',monospace" }}>
           No rooms match "{search}"
         </div>
       ) : (
@@ -1191,9 +1191,9 @@ function PublicRooms({ onQuickJoin }) {
                   </span>
                 </div>
                 <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                  <span style={{ fontSize: 10, color: '#475569' }}>{r.playerCount} player{r.playerCount !== 1 ? 's' : ''}</span>
+                  <span style={{ fontSize: 10, color: '#94a3b8' }}>{r.playerCount} player{r.playerCount !== 1 ? 's' : ''}</span>
                   <span style={{ color: '#1a2540' }}>·</span>
-                  <span style={{ fontSize: 10, color: '#475569' }}>{r.totalRounds} rounds</span>
+                  <span style={{ fontSize: 10, color: '#94a3b8' }}>{r.totalRounds} rounds</span>
                 </div>
               </div>
               <button onClick={() => onQuickJoin(r.code)}
@@ -1441,10 +1441,10 @@ function HowItWorks() {
                 justifyContent: 'center', background: 'rgba(0,212,170,0.1)', border: '1px solid rgba(0,212,170,0.15)', flexShrink: 0 }}>
                 <Icon size={13} style={{ color: '#00d4aa' }} />
               </div>
-              <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono',monospace", color: '#334155' }}>{s.n}</span>
+              <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono',monospace", color: '#64748b' }}>{s.n}</span>
             </div>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0', marginBottom: 5 }}>{s.t}</div>
-            <div style={{ fontSize: 11, color: '#475569', lineHeight: 1.6 }}>{s.d}</div>
+            <div style={{ fontSize: 11, color: '#94a3b8', lineHeight: 1.6 }}>{s.d}</div>
           </div>
         )
       })}
@@ -1557,8 +1557,8 @@ export default function LandingPage() {
             {visitors > 0 && !isMobile && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 99,
                 background: 'rgba(255,255,255,0.04)', border: '1px solid #1a2540' }}>
-                <FiUsers size={11} style={{ color: '#475569' }} />
-                <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono',monospace", color: '#475569' }}>
+                <FiUsers size={11} style={{ color: '#94a3b8' }} />
+                <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono',monospace", color: '#94a3b8' }}>
                   {visitors.toLocaleString()} online
                 </span>
               </div>
@@ -1614,7 +1614,7 @@ export default function LandingPage() {
             </h1>
 
             <motion.p variants={{ h: { opacity: 0, y: 20 }, v: { opacity: 1, y: 0 } }}
-              style={{ fontSize: isMobile ? 14 : 15, lineHeight: 1.7, color: '#64748b',
+              style={{ fontSize: isMobile ? 14 : 15, lineHeight: 1.7, color: '#94a3b8',
                 maxWidth: isMobile ? '100%' : 400, marginBottom: 10 }}>
               One team hides inside a real Google Street View location.
               The other team decodes clues and pins the exact spot on a world map.
@@ -1622,7 +1622,7 @@ export default function LandingPage() {
 
             <motion.div variants={{ h: { opacity: 0, y: 20 }, v: { opacity: 1, y: 0 } }}
               style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: isMobile ? 18 : 26 }}>
-              <span style={{ fontSize: 13, color: '#475569' }}>Can you find</span>
+              <span style={{ fontSize: 13, color: '#94a3b8' }}>Can you find</span>
               <AnimatePresence mode="wait">
                 <motion.span key={cityIdx}
                   initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
@@ -1712,7 +1712,7 @@ export default function LandingPage() {
                 <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 900,
                   color: '#00d4aa', fontSize: 16, lineHeight: 1 }}>{s.value}</div>
                 <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 8,
-                  color: '#334155', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 4 }}>{s.label}</div>
+                  color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 4 }}>{s.label}</div>
               </motion.div>
             ))}
           </div>
@@ -1726,7 +1726,7 @@ export default function LandingPage() {
                 transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
                 style={{ display: 'flex', gap: 32, whiteSpace: 'nowrap' }}>
                 {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
-                  <span key={i} style={{ fontSize: 10, color: '#334155',
+                  <span key={i} style={{ fontSize: 10, color: '#475569',
                     fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.05em' }}>
                     {item}
                   </span>
