@@ -338,7 +338,12 @@ function SpectatorGuessMap({ location, guesses }) {
   const mapRef         = useRef(null)
   const mapInstanceRef = useRef(null)
   const markersRef     = useRef({})   // playerId → { marker, line }
+  const [mapType, setMapType] = useState('roadmap')
   const apiKey         = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+
+  useEffect(() => {
+    if (mapInstanceRef.current) mapInstanceRef.current.setMapTypeId(mapType)
+  }, [mapType])
 
   // Init map once on mount
   useEffect(() => {
@@ -413,7 +418,24 @@ function SpectatorGuessMap({ location, guesses }) {
     )
   }
 
-  return <div ref={mapRef} style={{ width: '100%', height: '100%', borderRadius: 16, overflow: 'hidden' }} />
+  return (
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <div ref={mapRef} style={{ width: '100%', height: '100%', borderRadius: 16, overflow: 'hidden' }} />
+      <div style={{ position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)',
+        display: 'flex', borderRadius: 10, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.25)', zIndex: 5 }}>
+        {[['roadmap', 'Map'], ['hybrid', 'Satellite']].map(([id, label]) => (
+          <button key={id} onClick={() => setMapType(id)}
+            style={{ padding: '7px 16px', fontSize: 11, fontWeight: 700, border: 'none', cursor: 'pointer',
+              fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.03em',
+              background: mapType === id ? '#00d4aa' : 'rgba(255,255,255,0.95)',
+              color: mapType === id ? '#050912' : '#475569',
+              transition: 'background 0.15s, color 0.15s' }}>
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 // ─── Shared header bar ───────────────────────────────────────────────────────
