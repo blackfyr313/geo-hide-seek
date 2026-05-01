@@ -1102,13 +1102,169 @@ function TypewriterSignature() {
   )
 }
 
+/* Card 01 — Explorer panning inside Street View */
+function ExplorerAnim() {
+  return (
+    <div style={{ height: 78, borderRadius: 10, marginBottom: 10, overflow: 'hidden', position: 'relative',
+      background: 'linear-gradient(160deg,rgba(0,212,170,0.04) 0%,rgba(8,15,30,0.9) 100%)',
+      border: '1px solid rgba(0,212,170,0.1)' }}>
+      {/* Scanlines */}
+      {[22,44,66].map(t => (
+        <div key={t} style={{ position:'absolute', left:0, right:0, top:`${t}%`, height:1, background:'rgba(0,212,170,0.04)' }} />
+      ))}
+      {/* Panorama arc */}
+      <div style={{ position:'absolute', bottom:-8, left:'50%', transform:'translateX(-50%)',
+        width:110, height:28, borderRadius:'50% 50% 0 0',
+        border:'1px solid rgba(0,212,170,0.12)', borderBottom:'none' }} />
+      {/* Panning eye/camera */}
+      <motion.div
+        animate={{ x: [-28, 28, -28] }}
+        transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
+        style={{ position:'absolute', top:'32%', left:'50%', transform:'translateY(-50%)' }}>
+        <div style={{ width:20, height:20, borderRadius:'50%',
+          background:'rgba(0,212,170,0.12)', border:'1.5px solid rgba(0,212,170,0.55)',
+          display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div style={{ width:7, height:7, borderRadius:'50%', background:'#00d4aa' }} />
+        </div>
+      </motion.div>
+      {/* Sweep trail */}
+      <motion.div
+        animate={{ scaleX: [0.3, 1, 0.3], opacity: [0, 0.18, 0] }}
+        transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
+        style={{ position:'absolute', top:'32%', left:'20%', right:'20%', height:1,
+          background:'linear-gradient(90deg,transparent,rgba(0,212,170,0.6),transparent)',
+          transformOrigin:'center' }} />
+      {/* Nav arrows */}
+      <div style={{ position:'absolute', bottom:6, left:'50%', transform:'translateX(-50%)', display:'flex', gap:18 }}>
+        {['◀','▶'].map((a,i) => (
+          <motion.span key={i}
+            animate={{ opacity:[0.2,0.85,0.2] }}
+            transition={{ duration:1.6, repeat:Infinity, delay:i*0.8 }}
+            style={{ fontSize:9, color:'#00d4aa', userSelect:'none' }}>{a}</motion.span>
+        ))}
+      </div>
+      {/* REC badge */}
+      <div style={{ position:'absolute', top:7, right:8, display:'flex', alignItems:'center', gap:4 }}>
+        <motion.div animate={{ opacity:[1,0,1] }} transition={{ duration:1, repeat:Infinity }}
+          style={{ width:5, height:5, borderRadius:'50%', background:'#ef4444' }} />
+        <span style={{ fontSize:8, color:'#ef4444', fontFamily:"'JetBrains Mono',monospace", letterSpacing:'0.1em' }}>REC</span>
+      </div>
+      {/* STREET VIEW label */}
+      <span style={{ position:'absolute', top:8, left:9, fontSize:8, color:'rgba(71,85,105,0.7)',
+        fontFamily:"'JetBrains Mono',monospace", letterSpacing:'0.12em' }}>STREET VIEW</span>
+    </div>
+  )
+}
+
+/* Card 02 — Agents dropping pins on a map grid */
+function AgentsAnim() {
+  const PINS = [
+    { x:'18%', y:'38%', color:'#f97316', label:'A', delay:0   },
+    { x:'58%', y:'58%', color:'#3b82f6', label:'B', delay:0.7 },
+    { x:'78%', y:'22%', color:'#a855f7', label:'C', delay:1.4 },
+  ]
+  return (
+    <div style={{ height:78, borderRadius:10, marginBottom:10, overflow:'hidden', position:'relative',
+      background:'rgba(8,15,30,0.7)', border:'1px solid rgba(0,212,170,0.1)' }}>
+      {/* Dot grid */}
+      <svg style={{ position:'absolute', inset:0, width:'100%', height:'100%', opacity:0.13 }}>
+        <defs>
+          <pattern id="agdots" width="14" height="14" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="0.9" fill="#00d4aa" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#agdots)" />
+      </svg>
+      {/* Target crosshair */}
+      <motion.div animate={{ scale:[1,1.35,1], opacity:[0.3,0.7,0.3] }}
+        transition={{ duration:2.2, repeat:Infinity }}
+        style={{ position:'absolute', top:'48%', left:'46%', transform:'translate(-50%,-50%)',
+          width:18, height:18, borderRadius:'50%', border:'1.5px solid rgba(0,212,170,0.5)' }} />
+      <div style={{ position:'absolute', top:'48%', left:'46%', transform:'translate(-50%,-50%)',
+        width:4, height:4, borderRadius:'50%', background:'rgba(0,212,170,0.7)' }} />
+      {/* Animated pins */}
+      {PINS.map((p,i) => (
+        <motion.div key={i}
+          initial={{ y:-22, opacity:0 }}
+          animate={{ y:0, opacity:1 }}
+          transition={{ type:'spring', stiffness:280, damping:14, delay:p.delay, repeat:Infinity, repeatDelay:2.8 }}
+          style={{ position:'absolute', top:p.y, left:p.x, transform:'translate(-50%,-100%)', display:'flex', flexDirection:'column', alignItems:'center' }}>
+          <div style={{ width:17, height:17, borderRadius:'50%', background:p.color,
+            border:'2px solid rgba(255,255,255,0.25)', display:'flex', alignItems:'center',
+            justifyContent:'center', fontSize:8, fontWeight:900, color:'#fff',
+            boxShadow:`0 0 10px ${p.color}77` }}>{p.label}</div>
+          <div style={{ width:1.5, height:5, background:p.color, opacity:0.7 }} />
+        </motion.div>
+      ))}
+      {/* "Decoding…" label */}
+      <motion.span animate={{ opacity:[0.3,0.9,0.3] }} transition={{ duration:2.4, repeat:Infinity }}
+        style={{ position:'absolute', bottom:7, left:'50%', transform:'translateX(-50%)',
+          fontSize:8, color:'#475569', fontFamily:"'JetBrains Mono',monospace",
+          letterSpacing:'0.12em', whiteSpace:'nowrap' }}>DECODING CLUES…</motion.span>
+    </div>
+  )
+}
+
+/* Card 03 — Distance line + score reveal */
+function ScoresAnim() {
+  return (
+    <div style={{ height:78, borderRadius:10, marginBottom:10, overflow:'hidden', position:'relative',
+      background:'rgba(8,15,30,0.7)', border:'1px solid rgba(0,212,170,0.1)' }}>
+      {/* Ground line */}
+      <div style={{ position:'absolute', bottom:20, left:0, right:0, height:1, background:'rgba(255,255,255,0.05)' }} />
+      {/* Actual pin — teal */}
+      <div style={{ position:'absolute', bottom:20, left:'20%', transform:'translateX(-50%)',
+        display:'flex', flexDirection:'column', alignItems:'center' }}>
+        <span style={{ fontSize:8, color:'#00d4aa', fontFamily:"'JetBrains Mono',monospace", marginBottom:2 }}>📍</span>
+        <div style={{ width:9, height:9, borderRadius:'50%', background:'#00d4aa', boxShadow:'0 0 8px rgba(0,212,170,0.8)' }} />
+        <div style={{ width:1.5, height:6, background:'#00d4aa' }} />
+      </div>
+      {/* Guess pin — orange */}
+      <div style={{ position:'absolute', bottom:20, left:'72%', transform:'translateX(-50%)',
+        display:'flex', flexDirection:'column', alignItems:'center' }}>
+        <span style={{ fontSize:8, color:'#f97316', fontFamily:"'JetBrains Mono',monospace", marginBottom:2 }}>🎯</span>
+        <div style={{ width:9, height:9, borderRadius:'50%', background:'#f97316', boxShadow:'0 0 8px rgba(249,115,22,0.7)' }} />
+        <div style={{ width:1.5, height:6, background:'#f97316' }} />
+      </div>
+      {/* Dashed distance line */}
+      <svg style={{ position:'absolute', bottom:26, left:'20%', width:'52%', height:12, overflow:'visible' }}>
+        <motion.line x1="0" y1="6" x2="100%" y2="6"
+          stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeDasharray="4 3"
+          initial={{ pathLength:0, opacity:0 }}
+          animate={{ pathLength:1, opacity:1 }}
+          transition={{ duration:1.1, delay:0.2, repeat:Infinity, repeatDelay:1.6, ease:'easeOut' }} />
+      </svg>
+      {/* Distance badge */}
+      <motion.div
+        initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }}
+        transition={{ delay:0.9, duration:0.4, repeat:Infinity, repeatDelay:1.9 }}
+        style={{ position:'absolute', top:8, left:'50%', transform:'translateX(-50%)',
+          background:'rgba(8,15,30,0.95)', border:'1px solid rgba(249,115,22,0.35)',
+          borderRadius:6, padding:'3px 9px', whiteSpace:'nowrap' }}>
+        <span style={{ fontSize:10, fontWeight:800, color:'#f97316', fontFamily:"'JetBrains Mono',monospace" }}>312 km</span>
+      </motion.div>
+      {/* Score pop */}
+      <motion.div
+        initial={{ scale:0.7, opacity:0 }} animate={{ scale:1, opacity:1 }}
+        transition={{ delay:1.3, type:'spring', stiffness:320, damping:14, repeat:Infinity, repeatDelay:1.5 }}
+        style={{ position:'absolute', top:7, right:8,
+          background:'rgba(0,212,170,0.1)', border:'1px solid rgba(0,212,170,0.25)',
+          borderRadius:6, padding:'3px 8px' }}>
+        <span style={{ fontSize:11, fontWeight:900, color:'#00d4aa', fontFamily:"'Syne',sans-serif" }}>+850 pts</span>
+      </motion.div>
+    </div>
+  )
+}
+
 function HowItWorks() {
+  const anims = [ExplorerAnim, AgentsAnim, ScoresAnim]
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.75 }}
       style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
       {STEPS.map((s, i) => {
         const Icon = s.icon
+        const Anim = anims[i]
         return (
           <div key={i}
             style={{ flex: 1, padding: '14px', borderRadius: 16, cursor: 'default',
@@ -1116,7 +1272,8 @@ function HowItWorks() {
               transition: 'border-color 0.2s, background 0.2s' }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(0,212,170,0.22)'; e.currentTarget.style.background = 'rgba(0,212,170,0.03)' }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = '#1a2540'; e.currentTarget.style.background = 'rgba(255,255,255,0.02)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+            <Anim />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
               <div style={{ width: 28, height: 28, borderRadius: 8, display: 'flex', alignItems: 'center',
                 justifyContent: 'center', background: 'rgba(0,212,170,0.1)', border: '1px solid rgba(0,212,170,0.15)', flexShrink: 0 }}>
                 <Icon size={13} style={{ color: '#00d4aa' }} />
