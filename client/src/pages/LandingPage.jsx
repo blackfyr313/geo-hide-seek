@@ -709,6 +709,51 @@ function PublicRooms({ onQuickJoin }) {
 }
 
 /* ─── How it works — visual cards ──────────────────────────────────────── */
+function TypewriterSignature() {
+  const full = 'blackfyre'
+  const [typed, setTyped] = useState('')
+  const [deleting, setDeleting] = useState(false)
+  const [showCursor, setShowCursor] = useState(true)
+
+  useEffect(() => {
+    const cursor = setInterval(() => setShowCursor(v => !v), 530)
+    return () => clearInterval(cursor)
+  }, [])
+
+  useEffect(() => {
+    let t
+    if (!deleting && typed.length < full.length)
+      t = setTimeout(() => setTyped(full.slice(0, typed.length + 1)), 130)
+    else if (!deleting && typed.length === full.length)
+      t = setTimeout(() => setDeleting(true), 2800)
+    else if (deleting && typed.length > 0)
+      t = setTimeout(() => setTyped(full.slice(0, typed.length - 1)), 65)
+    else
+      t = setTimeout(() => setDeleting(false), 600)
+    return () => clearTimeout(t)
+  }, [typed, deleting])
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, marginTop: 12 }}>
+      <span style={{
+        fontFamily: "'JetBrains Mono',monospace", fontSize: 11,
+        color: 'rgba(71,85,105,0.6)', letterSpacing: '0.12em',
+        textTransform: 'lowercase', userSelect: 'none',
+      }}>
+        crafted by
+      </span>
+      <span style={{
+        fontFamily: "'Special Elite',cursive", fontSize: 13,
+        color: '#00d4aa', userSelect: 'none',
+        textShadow: '0 0 12px rgba(0,212,170,0.7)',
+      }}>
+        {typed}
+        <span style={{ opacity: showCursor ? 1 : 0, color: '#00d4aa' }}>|</span>
+      </span>
+    </div>
+  )
+}
+
 function HowItWorks() {
   return (
     <motion.div
@@ -919,32 +964,7 @@ export default function LandingPage() {
           background: 'rgba(14,22,37,0.35)', border: '1px solid rgba(26,37,64,0.7)', backdropFilter: 'blur(6px)' }} />
         <div style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%', padding: 40, display: 'flex', flexDirection: 'column' }}>
           <AnimatedGlobe stats={serverStats} recentEvents={recentEvents} />
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6, marginTop: 12 }}>
-            <p style={{
-              fontFamily: "'JetBrains Mono',monospace", fontSize: 11,
-              color: 'rgba(71,85,105,0.6)', letterSpacing: '0.12em',
-              textTransform: 'lowercase', userSelect: 'none', margin: 0,
-            }}>
-              crafted by
-            </p>
-            <motion.span
-              style={{
-                fontFamily: "'JetBrains Mono',monospace", fontSize: 11,
-                fontWeight: 700, letterSpacing: '0.12em', textTransform: 'lowercase',
-                color: '#00d4aa', userSelect: 'none', cursor: 'default',
-              }}
-              animate={{
-                textShadow: [
-                  '0 0 4px rgba(0,212,170,0.2)',
-                  '0 0 16px rgba(0,212,170,1), 0 0 32px rgba(0,212,170,0.5)',
-                  '0 0 4px rgba(0,212,170,0.2)',
-                ],
-              }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-            >
-              🔥 blackfyre
-            </motion.span>
-          </div>
+          <TypewriterSignature />
         </div>
       </div>
 
