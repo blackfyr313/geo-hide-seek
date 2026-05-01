@@ -32,21 +32,47 @@ const LIVE_LOCATIONS = [
   { city: 'Toronto',        country: 'Canada',          lat: '43.65° N', lng: '79.38° W',  flag: '🇨🇦' },
 ]
 
-const GLOBE_PINS = [
-  { top: '20%', left: '26%', delay: 0,   city: 'Tokyo',        flag: '🇯🇵' },
-  { top: '58%', left: '68%', delay: 0.7, city: 'Sydney',       flag: '🇦🇺' },
-  { top: '72%', left: '34%', delay: 1.4, city: 'Rio',          flag: '🇧🇷' },
-  { top: '28%', left: '64%', delay: 2.1, city: 'Paris',        flag: '🇫🇷' },
-  { top: '45%', left: '20%', delay: 1.8, city: 'New York',     flag: '🇺🇸' },
-  { top: '38%', left: '74%', delay: 2.6, city: 'Dubai',        flag: '🇦🇪' },
-  { top: '62%', left: '22%', delay: 3.1, city: 'Cairo',        flag: '🇪🇬' },
-  { top: '15%', left: '52%', delay: 1.1, city: 'London',       flag: '🇬🇧' },
-  { top: '55%', left: '50%', delay: 2.4, city: 'Mumbai',       flag: '🇮🇳' },
-  { top: '30%', left: '44%', delay: 3.4, city: 'Istanbul',     flag: '🇹🇷' },
-  { top: '78%', left: '55%', delay: 2.8, city: 'Cape Town',    flag: '🇿🇦' },
-  { top: '25%', left: '80%', delay: 1.6, city: 'Seoul',        flag: '🇰🇷' },
-  { top: '50%', left: '78%', delay: 3.7, city: 'Singapore',    flag: '🇸🇬' },
-  { top: '48%', left: '36%', delay: 3.9, city: 'Lagos',        flag: '🇳🇬' },
+const ALL_COUNTRIES = [
+  { city: 'Tokyo', flag: '🇯🇵' }, { city: 'Paris', flag: '🇫🇷' }, { city: 'New York', flag: '🇺🇸' },
+  { city: 'London', flag: '🇬🇧' }, { city: 'Dubai', flag: '🇦🇪' }, { city: 'Sydney', flag: '🇦🇺' },
+  { city: 'Mumbai', flag: '🇮🇳' }, { city: 'Cairo', flag: '🇪🇬' }, { city: 'Rio', flag: '🇧🇷' },
+  { city: 'Moscow', flag: '🇷🇺' }, { city: 'Seoul', flag: '🇰🇷' }, { city: 'Istanbul', flag: '🇹🇷' },
+  { city: 'Singapore', flag: '🇸🇬' }, { city: 'Lagos', flag: '🇳🇬' }, { city: 'Toronto', flag: '🇨🇦' },
+  { city: 'Bangkok', flag: '🇹🇭' }, { city: 'Mexico City', flag: '🇲🇽' }, { city: 'Nairobi', flag: '🇰🇪' },
+  { city: 'Buenos Aires', flag: '🇦🇷' }, { city: 'Cape Town', flag: '🇿🇦' }, { city: 'Berlin', flag: '🇩🇪' },
+  { city: 'Madrid', flag: '🇪🇸' }, { city: 'Rome', flag: '🇮🇹' }, { city: 'Amsterdam', flag: '🇳🇱' },
+  { city: 'Vienna', flag: '🇦🇹' }, { city: 'Warsaw', flag: '🇵🇱' }, { city: 'Kyiv', flag: '🇺🇦' },
+  { city: 'Stockholm', flag: '🇸🇪' }, { city: 'Oslo', flag: '🇳🇴' }, { city: 'Copenhagen', flag: '🇩🇰' },
+  { city: 'Helsinki', flag: '🇫🇮' }, { city: 'Lisbon', flag: '🇵🇹' }, { city: 'Athens', flag: '🇬🇷' },
+  { city: 'Prague', flag: '🇨🇿' }, { city: 'Budapest', flag: '🇭🇺' }, { city: 'Bucharest', flag: '🇷🇴' },
+  { city: 'Brussels', flag: '🇧🇪' }, { city: 'Zurich', flag: '🇨🇭' }, { city: 'Dublin', flag: '🇮🇪' },
+  { city: 'Beijing', flag: '🇨🇳' }, { city: 'Shanghai', flag: '🇨🇳' }, { city: 'Hong Kong', flag: '🇭🇰' },
+  { city: 'Taipei', flag: '🇹🇼' }, { city: 'Kuala Lumpur', flag: '🇲🇾' }, { city: 'Jakarta', flag: '🇮🇩' },
+  { city: 'Manila', flag: '🇵🇭' }, { city: 'Hanoi', flag: '🇻🇳' }, { city: 'Colombo', flag: '🇱🇰' },
+  { city: 'Karachi', flag: '🇵🇰' }, { city: 'Dhaka', flag: '🇧🇩' }, { city: 'Kathmandu', flag: '🇳🇵' },
+  { city: 'Kabul', flag: '🇦🇫' }, { city: 'Tehran', flag: '🇮🇷' }, { city: 'Baghdad', flag: '🇮🇶' },
+  { city: 'Riyadh', flag: '🇸🇦' }, { city: 'Doha', flag: '🇶🇦' }, { city: 'Kuwait City', flag: '🇰🇼' },
+  { city: 'Amman', flag: '🇯🇴' }, { city: 'Beirut', flag: '🇱🇧' }, { city: 'Tel Aviv', flag: '🇮🇱' },
+  { city: 'Ankara', flag: '🇹🇷' }, { city: 'Tbilisi', flag: '🇬🇪' }, { city: 'Baku', flag: '🇦🇿' },
+  { city: 'Tashkent', flag: '🇺🇿' }, { city: 'Almaty', flag: '🇰🇿' }, { city: 'Ulaanbaatar', flag: '🇲🇳' },
+  { city: 'Islamabad', flag: '🇵🇰' }, { city: 'New Delhi', flag: '🇮🇳' }, { city: 'Kolkata', flag: '🇮🇳' },
+  { city: 'Accra', flag: '🇬🇭' }, { city: 'Abidjan', flag: '🇨🇮' }, { city: 'Dakar', flag: '🇸🇳' },
+  { city: 'Addis Ababa', flag: '🇪🇹' }, { city: 'Dar es Salaam', flag: '🇹🇿' }, { city: 'Kampala', flag: '🇺🇬' },
+  { city: 'Kigali', flag: '🇷🇼' }, { city: 'Lusaka', flag: '🇿🇲' }, { city: 'Harare', flag: '🇿🇼' },
+  { city: 'Casablanca', flag: '🇲🇦' }, { city: 'Tunis', flag: '🇹🇳' }, { city: 'Tripoli', flag: '🇱🇾' },
+  { city: 'Khartoum', flag: '🇸🇩' }, { city: 'Kinshasa', flag: '🇨🇩' }, { city: 'Luanda', flag: '🇦🇴' },
+  { city: 'São Paulo', flag: '🇧🇷' }, { city: 'Lima', flag: '🇵🇪' }, { city: 'Bogotá', flag: '🇨🇴' },
+  { city: 'Santiago', flag: '🇨🇱' }, { city: 'Caracas', flag: '🇻🇪' }, { city: 'Quito', flag: '🇪🇨' },
+  { city: 'La Paz', flag: '🇧🇴' }, { city: 'Asunción', flag: '🇵🇾' }, { city: 'Montevideo', flag: '🇺🇾' },
+  { city: 'Panama City', flag: '🇵🇦' }, { city: 'San José', flag: '🇨🇷' }, { city: 'Havana', flag: '🇨🇺' },
+  { city: 'Kingston', flag: '🇯🇲' }, { city: 'Port-au-Prince', flag: '🇭🇹' }, { city: 'Santo Domingo', flag: '🇩🇴' },
+  { city: 'Chicago', flag: '🇺🇸' }, { city: 'Los Angeles', flag: '🇺🇸' }, { city: 'Vancouver', flag: '🇨🇦' },
+  { city: 'Auckland', flag: '🇳🇿' }, { city: 'Wellington', flag: '🇳🇿' }, { city: 'Suva', flag: '🇫🇯' },
+  { city: 'Reykjavik', flag: '🇮🇸' }, { city: 'Valletta', flag: '🇲🇹' }, { city: 'Nicosia', flag: '🇨🇾' },
+  { city: 'Sarajevo', flag: '🇧🇦' }, { city: 'Belgrade', flag: '🇷🇸' }, { city: 'Sofia', flag: '🇧🇬' },
+  { city: 'Skopje', flag: '🇲🇰' }, { city: 'Tirana', flag: '🇦🇱' }, { city: 'Podgorica', flag: '🇲🇪' },
+  { city: 'Minsk', flag: '🇧🇾' }, { city: 'Riga', flag: '🇱🇻' }, { city: 'Tallinn', flag: '🇪🇪' },
+  { city: 'Vilnius', flag: '🇱🇹' }, { city: 'Chisinau', flag: '🇲🇩' }, { city: 'Yerevan', flag: '🇦🇲' },
 ]
 
 const TICKER_ITEMS = [
@@ -140,6 +166,21 @@ function AnimatedGlobe({ stats = {}, recentEvents = [] }) {
   const [liveIdx, setLiveIdx] = useState(0)
   const [activity, setActivity] = useState({ idx: 0, visible: false })
   const allEventsRef = useRef(ACTIVITY_EVENTS)
+  const [pin, setPin] = useState({ idx: 0, top: '30%', left: '40%', visible: true })
+
+  // Cycle one country pin at a time — random position, no overlap
+  useEffect(() => {
+    let countryIdx = 0
+    const next = () => {
+      countryIdx = (countryIdx + 1) % ALL_COUNTRIES.length
+      const top  = `${15 + Math.random() * 65}%`
+      const left = `${10 + Math.random() * 75}%`
+      setPin({ idx: countryIdx, top, left, visible: true })
+      setTimeout(() => setPin(p => ({ ...p, visible: false })), 2200)
+    }
+    const id = setInterval(next, 2800)
+    return () => clearInterval(id)
+  }, [])
 
   // Keep the events ref current so the cycling closure always sees the latest list
   useEffect(() => {
@@ -246,27 +287,32 @@ function AnimatedGlobe({ stats = {}, recentEvents = [] }) {
         )}
       </AnimatePresence>
 
-      {/* City pins with labels */}
-      {GLOBE_PINS.map((p, i) => (
-        <motion.div key={i} className="absolute" style={{ top: p.top, left: p.left }}
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: p.delay + 0.5 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <motion.div style={{ width: 10, height: 10, borderRadius: '50%', flexShrink: 0,
-              background: 'rgba(0,212,170,0.7)', border: '1.5px solid #00d4aa' }}
-              animate={{ scale: [1, 1.6, 1], opacity: [0.5, 1, 0.5] }}
-              transition={{ duration: 2.5, repeat: Infinity, delay: p.delay }} />
-            <motion.div
-              style={{ background: 'rgba(8,15,30,0.88)', border: '1px solid rgba(0,212,170,0.18)',
-                borderRadius: 6, padding: '3px 8px', whiteSpace: 'nowrap',
+      {/* Single cycling country pin — one at a time, random position */}
+      <AnimatePresence>
+        {pin.visible && (
+          <motion.div key={pin.idx} className="absolute"
+            style={{ top: pin.top, left: pin.left, pointerEvents: 'none', zIndex: 10 }}
+            initial={{ opacity: 0, scale: 0.6 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.6 }}
+            transition={{ duration: 0.4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <motion.div style={{ width: 10, height: 10, borderRadius: '50%', flexShrink: 0,
+                background: 'rgba(0,212,170,0.8)', border: '1.5px solid #00d4aa',
+                boxShadow: '0 0 8px rgba(0,212,170,0.6)' }}
+                animate={{ scale: [1, 1.7, 1], opacity: [0.6, 1, 0.6] }}
+                transition={{ duration: 1.2, repeat: Infinity }} />
+              <div style={{ background: 'rgba(8,15,30,0.9)', border: '1px solid rgba(0,212,170,0.2)',
+                borderRadius: 6, padding: '3px 9px', whiteSpace: 'nowrap',
                 fontSize: 10, fontFamily: "'JetBrains Mono',monospace", color: '#94a3b8',
-                backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', gap: 5 }}
-              initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: p.delay + 0.9 }}>
-              <span style={{ fontSize: 11 }}>{p.flag}</span>{p.city}
-            </motion.div>
-          </div>
-        </motion.div>
-      ))}
+                backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span style={{ fontSize: 12 }}>{ALL_COUNTRIES[pin.idx].flag}</span>
+                {ALL_COUNTRIES[pin.idx].city}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* TOP-RIGHT — Active Games */}
       <motion.div className="absolute top-10 right-4 rounded-2xl px-5 py-3"
@@ -335,20 +381,6 @@ function AnimatedGlobe({ stats = {}, recentEvents = [] }) {
             </div>
           </motion.div>
         </AnimatePresence>
-      </motion.div>
-
-      {/* MIDDLE-RIGHT — Players online */}
-      <motion.div className="absolute rounded-2xl"
-        style={{ top: '50%', right: 0, transform: 'translateY(-50%)',
-          background: 'rgba(14,22,37,0.9)', border: '1px solid #1a2540',
-          backdropFilter: 'blur(12px)', padding: '10px 14px' }}
-        initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 2.2 }}>
-        <p style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: '#475569',
-          textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 4 }}>Players</p>
-        <p style={{ fontFamily: "'Syne',sans-serif", fontWeight: 900, color: '#fff', fontSize: 22, lineHeight: 1 }}>
-          {(stats.activePlayers > 0 ? stats.activePlayers : 24).toLocaleString()}
-        </p>
-        <p style={{ fontSize: 9, color: '#334155', fontFamily: "'JetBrains Mono',monospace", marginTop: 2 }}>online now</p>
       </motion.div>
 
       {/* BOTTOM-CENTER — Best accuracy */}
