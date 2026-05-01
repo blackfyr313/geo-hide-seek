@@ -403,7 +403,6 @@ function AnimatedGlobe({ stats = {}, recentEvents = [] }) {
   const live = LIVE_LOCATIONS[liveIdx]
   const events = allEventsRef.current
   const evt = events[activity.idx % events.length]
-  const displayActiveGames = (stats.activeGames > 0) ? stats.activeGames.toLocaleString() : '1,248'
 
   return (
     <div className="relative flex items-center justify-center w-full h-full">
@@ -509,19 +508,24 @@ function AnimatedGlobe({ stats = {}, recentEvents = [] }) {
         </AnimatePresence>
       ))}
 
-      {/* TOP-RIGHT — Active Games */}
-      <motion.div className="absolute top-10 right-4 rounded-2xl px-5 py-3"
-        style={{ background: 'rgba(14,22,37,0.9)', border: '1px solid #1a2540', backdropFilter: 'blur(12px)' }}
-        initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <p className="text-xs font-mono" style={{ color: '#475569' }}>Active Games</p>
-          {stats.activeGames > 0 && (
-            <motion.div style={{ width: 5, height: 5, borderRadius: '50%', background: '#00d4aa' }}
-              animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.2, repeat: Infinity }} />
-          )}
-        </div>
-        <p className="text-3xl font-black" style={{ fontFamily: "'Syne',sans-serif", color: '#00d4aa' }}>{displayActiveGames}</p>
-      </motion.div>
+      {/* TOP-RIGHT — Active Games (only shown when ≥1 real game is live) */}
+      <AnimatePresence>
+        {stats.activeGames > 0 && (
+          <motion.div className="absolute top-10 right-4 rounded-2xl px-5 py-3"
+            style={{ background: 'rgba(14,22,37,0.9)', border: '1px solid #1a2540', backdropFilter: 'blur(12px)' }}
+            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
+            transition={{ duration: 0.4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <p className="text-xs font-mono" style={{ color: '#475569' }}>Active Games</p>
+              <motion.div style={{ width: 5, height: 5, borderRadius: '50%', background: '#00d4aa' }}
+                animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.2, repeat: Infinity }} />
+            </div>
+            <p className="text-3xl font-black" style={{ fontFamily: "'Syne',sans-serif", color: '#00d4aa' }}>
+              {stats.activeGames.toLocaleString()}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* BOTTOM-LEFT — Countries */}
       <motion.div className="absolute bottom-16 left-4 rounded-2xl px-5 py-3"
