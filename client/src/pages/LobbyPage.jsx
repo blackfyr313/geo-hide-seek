@@ -1,4 +1,14 @@
 import { useEffect, useState } from 'react'
+
+function useIsMobile() {
+  const [m, setM] = useState(() => window.innerWidth < 768)
+  useEffect(() => {
+    const fn = () => setM(window.innerWidth < 768)
+    window.addEventListener('resize', fn)
+    return () => window.removeEventListener('resize', fn)
+  }, [])
+  return m
+}
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   FiCopy, FiCheck, FiShield, FiLogOut,
@@ -290,6 +300,7 @@ function LobbyGlobe() {
 
 /* ─── Lobby Page ──────────────────────────────────────────────────────── */
 export default function LobbyPage() {
+  const isMobile = useIsMobile()
   const { socket } = useSocket()
   const { room, setRoom, player, setPage, setPlayer, notifications, pushNotification, setGameLocation } = useGame()
 
@@ -367,9 +378,10 @@ export default function LobbyPage() {
   }
 
   return (
-    <div style={{ width: '100vw', height: '100vh', background: '#050912', display: 'flex',
-      flexDirection: 'column', fontFamily: "'DM Sans',sans-serif", overflow: 'hidden',
-      position: 'relative' }}>
+    <div style={{ width: '100vw', minHeight: '100vh', height: isMobile ? 'auto' : '100vh',
+      background: '#050912', display: 'flex',
+      flexDirection: 'column', fontFamily: "'DM Sans',sans-serif",
+      overflow: isMobile ? 'auto' : 'hidden', position: 'relative' }}>
 
       {/* Grid bg */}
       <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%',
@@ -385,7 +397,8 @@ export default function LobbyPage() {
       {/* ── HEADER ── */}
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
         style={{ position: 'relative', zIndex: 10, display: 'flex', alignItems: 'center',
-          gap: 16, padding: '16px 32px', borderBottom: '1px solid #1a2540',
+          gap: isMobile ? 8 : 16, padding: isMobile ? '12px 14px' : '16px 32px',
+          borderBottom: '1px solid #1a2540',
           background: 'rgba(14,22,37,0.8)', backdropFilter: 'blur(12px)', flexShrink: 0,
           flexWrap: 'wrap' }}>
 
@@ -451,13 +464,19 @@ export default function LobbyPage() {
       </motion.div>
 
       {/* ── MAIN CONTENT ── */}
-      <div style={{ flex: 1, display: 'flex', minHeight: 0, position: 'relative', zIndex: 10 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row',
+        minHeight: 0, position: 'relative', zIndex: 10,
+        overflowY: isMobile ? 'visible' : 'hidden' }}>
 
         {/* LEFT — Red team */}
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
-          style={{ width: 310, display: 'flex', flexDirection: 'column', padding: 20,
-            borderRight: '1px solid #1a2540', background: 'rgba(10,14,26,0.4)', flexShrink: 0 }}>
+          style={{ width: isMobile ? '100%' : 310, display: 'flex', flexDirection: 'column',
+            padding: isMobile ? '14px 14px 0' : 20,
+            borderRight: isMobile ? 'none' : '1px solid #1a2540',
+            borderBottom: isMobile ? '1px solid #1a2540' : 'none',
+            background: 'rgba(10,14,26,0.4)', flexShrink: 0,
+            maxHeight: isMobile ? 340 : 'none', overflowY: isMobile ? 'auto' : 'visible' }}>
           <TeamColumn teamName="red" players={redPlayers}
             currentPlayerId={player.id}
             isHostViewing={isHost}
@@ -469,12 +488,15 @@ export default function LobbyPage() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
           style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
-            justifyContent: 'space-between', padding: '28px 36px' }}>
+            justifyContent: isMobile ? 'flex-start' : 'space-between',
+            padding: isMobile ? '16px 14px' : '28px 36px' }}>
 
-          {/* Globe */}
-          <div style={{ flex: 1, width: '100%', maxWidth: 420 }}>
-            <LobbyGlobe />
-          </div>
+          {/* Globe — hidden on mobile to save space */}
+          {!isMobile && (
+            <div style={{ flex: 1, width: '100%', maxWidth: 420 }}>
+              <LobbyGlobe />
+            </div>
+          )}
 
           {/* How-to-play hint */}
           <div style={{ marginBottom: 14, padding: '12px 20px', borderRadius: 14,
@@ -550,8 +572,12 @@ export default function LobbyPage() {
         {/* RIGHT — Blue team */}
         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
-          style={{ width: 310, display: 'flex', flexDirection: 'column', padding: 20,
-            borderLeft: '1px solid #1a2540', background: 'rgba(10,14,26,0.4)', flexShrink: 0 }}>
+          style={{ width: isMobile ? '100%' : 310, display: 'flex', flexDirection: 'column',
+            padding: isMobile ? '14px 14px 0' : 20,
+            borderLeft: isMobile ? 'none' : '1px solid #1a2540',
+            borderTop: isMobile ? '1px solid #1a2540' : 'none',
+            background: 'rgba(10,14,26,0.4)', flexShrink: 0,
+            maxHeight: isMobile ? 340 : 'none', overflowY: isMobile ? 'auto' : 'visible' }}>
           <TeamColumn teamName="blue" players={bluePlayers}
             currentPlayerId={player.id}
             isHostViewing={isHost}

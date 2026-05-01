@@ -1,4 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+
+function useIsMobile() {
+  const [m, setM] = useState(() => window.innerWidth < 768)
+  useEffect(() => {
+    const fn = () => setM(window.innerWidth < 768)
+    window.addEventListener('resize', fn)
+    return () => window.removeEventListener('resize', fn)
+  }, [])
+  return m
+}
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   FiSend, FiMapPin, FiCheck, FiClock, FiUsers,
@@ -370,7 +380,7 @@ function GameHeader({ room, secs, phase, roundResults, onLeave }) {
   const teamEmoji   = activeTeam === 'red' ? '🔴' : '🔵'
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 24px',
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px',
       background: 'rgba(8,15,30,0.95)', borderBottom: '1px solid #1a2540',
       backdropFilter: 'blur(12px)', flexShrink: 0, flexWrap: 'wrap' }}>
 
@@ -457,11 +467,18 @@ function CluePanel({ clues, isExplorer, clueInput, setClueInput, onSubmitClue, o
                      guessCount, totalAgents, readOnly }) {
   const safeClues = Array.isArray(clues) ? clues : []
   const inputRef  = useRef(null)
+  const isMobile  = useIsMobile()
   const handleKey = e => { if (e.key === 'Enter' && !readOnly) onSubmitClue() }
 
   return (
-    <div style={{ width: 280, flexShrink: 0, display: 'flex', flexDirection: 'column',
-      background: 'rgba(8,12,22,0.8)', borderLeft: '1px solid #1a2540', height: '100%' }}>
+    <div style={{
+      width: isMobile ? '100%' : 280, flexShrink: 0, display: 'flex', flexDirection: 'column',
+      background: 'rgba(8,12,22,0.8)',
+      borderLeft: isMobile ? 'none' : '1px solid #1a2540',
+      borderTop: isMobile ? '1px solid #1a2540' : 'none',
+      height: isMobile ? 'auto' : '100%',
+      maxHeight: isMobile ? 200 : 'none',
+    }}>
 
       <div style={{ padding: '14px 18px', borderBottom: '1px solid #1a2540' }}>
         <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono',monospace", color: '#475569',
@@ -548,6 +565,7 @@ function CluePanel({ clues, isExplorer, clueInput, setClueInput, onSubmitClue, o
 function ExplorerHiding({ room, location, activeClues }) {
   const { socket } = useSocket()
   const [clue, setClue] = useState('')
+  const isMobile = useIsMobile()
 
   const submitClue = useCallback(() => {
     if (!clue.trim()) return
@@ -560,8 +578,8 @@ function ExplorerHiding({ room, location, activeClues }) {
   }, [socket, room.code])
 
   return (
-    <div style={{ flex: 1, display: 'flex', minHeight: 0, position: 'relative' }}>
-      <div style={{ flex: 1, padding: 14, minWidth: 0 }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', minHeight: 0, position: 'relative' }}>
+      <div style={{ flex: 1, padding: isMobile ? 8 : 14, minWidth: 0 }}>
         <StreetView lat={location.lat} lng={location.lng} />
       </div>
       <CluePanel
@@ -586,11 +604,12 @@ function ExplorerHiding({ room, location, activeClues }) {
 // ─── VIEW: Agent waiting (hiding phase) ──────────────────────────────────────
 function AgentWaiting({ room, activeClues }) {
   const explorer = room.players?.find(p => p.role === 'explorer')
+  const isMobile = useIsMobile()
 
   return (
-    <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', minHeight: 0 }}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
-        justifyContent: 'center', gap: 20, padding: 40 }}>
+        justifyContent: 'center', gap: 20, padding: isMobile ? 20 : 40 }}>
         <div style={{ position: 'relative', width: 110, height: 110, display: 'flex',
           alignItems: 'center', justifyContent: 'center' }}>
           {[1, 1.6, 2.2].map((s, i) => (
@@ -623,6 +642,7 @@ function AgentGuessing({ room, activeClues }) {
   const { socket } = useSocket()
   const [guess,     setGuess]     = useState(null)
   const [submitted, setSubmitted] = useState(false)
+  const isMobile = useIsMobile()
 
   const submit = useCallback(() => {
     if (!guess || submitted) return
@@ -632,8 +652,8 @@ function AgentGuessing({ room, activeClues }) {
   }, [guess, submitted, socket, room.code])
 
   return (
-    <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: 14, gap: 10, minWidth: 0 }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', minHeight: 0 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: isMobile ? 8 : 14, gap: 10, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ fontSize: 13, color: '#475569' }}>
             {submitted
@@ -669,11 +689,12 @@ function AgentGuessing({ room, activeClues }) {
 function ExplorerWaiting({ room, activeClues }) {
   const guessCount  = room.guessCount  ?? 0
   const totalAgents = room.totalAgents ?? 0
+  const isMobile = useIsMobile()
 
   return (
-    <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', minHeight: 0 }}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
-        justifyContent: 'center', gap: 20, padding: 40 }}>
+        justifyContent: 'center', gap: 20, padding: isMobile ? 20 : 40 }}>
         <FiUsers size={38} style={{ color: '#00d4aa' }} />
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 900, fontFamily: "'Syne',sans-serif",
@@ -706,6 +727,7 @@ function ExplorerWaiting({ room, activeClues }) {
 function SpectatorView({ room, activeClues, phase, location, spectatorGuesses }) {
   const guessCount  = room.guessCount  ?? 0
   const totalAgents = room.totalAgents ?? 0
+  const isMobile    = useIsMobile()
   const playingTeam = room.currentTeamPlaying
   const teamColor   = TEAM_COLORS[playingTeam] ?? '#00d4aa'
   const teamEmoji   = playingTeam === 'red' ? '🔴' : '🔵'
@@ -735,10 +757,10 @@ function SpectatorView({ room, activeClues, phase, location, spectatorGuesses })
       </div>
 
       {/* Main content area */}
-      <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', minHeight: 0 }}>
 
         {/* Left panel — Street View (hiding) or live guess map (guessing) */}
-        <div style={{ flex: 1, padding: 14, minWidth: 0, position: 'relative' }}>
+        <div style={{ flex: 1, padding: isMobile ? 8 : 14, minWidth: 0, position: 'relative' }}>
           {phase === 'hiding' && location ? (
             <>
               <StreetView lat={location.lat} lng={location.lng} />
@@ -792,15 +814,19 @@ function RoundResults({ data, room }) {
   const teamRound = Math.ceil(round / 2)
   const teamColor = TEAM_COLORS[currentTeamPlaying] ?? '#00d4aa'
   const teamEmoji = currentTeamPlaying === 'red' ? '🔴' : '🔵'
+  const isMobile  = useIsMobile()
 
   return (
-    <div style={{ flex: 1, display: 'flex', minHeight: 0, gap: 0 }}>
-      <div style={{ flex: 1, padding: 14, minWidth: 0 }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', minHeight: 0, gap: 0 }}>
+      <div style={{ flex: 1, padding: isMobile ? 8 : 14, minWidth: 0, minHeight: isMobile ? 200 : 0 }}>
         <GoogleResultsMap location={location} results={results} />
       </div>
 
-      <div style={{ width: 320, flexShrink: 0, display: 'flex', flexDirection: 'column',
-        background: 'rgba(8,12,22,0.8)', borderLeft: '1px solid #1a2540', overflowY: 'auto' }}>
+      <div style={{ width: isMobile ? '100%' : 320, flexShrink: 0, display: 'flex', flexDirection: 'column',
+        background: 'rgba(8,12,22,0.8)',
+        borderLeft: isMobile ? 'none' : '1px solid #1a2540',
+        borderTop: isMobile ? '1px solid #1a2540' : 'none',
+        overflowY: 'auto', maxHeight: isMobile ? 280 : 'none' }}>
 
         {/* Location reveal */}
         <div style={{ padding: '18px 20px', borderBottom: '1px solid #1a2540',
@@ -1021,6 +1047,8 @@ export default function GamePage() {
     setPlayer,
   } = useGame()
 
+  const isMobile = useIsMobile()
+
   // Live guesses visible to spectator + explorer during guessing phase
   const [spectatorGuesses, setSpectatorGuesses] = useState({})
 
@@ -1093,7 +1121,8 @@ export default function GamePage() {
   const activeClues = room.clues?.[room.currentTeamPlaying] ?? []
 
   return (
-    <div style={{ width: '100vw', height: '100vh', background: '#050912', display: 'flex',
+    <div style={{ width: '100vw', height: '100vh', minHeight: '-webkit-fill-available',
+      background: '#050912', display: 'flex',
       flexDirection: 'column', fontFamily: "'DM Sans',sans-serif", overflow: 'hidden', position: 'relative' }}>
 
       {/* Background grid */}

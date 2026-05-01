@@ -1257,17 +1257,22 @@ function ScoresAnim() {
 }
 
 function HowItWorks() {
+  const isMobile = useIsMobile()
   const anims = [ExplorerAnim, AgentsAnim, ScoresAnim]
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.75 }}
-      style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
+      style={{ display: 'flex', gap: 10, flexShrink: 0,
+        overflowX: isMobile ? 'auto' : 'visible',
+        scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch',
+        paddingBottom: isMobile ? 4 : 0 }}>
       {STEPS.map((s, i) => {
         const Icon = s.icon
         const Anim = anims[i]
         return (
           <div key={i}
-            style={{ flex: 1, padding: '14px', borderRadius: 16, cursor: 'default',
+            style={{ flex: isMobile ? 'none' : 1, minWidth: isMobile ? '72vw' : 'auto',
+              padding: '14px', borderRadius: 16, cursor: 'default',
               background: 'rgba(255,255,255,0.02)', border: '1px solid #1a2540',
               transition: 'border-color 0.2s, background 0.2s' }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(0,212,170,0.22)'; e.currentTarget.style.background = 'rgba(0,212,170,0.03)' }}
@@ -1289,8 +1294,20 @@ function HowItWorks() {
   )
 }
 
+/* ─── Mobile breakpoint hook ────────────────────────────────────────────── */
+function useIsMobile() {
+  const [m, setM] = useState(() => window.innerWidth < 768)
+  useEffect(() => {
+    const fn = () => setM(window.innerWidth < 768)
+    window.addEventListener('resize', fn)
+    return () => window.removeEventListener('resize', fn)
+  }, [])
+  return m
+}
+
 /* ─── Landing Page ─────────────────────────────────────────────────────── */
 export default function LandingPage() {
+  const isMobile = useIsMobile()
   const [modal, setModal] = useState(null)
   const [joinPrefill, setJoinPrefill] = useState('')
   const [cityIdx, setCityIdx] = useState(() => Math.floor(Math.random() * HERO_CITIES.length))
@@ -1350,28 +1367,35 @@ export default function LandingPage() {
   }, [])
 
   return (
-    <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', display: 'flex',
+    <div style={{ width: '100vw', minHeight: '100vh', height: isMobile ? 'auto' : '100vh',
+      overflow: isMobile ? 'auto' : 'hidden', display: 'flex',
+      flexDirection: isMobile ? 'column' : 'row',
       background: '#050912', fontFamily: "'DM Sans',sans-serif", position: 'relative' }}>
       <WorldGrid />
 
       {/* ── LEFT ── */}
       <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column',
-        justifyContent: 'space-between', width: '50%', height: '100%', padding: '28px 52px',
-        overflowY: 'auto', scrollbarWidth: 'none' }}>
+        justifyContent: isMobile ? 'flex-start' : 'space-between',
+        width: isMobile ? '100%' : '50%',
+        height: isMobile ? 'auto' : '100%',
+        padding: isMobile ? '18px 18px 24px' : '28px 52px',
+        overflowY: isMobile ? 'visible' : 'auto',
+        scrollbarWidth: 'none', gap: isMobile ? 20 : 0 }}>
 
         {/* Nav */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 38, height: 38, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 34, height: 34, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
               background: 'rgba(0,212,170,0.1)', border: '1px solid rgba(0,212,170,0.2)' }}>
-              <FiGlobe size={18} style={{ color: '#00d4aa' }} />
+              <FiGlobe size={16} style={{ color: '#00d4aa' }} />
             </div>
-            <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 900, color: '#fff', letterSpacing: '-0.5px', fontSize: 16 }}>
+            <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 900, color: '#fff',
+              letterSpacing: '-0.5px', fontSize: isMobile ? 14 : 16 }}>
               GEOHIDERS.COM
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {visitors > 0 && (
+            {visitors > 0 && !isMobile && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 99,
                 background: 'rgba(255,255,255,0.04)', border: '1px solid #1a2540' }}>
                 <FiUsers size={11} style={{ color: '#475569' }} />
@@ -1380,13 +1404,14 @@ export default function LandingPage() {
                 </span>
               </div>
             )}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 99,
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6,
+              padding: isMobile ? '6px 10px' : '8px 16px', borderRadius: 99,
               background: 'rgba(255,255,255,0.04)', border: '1px solid #1a2540' }}>
               <div style={{ width: 7, height: 7, borderRadius: '50%',
                 background: connected ? '#00d4aa' : '#f87171',
                 boxShadow: connected ? '0 0 8px #00d4aa' : 'none',
                 animation: connected ? 'pulse 2s infinite' : 'none' }} />
-              <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono',monospace",
+              <span style={{ fontSize: isMobile ? 11 : 12, fontFamily: "'JetBrains Mono',monospace",
                 color: connected ? '#00d4aa' : '#f87171' }}>
                 {connected ? 'Server Live' : 'Offline'}
               </span>
@@ -1398,46 +1423,31 @@ export default function LandingPage() {
         <div>
           <motion.div initial="h" animate="v" variants={{ h: {}, v: { transition: { staggerChildren: 0.1 } } }}>
             <motion.div variants={{ h: { opacity: 0, y: 20 }, v: { opacity: 1, y: 0 } }}
-              style={{ marginBottom: 14 }}>
-              <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.22em',
-                textTransform: 'uppercase', color: '#00d4aa', background: 'rgba(0,212,170,0.08)',
-                border: '1px solid rgba(0,212,170,0.15)', borderRadius: 99, padding: '7px 16px' }}>
+              style={{ marginBottom: 12 }}>
+              <span style={{ fontSize: isMobile ? 10 : 11, fontFamily: "'JetBrains Mono',monospace",
+                letterSpacing: '0.18em', textTransform: 'uppercase', color: '#00d4aa',
+                background: 'rgba(0,212,170,0.08)', border: '1px solid rgba(0,212,170,0.15)',
+                borderRadius: 99, padding: isMobile ? '6px 12px' : '7px 16px' }}>
                 Multiplayer · Real-World · Location Battle
               </span>
             </motion.div>
 
-            <h1 style={{ lineHeight: 1.0, marginBottom: 16, fontFamily: "'Syne',sans-serif", fontWeight: 900,
-                fontSize: 'clamp(52px, 6vw, 96px)', letterSpacing: '-2px', display: 'flex' }}>
-
-                {/* Geo — fades + slides up from below */}
-                <motion.span
-                  initial={{ y: 60, opacity: 0, filter: 'blur(8px)' }}
+            <h1 style={{ lineHeight: 1.0, marginBottom: 14, fontFamily: "'Syne',sans-serif", fontWeight: 900,
+                fontSize: isMobile ? 'clamp(44px, 13vw, 72px)' : 'clamp(52px, 6vw, 96px)',
+                letterSpacing: isMobile ? '-1px' : '-2px', display: 'flex' }}>
+                <motion.span initial={{ y: 60, opacity: 0, filter: 'blur(8px)' }}
                   animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
                   transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                  style={{ color: '#fff' }}
-                >
-                  Geo
-                </motion.span>
-
-                {/* Hiders — each letter bounces up staggered, then whole word glows on loop */}
+                  style={{ color: '#fff' }}>Geo</motion.span>
                 <motion.span
-                  animate={{
-                    textShadow: [
-                      '0 0 0px rgba(0,212,170,0)',
-                      '0 0 24px rgba(0,212,170,0.9), 0 0 48px rgba(0,212,170,0.35)',
-                      '0 0 0px rgba(0,212,170,0)',
-                    ],
-                  }}
+                  animate={{ textShadow: ['0 0 0px rgba(0,212,170,0)','0 0 24px rgba(0,212,170,0.9), 0 0 48px rgba(0,212,170,0.35)','0 0 0px rgba(0,212,170,0)'] }}
                   transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 1.0 }}
-                  style={{ color: '#00d4aa', display: 'inline-flex' }}
-                >
+                  style={{ color: '#00d4aa', display: 'inline-flex' }}>
                   {'Hiders'.split('').map((l, i) => (
-                    <motion.span
-                      key={i}
+                    <motion.span key={i}
                       initial={{ y: 60, opacity: 0, filter: 'blur(6px)' }}
                       animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
-                      transition={{ duration: 0.6, delay: 0.15 + i * 0.06, ease: [0.22, 1, 0.36, 1] }}
-                    >
+                      transition={{ duration: 0.6, delay: 0.15 + i * 0.06, ease: [0.22, 1, 0.36, 1] }}>
                       {l}
                     </motion.span>
                   ))}
@@ -1445,23 +1455,20 @@ export default function LandingPage() {
             </h1>
 
             <motion.p variants={{ h: { opacity: 0, y: 20 }, v: { opacity: 1, y: 0 } }}
-              style={{ fontSize: 15, lineHeight: 1.7, color: '#64748b', maxWidth: 400, marginBottom: 10 }}>
+              style={{ fontSize: isMobile ? 14 : 15, lineHeight: 1.7, color: '#64748b',
+                maxWidth: isMobile ? '100%' : 400, marginBottom: 10 }}>
               One team hides inside a real Google Street View location.
               The other team decodes clues and pins the exact spot on a world map.
             </motion.p>
 
-            {/* ── Animated city subtitle ── */}
             <motion.div variants={{ h: { opacity: 0, y: 20 }, v: { opacity: 1, y: 0 } }}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 26 }}>
+              style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: isMobile ? 18 : 26 }}>
               <span style={{ fontSize: 13, color: '#475569' }}>Can you find</span>
               <AnimatePresence mode="wait">
                 <motion.span key={cityIdx}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
+                  initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.22 }}
-                  style={{ fontSize: 13, fontWeight: 700, color: '#00d4aa',
-                    fontFamily: "'JetBrains Mono',monospace" }}>
+                  style={{ fontSize: 13, fontWeight: 700, color: '#00d4aa', fontFamily: "'JetBrains Mono',monospace" }}>
                   {HERO_CITIES[cityIdx]}?
                 </motion.span>
               </AnimatePresence>
@@ -1469,22 +1476,23 @@ export default function LandingPage() {
 
             {/* CTAs */}
             <motion.div variants={{ h: { opacity: 0, y: 20 }, v: { opacity: 1, y: 0 } }}
-              style={{ display: 'flex', gap: 14 }}>
+              style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 10 : 14 }}>
               <button onClick={() => openModal('create')}
-                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 28px',
-                  borderRadius: 18, border: 'none', cursor: 'pointer', fontFamily: "'Syne',sans-serif",
-                  fontWeight: 900, fontSize: 15, background: '#00d4aa', color: '#050912',
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                  padding: '14px 28px', borderRadius: 18, border: 'none', cursor: 'pointer',
+                  fontFamily: "'Syne',sans-serif", fontWeight: 900, fontSize: 15,
+                  background: '#00d4aa', color: '#050912', width: isMobile ? '100%' : 'auto',
                   boxShadow: '0 0 60px rgba(0,212,170,0.4)', transition: 'all 0.25s' }}
                 onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 12px 70px rgba(0,212,170,0.55)' }}
                 onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 0 60px rgba(0,212,170,0.4)' }}>
                 <FiUsers size={18} /> Create Room <FiChevronRight size={16} />
               </button>
-
               <button onClick={() => { setJoinPrefill(''); openModal('join') }}
-                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 28px',
-                  borderRadius: 18, cursor: 'pointer', fontFamily: "'Syne',sans-serif",
-                  fontWeight: 900, fontSize: 15, color: '#fff',
-                  background: 'rgba(255,255,255,0.04)', border: '1px solid #1a2540', transition: 'all 0.25s' }}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                  padding: '14px 28px', borderRadius: 18, cursor: 'pointer',
+                  fontFamily: "'Syne',sans-serif", fontWeight: 900, fontSize: 15, color: '#fff',
+                  background: 'rgba(255,255,255,0.04)', border: '1px solid #1a2540',
+                  width: isMobile ? '100%' : 'auto', transition: 'all 0.25s' }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(0,212,170,0.3)'; e.currentTarget.style.background = 'rgba(0,212,170,0.05)'; e.currentTarget.style.transform = 'translateY(-3px)' }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = '#1a2540'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.transform = 'none' }}>
                 <FiHash size={18} /> Join Room
@@ -1492,26 +1500,32 @@ export default function LandingPage() {
             </motion.div>
           </motion.div>
 
-          {/* ── World fact card ── */}
           <WorldFactCard />
-
-          {/* ── Public rooms ── */}
           <PublicRooms onQuickJoin={openQuickJoin} />
         </div>
 
-        {/* ── How it works — cards ── */}
         <HowItWorks />
       </div>
 
-      {/* ── RIGHT ── */}
-      <div style={{ position: 'relative', zIndex: 10, width: '50%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ position: 'absolute', inset: 24, borderRadius: 28,
-          background: 'rgba(14,22,37,0.35)', border: '1px solid rgba(26,37,64,0.7)', backdropFilter: 'blur(6px)' }} />
-        <div style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%', padding: 40, display: 'flex', flexDirection: 'column' }}>
+      {/* ── RIGHT (Globe) ── */}
+      <div style={{ position: 'relative', zIndex: 10,
+        width: isMobile ? '100%' : '50%',
+        height: isMobile ? 420 : '100%',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        overflow: 'hidden', flexShrink: 0 }}>
+        <div style={{ position: 'absolute',
+          inset: isMobile ? 8 : 24,
+          borderRadius: 28, background: 'rgba(14,22,37,0.35)',
+          border: '1px solid rgba(26,37,64,0.7)', backdropFilter: 'blur(6px)' }} />
+        <div style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%',
+          padding: isMobile ? '14px 12px 10px' : 40,
+          display: 'flex', flexDirection: 'column' }}>
           <AnimatedGlobe stats={serverStats} recentEvents={recentEvents} />
 
           {/* Stats strip */}
-          <div style={{ display: 'flex', gap: 8, flexShrink: 0, marginTop: 12 }}>
+          <div style={{ display: 'grid',
+            gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(4,1fr)',
+            gap: 8, flexShrink: 0, marginTop: 10 }}>
             {[
               { value: '10K+',   label: 'Games Played' },
               { value: '195',    label: 'Countries' },
@@ -1521,7 +1535,7 @@ export default function LandingPage() {
               <motion.div key={s.label}
                 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 + i * 0.1 }}
-                style={{ flex: 1, background: 'rgba(14,22,37,0.85)', border: '1px solid #1a2540',
+                style={{ background: 'rgba(14,22,37,0.85)', border: '1px solid #1a2540',
                   borderRadius: 12, padding: '10px 8px', textAlign: 'center' }}>
                 <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 900,
                   color: '#00d4aa', fontSize: 16, lineHeight: 1 }}>{s.value}</div>
@@ -1531,21 +1545,23 @@ export default function LandingPage() {
             ))}
           </div>
 
-          {/* Scrolling world ticker */}
-          <div style={{ overflow: 'hidden', flexShrink: 0, marginTop: 10,
-            borderTop: '1px solid #0f1a2e', paddingTop: 8 }}>
-            <motion.div
-              animate={{ x: ['0%', '-50%'] }}
-              transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
-              style={{ display: 'flex', gap: 32, whiteSpace: 'nowrap' }}>
-              {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
-                <span key={i} style={{ fontSize: 10, color: '#334155',
-                  fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.05em' }}>
-                  {item}
-                </span>
-              ))}
-            </motion.div>
-          </div>
+          {/* Ticker — hidden on mobile to save space */}
+          {!isMobile && (
+            <div style={{ overflow: 'hidden', flexShrink: 0, marginTop: 10,
+              borderTop: '1px solid #0f1a2e', paddingTop: 8 }}>
+              <motion.div
+                animate={{ x: ['0%', '-50%'] }}
+                transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
+                style={{ display: 'flex', gap: 32, whiteSpace: 'nowrap' }}>
+                {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
+                  <span key={i} style={{ fontSize: 10, color: '#334155',
+                    fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.05em' }}>
+                    {item}
+                  </span>
+                ))}
+              </motion.div>
+            </div>
+          )}
 
           <TypewriterSignature />
         </div>
@@ -1555,7 +1571,6 @@ export default function LandingPage() {
         {modal === 'create' && <CreateModal onClose={closeModal} />}
         {modal === 'join'   && <JoinModal   onClose={closeModal} initialCode={joinPrefill} />}
       </AnimatePresence>
-
     </div>
   )
 }
