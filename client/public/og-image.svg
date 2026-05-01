@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="70%">
+      <stop offset="0%"   stop-color="#0a1628"/>
+      <stop offset="100%" stop-color="#050912"/>
+    </radialGradient>
+    <radialGradient id="glow1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#00d4aa" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#00d4aa" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#3b82f6" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="pinGlow">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="textGlow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Ambient glow blobs -->
+  <ellipse cx="300" cy="315" rx="350" ry="280" fill="url(#glow1)"/>
+  <ellipse cx="950" cy="315" rx="300" ry="240" fill="url(#glow2)"/>
+
+  <!-- Grid lines (subtle world map feel) -->
+  <g stroke="#00d4aa" stroke-width="0.5" opacity="0.07">
+    <!-- Horizontals -->
+    <line x1="0" y1="105" x2="1200" y2="105"/>
+    <line x1="0" y1="210" x2="1200" y2="210"/>
+    <line x1="0" y1="315" x2="1200" y2="315"/>
+    <line x1="0" y1="420" x2="1200" y2="420"/>
+    <line x1="0" y1="525" x2="1200" y2="525"/>
+    <!-- Verticals -->
+    <line x1="150"  y1="0" x2="150"  y2="630"/>
+    <line x1="300"  y1="0" x2="300"  y2="630"/>
+    <line x1="450"  y1="0" x2="450"  y2="630"/>
+    <line x1="600"  y1="0" x2="600"  y2="630"/>
+    <line x1="750"  y1="0" x2="750"  y2="630"/>
+    <line x1="900"  y1="0" x2="900"  y2="630"/>
+    <line x1="1050" y1="0" x2="1050" y2="630"/>
+  </g>
+
+  <!-- Border frame -->
+  <rect x="24" y="24" width="1152" height="582" rx="16" fill="none" stroke="#00d4aa" stroke-width="1.5" opacity="0.3"/>
+
+  <!-- Compass (top-right decorative) -->
+  <g transform="translate(1010, 140)">
+    <circle cx="0" cy="0" r="88" fill="none" stroke="#00d4aa" stroke-width="1.2" opacity="0.4"/>
+    <circle cx="0" cy="0" r="72" fill="none" stroke="#00d4aa" stroke-width="0.5" opacity="0.2"/>
+    <!-- Cardinal ticks -->
+    <line x1="0" y1="-88" x2="0" y2="-76" stroke="#00d4aa" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    <line x1="0" y1="88"  x2="0" y2="76"  stroke="#00d4aa" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    <line x1="88" y1="0"  x2="76" y2="0"  stroke="#00d4aa" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    <line x1="-88" y1="0" x2="-76" y2="0" stroke="#00d4aa" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    <!-- Intercardinal ticks -->
+    <line x1="62"  y1="-62"  x2="55"  y2="-55"  stroke="#00d4aa" stroke-width="1.2" stroke-linecap="round" opacity="0.35"/>
+    <line x1="62"  y1="62"   x2="55"  y2="55"   stroke="#00d4aa" stroke-width="1.2" stroke-linecap="round" opacity="0.35"/>
+    <line x1="-62" y1="62"   x2="-55" y2="55"   stroke="#00d4aa" stroke-width="1.2" stroke-linecap="round" opacity="0.35"/>
+    <line x1="-62" y1="-62"  x2="-55" y2="-55"  stroke="#00d4aa" stroke-width="1.2" stroke-linecap="round" opacity="0.35"/>
+    <!-- North needle -->
+    <polygon points="0,-58 -8,0 0,-10 8,0" fill="#00d4aa" opacity="0.9" filter="url(#pinGlow)"/>
+    <!-- South needle -->
+    <polygon points="0,58 -8,0 0,10 8,0" fill="#00d4aa" opacity="0.2"/>
+    <!-- Center -->
+    <circle cx="0" cy="0" r="10" fill="#050912" stroke="#00d4aa" stroke-width="1.8"/>
+    <circle cx="0" cy="0" r="3.5" fill="#00d4aa"/>
+    <!-- N label -->
+    <circle cx="0" cy="-90" r="5" fill="#00d4aa" opacity="0.85" filter="url(#pinGlow)"/>
+  </g>
+
+  <!-- Map pins (scattered) -->
+  <!-- Pin 1 — teal (explorer location) -->
+  <g transform="translate(870, 340)" filter="url(#pinGlow)">
+    <path d="M0-36 C-14-36 -24-26 -24-14 C-24,2 0,24 0,24 C0,24 24,2 24,-14 C24,-26 14,-36 0,-36Z" fill="#00d4aa"/>
+    <circle cx="0" cy="-14" r="9" fill="#050912"/>
+  </g>
+  <!-- Pin 2 — red (agent guess) -->
+  <g transform="translate(760, 420)">
+    <path d="M0-28 C-11-28 -18-20 -18-11 C-18,1 0,19 0,19 C0,19 18,1 18,-11 C18,-20 11,-28 0,-28Z" fill="#ef4444" opacity="0.85"/>
+    <circle cx="0" cy="-11" r="7" fill="#050912" opacity="0.8"/>
+  </g>
+  <!-- Pin 3 — blue (agent guess) -->
+  <g transform="translate(920, 430)">
+    <path d="M0-22 C-9-22 -14-15 -14-8 C-14,1 0,15 0,15 C0,15 14,1 14,-8 C14,-15 9,-22 0,-22Z" fill="#3b82f6" opacity="0.75"/>
+    <circle cx="0" cy="-8" r="5.5" fill="#050912" opacity="0.8"/>
+  </g>
+
+  <!-- Dotted line from pin 2 to pin 1 -->
+  <line x1="760" y1="392" x2="870" y2="304" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="6,5" opacity="0.4"/>
+  <!-- Dotted line from pin 3 to pin 1 -->
+  <line x1="920" y1="408" x2="870" y2="304" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="6,5" opacity="0.35"/>
+
+  <!-- Main title -->
+  <text
+    x="164"
+    y="290"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="108"
+    font-weight="700"
+    letter-spacing="-2"
+    fill="#ffffff"
+    filter="url(#textGlow)"
+  >GeoHiders</text>
+
+  <!-- Teal accent underline -->
+  <rect x="164" y="308" width="560" height="5" rx="2.5" fill="#00d4aa" opacity="0.8"/>
+
+  <!-- Tagline -->
+  <text
+    x="164"
+    y="372"
+    font-family="'Segoe UI', system-ui, sans-serif"
+    font-size="28"
+    font-weight="400"
+    letter-spacing="1"
+    fill="#94a3b8"
+  >Multiplayer Geography Hide &amp; Seek</text>
+
+  <!-- Feature pills -->
+  <g transform="translate(164, 420)">
+    <!-- Pill 1 -->
+    <rect x="0" y="0" width="168" height="38" rx="19" fill="#00d4aa" fill-opacity="0.12" stroke="#00d4aa" stroke-width="1" stroke-opacity="0.4"/>
+    <text x="84" y="24" text-anchor="middle" font-family="'Segoe UI', system-ui, sans-serif" font-size="16" fill="#00d4aa">Street View Explorer</text>
+    <!-- Pill 2 -->
+    <rect x="182" y="0" width="148" height="38" rx="19" fill="#3b82f6" fill-opacity="0.12" stroke="#3b82f6" stroke-width="1" stroke-opacity="0.4"/>
+    <text x="256" y="24" text-anchor="middle" font-family="'Segoe UI', system-ui, sans-serif" font-size="16" fill="#3b82f6">World Map Guessing</text>
+    <!-- Pill 3 -->
+    <rect x="344" y="0" width="128" height="38" rx="19" fill="#a855f7" fill-opacity="0.12" stroke="#a855f7" stroke-width="1" stroke-opacity="0.4"/>
+    <text x="408" y="24" text-anchor="middle" font-family="'Segoe UI', system-ui, sans-serif" font-size="16" fill="#a855f7">Real-time Teams</text>
+  </g>
+
+  <!-- URL -->
+  <text
+    x="164"
+    y="560"
+    font-family="'Segoe UI', system-ui, sans-serif"
+    font-size="22"
+    fill="#475569"
+    letter-spacing="0.5"
+  >geohiders.com</text>
+</svg>
