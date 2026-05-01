@@ -705,14 +705,15 @@ io.on("connection", (socket) => {
   });
 
   // ── LOCATION CONFIRMED (explorer snapped to actual panorama) ────────────────
-  socket.on("location_confirmed", ({ code, lat, lng, panoId }) => {
+  socket.on("location_confirmed", ({ code, lat, lng, panoId, city, country }) => {
     const room = rooms[code];
     if (!room || room.phase !== "hiding") return;
     const player = room.players[socket.id];
     if (!player || player.role !== "explorer") return;
     const latStr = `${Math.abs(lat).toFixed(3)}°${lat >= 0 ? 'N' : 'S'}`;
     const lngStr = `${Math.abs(lng).toFixed(3)}°${lng >= 0 ? 'E' : 'W'}`;
-    room.currentLocation = { lat, lng, name: `${latStr}, ${lngStr}`, city: 'Random Location', id: room.currentLocation.id, panoId };
+    const name = city && country ? `${city}, ${country}` : city || country || `${latStr}, ${lngStr}`;
+    room.currentLocation = { lat, lng, name, city: country || 'Unknown', id: room.currentLocation.id, panoId };
     room.locationConfirmed = true;
     clearTimeout(locationConfirmTimers[code]);
     // Now tell spectators the confirmed real position

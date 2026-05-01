@@ -106,7 +106,24 @@ function StreetView({ lat, lng, onLocationConfirmed, onNoStreetView }) {
             })
             if (!confirmedRef.current && onConfirmedRef.current) {
               confirmedRef.current = true
-              onConfirmedRef.current(actualLat, actualLng, panoId)
+              // Reverse-geocode to get city + country, then confirm
+              const geocoder = new window.google.maps.Geocoder()
+              geocoder.geocode({ location: { lat: actualLat, lng: actualLng } }, (results, gStatus) => {
+                let city = '', country = ''
+                if (gStatus === 'OK' && results?.length) {
+                  const comps = results[0].address_components
+                  const get = (...types) => {
+                    for (const t of types) {
+                      const c = comps.find(x => x.types.includes(t))
+                      if (c) return c.long_name
+                    }
+                    return ''
+                  }
+                  city    = get('locality', 'postal_town', 'administrative_area_level_2', 'administrative_area_level_1')
+                  country = get('country')
+                }
+                onConfirmedRef.current(actualLat, actualLng, panoId, city, country)
+              })
             }
           } else {
             if (onNoSVRef.current) onNoSVRef.current()
@@ -617,8 +634,8 @@ function ExplorerHiding({ room, location, activeClues }) {
     socket.emit('explorer_done', { code: room.code })
   }, [socket, room.code])
 
-  const handleLocationConfirmed = useCallback((lat, lng, panoId) => {
-    socket.emit('location_confirmed', { code: room.code, lat, lng, panoId })
+  const handleLocationConfirmed = useCallback((lat, lng, panoId, city, country) => {
+    socket.emit('location_confirmed', { code: room.code, lat, lng, panoId, city, country })
   }, [socket, room.code])
 
   const handleNoStreetView = useCallback(() => {
