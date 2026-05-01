@@ -770,153 +770,289 @@ function CreateModal({ onClose }) {
 }
 
 /* ─── Rules modal ──────────────────────────────────────────────────────── */
+/* ─── Rules modal phase animations ─────────────────────────────────────── */
+function RulesExplorerAnim() {
+  const [clueIdx, setClueIdx] = useState(0)
+  const CLUES = ['🌊 coastal vibes, warm weather', '🏗️ colonial-style architecture', '⛪ church spire visible', '🌴 tropical vegetation']
+  useEffect(() => {
+    const id = setInterval(() => setClueIdx(i => (i + 1) % CLUES.length), 2400)
+    return () => clearInterval(id)
+  }, [])
+  return (
+    <div style={{ height: 120, borderRadius: 12, overflow: 'hidden', position: 'relative',
+      background: 'linear-gradient(160deg,rgba(0,212,170,0.05) 0%,rgba(8,15,30,0.95) 100%)',
+      border: '1px solid rgba(0,212,170,0.15)' }}>
+      {[25,50,75].map(t => (
+        <div key={t} style={{ position:'absolute', left:0, right:0, top:`${t}%`, height:1, background:'rgba(0,212,170,0.05)' }} />
+      ))}
+      <div style={{ position:'absolute', bottom:-12, left:'50%', transform:'translateX(-50%)',
+        width:150, height:40, borderRadius:'50% 50% 0 0',
+        border:'1px solid rgba(0,212,170,0.15)', borderBottom:'none' }} />
+      <motion.div
+        animate={{ x: [-40, 40, -40] }}
+        transition={{ duration: 3.6, repeat: Infinity, ease: 'easeInOut' }}
+        style={{ position:'absolute', top:'32%', left:'50%', transform:'translateY(-50%)' }}>
+        <div style={{ width:26, height:26, borderRadius:'50%',
+          background:'rgba(0,212,170,0.15)', border:'2px solid rgba(0,212,170,0.65)',
+          display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div style={{ width:10, height:10, borderRadius:'50%', background:'#00d4aa' }} />
+        </div>
+      </motion.div>
+      <motion.div
+        animate={{ scaleX: [0.2, 1, 0.2], opacity: [0, 0.25, 0] }}
+        transition={{ duration: 3.6, repeat: Infinity, ease: 'easeInOut' }}
+        style={{ position:'absolute', top:'32%', left:'12%', right:'12%', height:1,
+          background:'linear-gradient(90deg,transparent,rgba(0,212,170,0.7),transparent)',
+          transformOrigin:'center' }} />
+      <AnimatePresence mode="wait">
+        <motion.div key={clueIdx}
+          initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:-6 }}
+          transition={{ duration:0.3 }}
+          style={{ position:'absolute', bottom:10, left:10, right:10,
+            background:'rgba(8,15,30,0.92)', border:'1px solid rgba(0,212,170,0.22)',
+            borderRadius:8, padding:'5px 10px', display:'flex', alignItems:'center', gap:4 }}>
+          <span style={{ fontSize:9, color:'#00d4aa', fontFamily:"'JetBrains Mono',monospace", flexShrink:0 }}>clue:</span>
+          <span style={{ fontSize:9, color:'#e2e8f0', fontFamily:"'JetBrains Mono',monospace" }}>{CLUES[clueIdx]}</span>
+          <motion.span animate={{ opacity:[1,0,1] }} transition={{ duration:0.7, repeat:Infinity }} style={{ color:'#00d4aa' }}>|</motion.span>
+        </motion.div>
+      </AnimatePresence>
+      <div style={{ position:'absolute', top:8, left:10, display:'flex', alignItems:'center', gap:4 }}>
+        <span style={{ fontSize:8, color:'rgba(100,116,139,0.8)', fontFamily:"'JetBrains Mono',monospace", letterSpacing:'0.1em' }}>STREET VIEW</span>
+      </div>
+      <div style={{ position:'absolute', top:8, right:10, display:'flex', alignItems:'center', gap:4 }}>
+        <motion.div animate={{ opacity:[1,0,1] }} transition={{ duration:1, repeat:Infinity }}
+          style={{ width:5, height:5, borderRadius:'50%', background:'#ef4444' }} />
+        <span style={{ fontSize:8, color:'#ef4444', fontFamily:"'JetBrains Mono',monospace", letterSpacing:'0.1em' }}>REC</span>
+      </div>
+      <div style={{ position:'absolute', top:'34%', left:8, right:8, display:'flex', justifyContent:'space-between', pointerEvents:'none' }}>
+        {['◀','▶'].map((a,i) => (
+          <motion.span key={i}
+            animate={{ opacity:[0.2,0.8,0.2] }}
+            transition={{ duration:1.6, repeat:Infinity, delay:i*0.8 }}
+            style={{ fontSize:10, color:'#00d4aa', userSelect:'none' }}>{a}</motion.span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function RulesAgentsAnim() {
+  const PINS = [
+    { x:'22%', y:'50%', color:'#ff4d6d', label:'A1', delay:0   },
+    { x:'60%', y:'28%', color:'#4d9fff', label:'B1', delay:0.9 },
+    { x:'76%', y:'64%', color:'#a855f7', label:'A2', delay:1.8 },
+    { x:'38%', y:'72%', color:'#f59e0b', label:'B2', delay:2.7 },
+  ]
+  return (
+    <div style={{ height: 120, borderRadius: 12, overflow: 'hidden', position: 'relative',
+      background:'rgba(8,15,30,0.85)', border:'1px solid rgba(0,212,170,0.12)' }}>
+      <svg style={{ position:'absolute', inset:0, width:'100%', height:'100%', opacity:0.13 }}>
+        <defs>
+          <pattern id="rdots" width="14" height="14" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="0.9" fill="#00d4aa" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#rdots)" />
+      </svg>
+      <motion.div animate={{ scale:[1,1.5,1], opacity:[0.35,0.75,0.35] }}
+        transition={{ duration:2.4, repeat:Infinity }}
+        style={{ position:'absolute', top:'46%', left:'50%', transform:'translate(-50%,-50%)',
+          width:24, height:24, borderRadius:'50%', border:'2px solid rgba(0,212,170,0.65)' }} />
+      <div style={{ position:'absolute', top:'46%', left:'50%', transform:'translate(-50%,-50%)',
+        width:7, height:7, borderRadius:'50%', background:'#00d4aa', boxShadow:'0 0 10px rgba(0,212,170,0.9)' }} />
+      {PINS.map((p, i) => (
+        <motion.div key={i}
+          initial={{ y:-26, opacity:0 }}
+          animate={{ y:0, opacity:1 }}
+          transition={{ type:'spring', stiffness:260, damping:14, delay:p.delay, repeat:Infinity, repeatDelay:4 }}
+          style={{ position:'absolute', top:p.y, left:p.x, transform:'translate(-50%,-100%)',
+            display:'flex', flexDirection:'column', alignItems:'center' }}>
+          <div style={{ width:20, height:20, borderRadius:'50%', background:p.color,
+            border:'2px solid rgba(255,255,255,0.25)', display:'flex', alignItems:'center',
+            justifyContent:'center', fontSize:8, fontWeight:900, color:'#fff',
+            boxShadow:`0 0 10px ${p.color}77` }}>{p.label}</div>
+          <div style={{ width:1.5, height:6, background:p.color, opacity:0.7 }} />
+        </motion.div>
+      ))}
+      <div style={{ position:'absolute', top:8, left:10, display:'flex', alignItems:'center', gap:5 }}>
+        <motion.div animate={{ opacity:[1,0.3,1] }} transition={{ duration:1.2, repeat:Infinity }}
+          style={{ width:5, height:5, borderRadius:'50%', background:'#00d4aa' }} />
+        <span style={{ fontSize:8, color:'#94a3b8', fontFamily:"'JetBrains Mono',monospace", letterSpacing:'0.1em' }}>LIVE GUESSES</span>
+      </div>
+      <div style={{ position:'absolute', bottom:8, right:10,
+        background:'rgba(8,15,30,0.9)', border:'1px solid #1a2540',
+        borderRadius:6, padding:'3px 8px' }}>
+        <span style={{ fontSize:8, color:'#64748b', fontFamily:"'JetBrains Mono',monospace" }}>TARGET: </span>
+        <span style={{ fontSize:8, color:'#00d4aa', fontFamily:"'JetBrains Mono',monospace" }}>48.86°N 2.35°E</span>
+      </div>
+    </div>
+  )
+}
+
+function RulesResultsAnim() {
+  const RESULTS = [
+    { name:'AlexG', dist:'95 km',  pts:'+4 200', color:'#ff4d6d', rank:1 },
+    { name:'Maya',  dist:'312 km', pts:'+2 800', color:'#4d9fff', rank:2 },
+    { name:'Zaid',  dist:'612 km', pts:'+1 500', color:'#a855f7', rank:3 },
+  ]
+  return (
+    <div style={{ height: 120, borderRadius: 12, overflow: 'hidden', position: 'relative',
+      background:'rgba(8,15,30,0.9)', border:'1px solid rgba(0,212,170,0.12)',
+      padding:'10px 12px', display:'flex', flexDirection:'column', gap:5 }}>
+      <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:2, flexShrink:0 }}>
+        <span style={{ fontSize:8, color:'#94a3b8', fontFamily:"'JetBrains Mono',monospace", letterSpacing:'0.12em', textTransform:'uppercase' }}>Round Results</span>
+        <div style={{ flex:1, height:1, background:'rgba(0,212,170,0.15)' }} />
+        <span style={{ fontSize:10 }}>🏆</span>
+      </div>
+      {RESULTS.map((r, i) => (
+        <motion.div key={r.name}
+          initial={{ opacity:0, x:-20 }} animate={{ opacity:1, x:0 }}
+          transition={{ delay:i*0.28, duration:0.4, repeat:Infinity, repeatDelay:3.8 }}
+          style={{ display:'flex', alignItems:'center', gap:7, flexShrink:0,
+            background: i === 0 ? 'rgba(0,212,170,0.07)' : 'rgba(255,255,255,0.02)',
+            border:`1px solid ${i === 0 ? 'rgba(0,212,170,0.22)' : '#1a2540'}`,
+            borderRadius:7, padding:'4px 8px' }}>
+          <div style={{ width:16, height:16, borderRadius:'50%',
+            background:r.color + '22', border:`1.5px solid ${r.color}`,
+            display:'flex', alignItems:'center', justifyContent:'center',
+            fontSize:8, fontWeight:900, color:r.color, flexShrink:0 }}>{r.rank}</div>
+          <span style={{ fontSize:10, fontWeight:700, color:'#e2e8f0', flex:1 }}>{r.name}</span>
+          <span style={{ fontSize:8, color:'#64748b', fontFamily:"'JetBrains Mono',monospace" }}>{r.dist}</span>
+          <motion.span
+            initial={{ scale:0.6, opacity:0 }} animate={{ scale:1, opacity:1 }}
+            transition={{ delay:i*0.28+0.35, type:'spring', stiffness:300, repeat:Infinity, repeatDelay:3.8 }}
+            style={{ fontSize:11, fontWeight:900, color:'#00d4aa', fontFamily:"'Syne',sans-serif" }}>{r.pts}</motion.span>
+        </motion.div>
+      ))}
+    </div>
+  )
+}
+
 function RulesModal({ onClose }) {
-  const sections = [
+  const isMobile = useIsMobile()
+
+  const phases = [
     {
-      icon: FiTarget,
+      Anim: RulesExplorerAnim,
+      label: '01 · Explorer Hides',
       color: '#00d4aa',
-      title: 'Objective',
-      content: 'Two teams compete over several rounds. Each round, one team is the active team — their Explorer hides inside a random Google Street View location anywhere on Earth, drops clues, and their Agents must pin the exact spot on a world map. The team with the most points at the end wins.',
+      caption: 'Dropped into a random Street View. Look around, write clues — no country names or coordinates.',
     },
     {
-      icon: FiUsers,
+      Anim: RulesAgentsAnim,
+      label: '02 · Agents Guess',
       color: '#4d9fff',
-      title: 'Roles',
-      items: [
-        { label: 'Explorer', desc: 'One player per round (rotates). You are dropped into a secret Street View location. Your job: write clues that guide your teammates without giving it away directly.' },
-        { label: 'Agent', desc: 'Everyone else on the active team. You read the clues and place a pin on the world map — the closer your pin, the more points you earn.' },
-        { label: 'Spectator', desc: 'Players on the non-active team watch the round unfold on a live map. You will be the active team in the next round.' },
-      ],
+      caption: 'Decode the clues. Drop a pin anywhere on the world map. Closer pin = more points.',
     },
     {
-      icon: FiZap,
-      color: '#f59e0b',
-      title: 'How a Round Works',
-      steps: [
-        'The active team\'s Explorer is placed inside a random real-world Google Street View panorama.',
-        'The Explorer can look around freely and writes text clues in the Clues panel — no country names, no coordinates allowed.',
-        'When ready, the Explorer clicks "Done Exploring" to start the guessing phase.',
-        'All Agents see the clues and click the world map to drop their guess pin, then hit Confirm.',
-        'Once every Agent has guessed (or the timer runs out), results are revealed — distances and points for each guess.',
-        'Teams alternate: the other team\'s Explorer goes next. Repeat for all rounds.',
-      ],
-    },
-    {
-      icon: FiAward,
+      Anim: RulesResultsAnim,
+      label: '03 · Results',
       color: '#a855f7',
-      title: 'Scoring',
+      caption: 'Distances revealed, points awarded. Teams alternate each round. Most points wins.',
+    },
+  ]
+
+  const rules = [
+    {
+      icon: FiShield, color: '#ff4d6d', title: 'Explorer Rules',
       items: [
-        { label: 'Up to 5 000 pts', desc: 'Awarded per guess. A perfect pin on the exact location scores the maximum.' },
-        { label: 'Distance penalty', desc: 'Points decrease as your distance from the real location increases. The further away, the fewer points.' },
-        { label: 'Team total', desc: 'All Agent scores are added to the team\'s running total. The team with the highest score after all rounds wins.' },
+        { label: 'Allowed', desc: 'Architecture style, landscape, vegetation, weather, road signs (without country name), cultural hints, cuisine, landmarks — anything visual.' },
+        { label: 'Not allowed', desc: 'Country names, city names, GPS coordinates, or obvious region identifiers like "Western Europe".' },
+        { label: 'Strategy', desc: 'Too obvious and guessers find it instantly. Too vague and your team scores nothing. Find the sweet spot.' },
       ],
     },
     {
-      icon: FiShield,
-      color: '#ff4d6d',
-      title: 'Explorer Rules',
+      icon: FiMapPin, color: '#00d4aa', title: 'Guessing Tips',
       items: [
-        { label: 'Allowed', desc: 'Describe what you see — architecture style, landscape, vegetation, weather, road signs (without naming the country), culture hints, cuisine, landmarks.' },
-        { label: 'Not allowed', desc: 'No country names, city names, coordinates, or direct region identifiers (e.g. "Western Europe" is borderline — use common sense).' },
-        { label: 'Tip', desc: 'The more creative and specific your clues, the harder it is to guess — but too vague and your own team scores nothing!' },
+        { label: 'Start broad', desc: 'Continent → country → region. The clues will narrow it down progressively.' },
+        { label: 'Map & Satellite', desc: 'Toggle between map and satellite on the guess map to spot terrain, coastlines, and city layouts.' },
+        { label: 'Independent guesses', desc: 'Discuss clues with teammates but each Agent places their own pin — the closest one earns the most.' },
       ],
     },
     {
-      icon: FiMapPin,
-      color: '#00d4aa',
-      title: 'Guessing Tips',
+      icon: FiAward, color: '#a855f7', title: 'Scoring',
       items: [
-        { label: 'Start broad', desc: 'Use the clues to narrow down the continent first, then the country, then the region.' },
-        { label: 'Map vs Satellite', desc: 'Toggle between Map and Satellite view on the guess map to spot terrain, coastlines, and city layouts.' },
-        { label: 'Every Agent guesses independently', desc: 'Discuss clues with teammates but each Agent places their own pin — the best guess wins the round.' },
+        { label: 'Up to 5 000 pts', desc: 'Per guess. A perfect pin on the exact location scores the maximum.' },
+        { label: 'Distance penalty', desc: 'Points decrease the further your pin is from the real location.' },
+        { label: 'Team total', desc: 'All Agent scores are summed. The team with the highest total after all rounds wins.' },
       ],
     },
     {
-      icon: FiClock,
-      color: '#94a3b8',
-      title: 'Game Settings (Host)',
+      icon: FiClock, color: '#94a3b8', title: 'Host Settings',
       items: [
-        { label: 'Rounds', desc: 'Choose how many rounds each team plays (1–5). Both teams always play the same number of rounds.' },
-        { label: 'Timer', desc: 'Optionally set a time limit for the hiding phase and the guessing phase to keep things moving.' },
-        { label: 'Public / Private', desc: 'Create a private room and share the code, or open a public room visible to anyone on the landing page.' },
+        { label: 'Rounds', desc: '1–5 rounds per team. Both teams always play the same number.' },
+        { label: 'Timer', desc: 'Optional time limits for hiding and guessing phases.' },
+        { label: 'Public / Private', desc: 'Share a code for private rooms, or open a public room anyone can discover on the home page.' },
       ],
     },
   ]
 
   return (
-    <Modal onClose={onClose} maxWidth={660}>
+    <Modal onClose={onClose} maxWidth={900}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 28 }}>
-        <div style={{ width: 48, height: 48, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: 'rgba(0,212,170,0.1)', border: '1px solid rgba(0,212,170,0.2)', flexShrink: 0 }}>
-          <FiBook size={20} style={{ color: '#00d4aa' }} />
+      <div style={{ display:'flex', alignItems:'center', gap:16, marginBottom:24 }}>
+        <div style={{ width:48, height:48, borderRadius:16, display:'flex', alignItems:'center', justifyContent:'center',
+          background:'rgba(0,212,170,0.1)', border:'1px solid rgba(0,212,170,0.2)', flexShrink:0 }}>
+          <FiBook size={20} style={{ color:'#00d4aa' }} />
         </div>
         <div>
-          <h2 style={{ fontSize: 22, fontWeight: 900, color: '#fff', fontFamily: "'Syne',sans-serif", marginBottom: 2 }}>How to Play</h2>
-          <p style={{ fontSize: 13, color: '#94a3b8' }}>Everything you need to know to start hiding and hunting</p>
+          <h2 style={{ fontSize:22, fontWeight:900, color:'#fff', fontFamily:"'Syne',sans-serif", marginBottom:2 }}>How to Play</h2>
+          <p style={{ fontSize:13, color:'#94a3b8' }}>A quick visual walk-through, then the full rules below</p>
         </div>
       </div>
 
-      {/* Scrollable content */}
-      <div style={{ overflowY: 'auto', maxHeight: '60vh', paddingRight: 4,
-        scrollbarWidth: 'thin', scrollbarColor: '#1a2540 transparent' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          {sections.map(({ icon: Icon, color, title, content, items, steps }) => (
-            <div key={title} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid #1a2540',
-              borderRadius: 16, padding: '16px 18px' }}>
-              {/* Section header */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: content || items || steps ? 12 : 0 }}>
-                <div style={{ width: 28, height: 28, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: `${color}18`, flexShrink: 0 }}>
-                  <Icon size={14} style={{ color }} />
-                </div>
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', fontFamily: "'Syne',sans-serif",
-                  textTransform: 'uppercase', letterSpacing: '0.06em' }}>{title}</span>
+      <div style={{ overflowY:'auto', maxHeight:'70vh', paddingRight:4,
+        scrollbarWidth:'thin', scrollbarColor:'#1a2540 transparent' }}>
+
+        {/* ── Phase animation strip ── */}
+        <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)',
+          gap:12, marginBottom:22 }}>
+          {phases.map(({ Anim, label, color, caption }) => (
+            <div key={label} style={{ background:'rgba(255,255,255,0.02)', border:'1px solid #1a2540',
+              borderRadius:14, padding:'12px', display:'flex', flexDirection:'column', gap:8 }}>
+              <Anim />
+              <div>
+                <div style={{ fontSize:9, fontFamily:"'JetBrains Mono',monospace", color,
+                  textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:4 }}>{label}</div>
+                <p style={{ fontSize:11, color:'#94a3b8', lineHeight:1.6, margin:0 }}>{caption}</p>
               </div>
+            </div>
+          ))}
+        </div>
 
-              {/* Plain paragraph */}
-              {content && (
-                <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.7, margin: 0 }}>{content}</p>
-              )}
-
-              {/* Numbered steps */}
-              {steps && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {steps.map((step, i) => (
-                    <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                      <div style={{ width: 20, height: 20, borderRadius: 6, background: `${color}20`,
-                        border: `1px solid ${color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        flexShrink: 0, fontFamily: "'JetBrains Mono',monospace", fontSize: 10,
-                        fontWeight: 700, color, marginTop: 1 }}>{i + 1}</div>
-                      <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>{step}</p>
-                    </div>
-                  ))}
+        {/* ── Detailed rules ── */}
+        <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+          {rules.map(({ icon: Icon, color, title, items }) => (
+            <div key={title} style={{ background:'rgba(255,255,255,0.02)', border:'1px solid #1a2540',
+              borderRadius:14, padding:'14px 16px' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:9, marginBottom:12 }}>
+                <div style={{ width:26, height:26, borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center',
+                  background:`${color}18`, flexShrink:0 }}>
+                  <Icon size={13} style={{ color }} />
                 </div>
-              )}
-
-              {/* Label + desc rows */}
-              {items && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {items.map(({ label, desc }) => (
-                    <div key={label} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                      <FiCheckCircle size={13} style={{ color, flexShrink: 0, marginTop: 2 }} />
-                      <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
-                        <span style={{ color: '#e2e8f0', fontWeight: 700 }}>{label} — </span>{desc}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
+                <span style={{ fontSize:12, fontWeight:800, color:'#fff', fontFamily:"'Syne',sans-serif",
+                  textTransform:'uppercase', letterSpacing:'0.06em' }}>{title}</span>
+              </div>
+              <div style={{ display:'flex', flexDirection:'column', gap:9 }}>
+                {items.map(({ label, desc }) => (
+                  <div key={label} style={{ display:'flex', gap:9, alignItems:'flex-start' }}>
+                    <FiCheckCircle size={12} style={{ color, flexShrink:0, marginTop:2 }} />
+                    <p style={{ fontSize:12, color:'#94a3b8', lineHeight:1.6, margin:0 }}>
+                      <span style={{ color:'#e2e8f0', fontWeight:700 }}>{label} — </span>{desc}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
         </div>
 
         {/* Quick-start callout */}
-        <div style={{ marginTop: 18, background: 'rgba(0,212,170,0.06)', border: '1px solid rgba(0,212,170,0.2)',
-          borderRadius: 16, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <FiZap size={16} style={{ color: '#00d4aa', flexShrink: 0 }} />
-          <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
-            <span style={{ color: '#00d4aa', fontWeight: 700 }}>Ready to play? </span>
+        <div style={{ marginTop:16, background:'rgba(0,212,170,0.06)', border:'1px solid rgba(0,212,170,0.2)',
+          borderRadius:14, padding:'13px 16px', display:'flex', alignItems:'center', gap:12 }}>
+          <FiZap size={15} style={{ color:'#00d4aa', flexShrink:0 }} />
+          <p style={{ fontSize:13, color:'#94a3b8', lineHeight:1.6, margin:0 }}>
+            <span style={{ color:'#00d4aa', fontWeight:700 }}>Ready? </span>
             No account needed — create a room, share the code with friends, and start hiding.
           </p>
         </div>
