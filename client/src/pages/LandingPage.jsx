@@ -358,16 +358,17 @@ function WorldGrid() {
 
 /* ─── Animated globe (right panel) ─────────────────────────────────────── */
 function AnimatedGlobe({ stats = {}, recentEvents = [] }) {
-  const [liveIdx, setLiveIdx] = useState(0)
-  const [activity, setActivity] = useState({ idx: 0, visible: false })
+  const [liveIdx, setLiveIdx] = useState(() => Math.floor(Math.random() * LIVE_LOCATIONS.length))
+  const [activity, setActivity] = useState(() => ({ idx: Math.floor(Math.random() * ACTIVITY_EVENTS.length), visible: false }))
   const allEventsRef = useRef(ACTIVITY_EVENTS)
-  const [pins, setPins] = useState(() =>
-    PIN_ZONES.map((pos, i) => ({ ...pos, countryIdx: i % ALL_COUNTRIES.length, ver: i }))
-  )
+  const [pins, setPins] = useState(() => {
+    const start = Math.floor(Math.random() * ALL_COUNTRIES.length)
+    return PIN_ZONES.map((pos, i) => ({ ...pos, countryIdx: (start + i) % ALL_COUNTRIES.length, ver: i }))
+  })
 
   // Cycle 10 pins simultaneously — each slot swaps to a new country independently
   useEffect(() => {
-    let nextCountryIdx = PIN_ZONES.length % ALL_COUNTRIES.length
+    let nextCountryIdx = Math.floor(Math.random() * ALL_COUNTRIES.length)
     const id = setInterval(() => {
       const slotIdx = Math.floor(Math.random() * PIN_ZONES.length)
       const ci = nextCountryIdx
@@ -859,7 +860,7 @@ function JoinModal({ onClose, initialCode = '' }) {
 
 /* ─── World fact card ───────────────────────────────────────────────────── */
 function WorldFactCard() {
-  const [idx, setIdx] = useState(0)
+  const [idx, setIdx] = useState(() => Math.floor(Math.random() * WORLD_FACTS.length))
   useEffect(() => {
     const id = setInterval(() => setIdx(i => (i + 1) % WORLD_FACTS.length), 5000)
     return () => clearInterval(id)
@@ -1135,7 +1136,7 @@ function HowItWorks() {
 export default function LandingPage() {
   const [modal, setModal] = useState(null)
   const [joinPrefill, setJoinPrefill] = useState('')
-  const [cityIdx, setCityIdx] = useState(0)
+  const [cityIdx, setCityIdx] = useState(() => Math.floor(Math.random() * HERO_CITIES.length))
   const [serverStats, setServerStats] = useState({ activePlayers: 0, activeGames: 0, lobbyRooms: 0 })
   const [recentEvents, setRecentEvents] = useState([])
   const [visitors, setVisitors] = useState(0)
