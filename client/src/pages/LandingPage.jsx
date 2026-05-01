@@ -1263,6 +1263,7 @@ function HowItWorks() {
     <motion.div
       initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.75 }}
       style={{ display: 'flex', gap: 10, flexShrink: 0,
+        width: '100%', maxWidth: '100%',
         overflowX: isMobile ? 'auto' : 'visible',
         scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch',
         paddingBottom: isMobile ? 4 : 0 }}>
@@ -1368,7 +1369,7 @@ export default function LandingPage() {
 
   return (
     <div style={{ width: '100vw', minHeight: '100vh', height: isMobile ? 'auto' : '100vh',
-      overflow: isMobile ? 'auto' : 'hidden', display: 'flex',
+      overflowX: 'hidden', overflowY: isMobile ? 'auto' : 'hidden', display: 'flex',
       flexDirection: isMobile ? 'column' : 'row',
       background: '#050912', fontFamily: "'DM Sans',sans-serif", position: 'relative' }}>
       <WorldGrid />
@@ -1379,6 +1380,7 @@ export default function LandingPage() {
         width: isMobile ? '100%' : '50%',
         height: isMobile ? 'auto' : '100%',
         padding: isMobile ? '18px 18px 24px' : '28px 52px',
+        overflowX: 'hidden',
         overflowY: isMobile ? 'visible' : 'auto',
         scrollbarWidth: 'none', gap: isMobile ? 20 : 0 }}>
 
@@ -1505,12 +1507,13 @@ export default function LandingPage() {
         </div>
 
         <HowItWorks />
+        {isMobile && <TypewriterSignature />}
       </div>
 
       {/* ── RIGHT (Globe) ── */}
       <div style={{ position: 'relative', zIndex: 10,
         width: isMobile ? '100%' : '50%',
-        height: isMobile ? 420 : '100%',
+        height: isMobile ? 480 : '100%',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         overflow: 'hidden', flexShrink: 0 }}>
         <div style={{ position: 'absolute',
@@ -1520,7 +1523,9 @@ export default function LandingPage() {
         <div style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%',
           padding: isMobile ? '14px 12px 10px' : 40,
           display: 'flex', flexDirection: 'column' }}>
-          <AnimatedGlobe stats={serverStats} recentEvents={recentEvents} />
+          <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+            <AnimatedGlobe stats={serverStats} recentEvents={recentEvents} />
+          </div>
 
           {/* Stats strip */}
           <div style={{ display: 'grid',
@@ -1563,7 +1568,7 @@ export default function LandingPage() {
             </div>
           )}
 
-          <TypewriterSignature />
+          {!isMobile && <TypewriterSignature />}
         </div>
       </div>
 
