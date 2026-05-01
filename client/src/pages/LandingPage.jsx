@@ -33,6 +33,7 @@ const LIVE_LOCATIONS = [
 ]
 
 const ALL_COUNTRIES = [
+  // Major world cities
   { city: 'Tokyo', flag: '🇯🇵' }, { city: 'Paris', flag: '🇫🇷' }, { city: 'New York', flag: '🇺🇸' },
   { city: 'London', flag: '🇬🇧' }, { city: 'Dubai', flag: '🇦🇪' }, { city: 'Sydney', flag: '🇦🇺' },
   { city: 'Mumbai', flag: '🇮🇳' }, { city: 'Cairo', flag: '🇪🇬' }, { city: 'Rio', flag: '🇧🇷' },
@@ -73,6 +74,73 @@ const ALL_COUNTRIES = [
   { city: 'Skopje', flag: '🇲🇰' }, { city: 'Tirana', flag: '🇦🇱' }, { city: 'Podgorica', flag: '🇲🇪' },
   { city: 'Minsk', flag: '🇧🇾' }, { city: 'Riga', flag: '🇱🇻' }, { city: 'Tallinn', flag: '🇪🇪' },
   { city: 'Vilnius', flag: '🇱🇹' }, { city: 'Chisinau', flag: '🇲🇩' }, { city: 'Yerevan', flag: '🇦🇲' },
+  // European cities
+  { city: 'Barcelona', flag: '🇪🇸' }, { city: 'Seville', flag: '🇪🇸' }, { city: 'Valencia', flag: '🇪🇸' },
+  { city: 'Florence', flag: '🇮🇹' }, { city: 'Milan', flag: '🇮🇹' }, { city: 'Naples', flag: '🇮🇹' },
+  { city: 'Venice', flag: '🇮🇹' }, { city: 'Turin', flag: '🇮🇹' }, { city: 'Palermo', flag: '🇮🇹' },
+  { city: 'Edinburgh', flag: '🇬🇧' }, { city: 'Manchester', flag: '🇬🇧' }, { city: 'Birmingham', flag: '🇬🇧' },
+  { city: 'Munich', flag: '🇩🇪' }, { city: 'Hamburg', flag: '🇩🇪' }, { city: 'Frankfurt', flag: '🇩🇪' },
+  { city: 'Marseille', flag: '🇫🇷' }, { city: 'Lyon', flag: '🇫🇷' }, { city: 'Nice', flag: '🇫🇷' },
+  { city: 'Geneva', flag: '🇨🇭' }, { city: 'Bern', flag: '🇨🇭' }, { city: 'Porto', flag: '🇵🇹' },
+  { city: 'Krakow', flag: '🇵🇱' }, { city: 'Gdansk', flag: '🇵🇱' }, { city: 'Thessaloniki', flag: '🇬🇷' },
+  { city: 'Dubrovnik', flag: '🇭🇷' }, { city: 'Zagreb', flag: '🇭🇷' }, { city: 'Ljubljana', flag: '🇸🇮' },
+  { city: 'Bratislava', flag: '🇸🇰' }, { city: 'Bruges', flag: '🇧🇪' }, { city: 'Ghent', flag: '🇧🇪' },
+  { city: 'Luxembourg City', flag: '🇱🇺' }, { city: 'Andorra la Vella', flag: '🇦🇩' }, { city: 'Monaco', flag: '🇲🇨' },
+  { city: 'Pristina', flag: '🇽🇰' }, { city: 'Vaduz', flag: '🇱🇮' }, { city: 'San Marino', flag: '🇸🇲' },
+  // African capitals & cities
+  { city: 'Algiers', flag: '🇩🇿' }, { city: 'Bamako', flag: '🇲🇱' }, { city: 'Bangui', flag: '🇨🇫' },
+  { city: 'Banjul', flag: '🇬🇲' }, { city: 'Brazzaville', flag: '🇨🇬' }, { city: 'Bujumbura', flag: '🇧🇮' },
+  { city: 'Conakry', flag: '🇬🇳' }, { city: 'Djibouti', flag: '🇩🇯' }, { city: 'Freetown', flag: '🇸🇱' },
+  { city: 'Gaborone', flag: '🇧🇼' }, { city: 'Juba', flag: '🇸🇸' }, { city: 'Libreville', flag: '🇬🇦' },
+  { city: 'Lilongwe', flag: '🇲🇼' }, { city: 'Lomé', flag: '🇹🇬' }, { city: 'Maputo', flag: '🇲🇿' },
+  { city: 'Maseru', flag: '🇱🇸' }, { city: 'Mbabane', flag: '🇸🇿' }, { city: 'Mogadishu', flag: '🇸🇴' },
+  { city: 'Monrovia', flag: '🇱🇷' }, { city: 'Moroni', flag: '🇰🇲' }, { city: "N'Djamena", flag: '🇹🇩' },
+  { city: 'Niamey', flag: '🇳🇪' }, { city: 'Nouakchott', flag: '🇲🇷' }, { city: 'Ouagadougou', flag: '🇧🇫' },
+  { city: 'Porto-Novo', flag: '🇧🇯' }, { city: 'Praia', flag: '🇨🇻' }, { city: 'Windhoek', flag: '🇳🇦' },
+  { city: 'Yamoussoukro', flag: '🇨🇮' }, { city: 'Malabo', flag: '🇬🇶' }, { city: 'Asmara', flag: '🇪🇷' },
+  // Asian capitals & cities
+  { city: 'Ashgabat', flag: '🇹🇲' }, { city: 'Astana', flag: '🇰🇿' }, { city: 'Dili', flag: '🇹🇱' },
+  { city: 'Phnom Penh', flag: '🇰🇭' }, { city: 'Vientiane', flag: '🇱🇦' }, { city: 'Thimphu', flag: '🇧🇹' },
+  { city: 'Naypyidaw', flag: '🇲🇲' }, { city: 'Male', flag: '🇲🇻' }, { city: 'Dushanbe', flag: '🇹🇯' },
+  { city: 'Bishkek', flag: '🇰🇬' }, { city: 'Ho Chi Minh City', flag: '🇻🇳' }, { city: 'Osaka', flag: '🇯🇵' },
+  { city: 'Bangalore', flag: '🇮🇳' }, { city: 'Chennai', flag: '🇮🇳' }, { city: 'Hyderabad', flag: '🇮🇳' },
+  { city: 'Lahore', flag: '🇵🇰' }, { city: 'Chittagong', flag: '🇧🇩' }, { city: 'Guangzhou', flag: '🇨🇳' },
+  { city: 'Shenzhen', flag: '🇨🇳' }, { city: 'Chengdu', flag: '🇨🇳' }, { city: 'Wuhan', flag: '🇨🇳' },
+  { city: 'Muscat', flag: '🇴🇲' }, { city: 'Abu Dhabi', flag: '🇦🇪' }, { city: 'Manama', flag: '🇧🇭' },
+  // Pacific & Oceania
+  { city: 'Apia', flag: '🇼🇸' }, { city: 'Honiara', flag: '🇸🇧' }, { city: 'Port Moresby', flag: '🇵🇬' },
+  { city: 'Port Vila', flag: '🇻🇺' }, { city: 'Nuku\'alofa', flag: '🇹🇴' }, { city: 'Tarawa', flag: '🇰🇮' },
+  { city: 'Palikir', flag: '🇫🇲' }, { city: 'Melbourne', flag: '🇦🇺' }, { city: 'Brisbane', flag: '🇦🇺' },
+  { city: 'Perth', flag: '🇦🇺' }, { city: 'Christchurch', flag: '🇳🇿' },
+  // Americas
+  { city: 'Brasilia', flag: '🇧🇷' }, { city: 'Belo Horizonte', flag: '🇧🇷' }, { city: 'Manaus', flag: '🇧🇷' },
+  { city: 'Recife', flag: '🇧🇷' }, { city: 'Guadalajara', flag: '🇲🇽' }, { city: 'Monterrey', flag: '🇲🇽' },
+  { city: 'Medellín', flag: '🇨🇴' }, { city: 'Cartagena', flag: '🇨🇴' }, { city: 'Arequipa', flag: '🇵🇪' },
+  { city: 'Córdoba', flag: '🇦🇷' }, { city: 'Rosario', flag: '🇦🇷' }, { city: 'Guayaquil', flag: '🇪🇨' },
+  { city: 'Miami', flag: '🇺🇸' }, { city: 'Houston', flag: '🇺🇸' }, { city: 'Seattle', flag: '🇺🇸' },
+  { city: 'San Francisco', flag: '🇺🇸' }, { city: 'Boston', flag: '🇺🇸' }, { city: 'Montreal', flag: '🇨🇦' },
+  // Famous landmarks & places
+  { city: 'Eiffel Tower', flag: '🇫🇷' }, { city: 'Big Ben', flag: '🇬🇧' }, { city: 'Taj Mahal', flag: '🇮🇳' },
+  { city: 'Colosseum', flag: '🇮🇹' }, { city: 'Machu Picchu', flag: '🇵🇪' }, { city: 'Angkor Wat', flag: '🇰🇭' },
+  { city: 'Stonehenge', flag: '🇬🇧' }, { city: 'Burj Khalifa', flag: '🇦🇪' }, { city: 'Acropolis', flag: '🇬🇷' },
+  { city: 'Petra', flag: '🇯🇴' }, { city: 'Chichen Itza', flag: '🇲🇽' }, { city: 'Pyramids of Giza', flag: '🇪🇬' },
+  { city: 'Sagrada Familia', flag: '🇪🇸' }, { city: 'Mt. Fuji', flag: '🇯🇵' }, { city: 'Kilimanjaro', flag: '🇹🇿' },
+  { city: 'Galápagos', flag: '🇪🇨' }, { city: 'Maldives', flag: '🇲🇻' }, { city: 'Santorini', flag: '🇬🇷' },
+  { city: 'Bali', flag: '🇮🇩' }, { city: 'Cappadocia', flag: '🇹🇷' }, { city: 'Patagonia', flag: '🇦🇷' },
+  { city: 'Norwegian Fjords', flag: '🇳🇴' }, { city: 'Amalfi Coast', flag: '🇮🇹' }, { city: 'Meteora', flag: '🇬🇷' },
+  { city: 'Lofoten Islands', flag: '🇳🇴' }, { city: 'Grand Canyon', flag: '🇺🇸' }, { city: 'Niagara Falls', flag: '🇨🇦' },
+  { city: 'Victoria Falls', flag: '🇿🇲' }, { city: 'Serengeti', flag: '🇹🇿' }, { city: 'Great Barrier Reef', flag: '🇦🇺' },
+  { city: 'Amazon River', flag: '🇧🇷' }, { city: 'Sahara Desert', flag: '🇲🇦' }, { city: 'Dead Sea', flag: '🇯🇴' },
+  { city: 'Everest Base Camp', flag: '🇳🇵' }, { city: 'Banff', flag: '🇨🇦' }, { city: 'Yellowstone', flag: '🇺🇸' },
+  { city: 'Phuket', flag: '🇹🇭' }, { city: 'Cinque Terre', flag: '🇮🇹' }, { city: 'Alhambra', flag: '🇪🇸' },
+]
+
+const FACT_COLORS = ['#f97316','#22c55e','#3b82f6','#f59e0b','#06b6d4','#ef4444','#a855f7','#00d4aa','#84cc16','#60a5fa','#ec4899','#14b8a6']
+
+const PIN_ZONES = [
+  { top: '12%', left: '12%' }, { top: '12%', left: '40%' }, { top: '12%', left: '68%' },
+  { top: '36%', left: '5%'  }, { top: '36%', left: '32%' }, { top: '36%', left: '60%' }, { top: '36%', left: '84%' },
+  { top: '64%', left: '18%' }, { top: '64%', left: '48%' }, { top: '64%', left: '76%' },
 ]
 
 const TICKER_ITEMS = [
@@ -97,17 +165,144 @@ const TICKER_ITEMS = [
 ]
 
 const WORLD_FACTS = [
-  { fact: 'Tokyo is the world\'s most populous city',         detail: '37 million people in the metro area',      flag: '🇯🇵', color: '#f97316' },
-  { fact: 'The Amazon rainforest produces 20% of Earth\'s oxygen', detail: 'Spanning 9 countries in South America', flag: '🇧🇷', color: '#22c55e' },
-  { fact: 'Russia spans 11 time zones',                       detail: 'The largest country on Earth by area',      flag: '🇷🇺', color: '#3b82f6' },
-  { fact: 'Dubai\'s Burj Khalifa is 828m tall',               detail: 'Tallest man-made structure on Earth',       flag: '🇦🇪', color: '#f59e0b' },
-  { fact: 'The Dead Sea is 430m below sea level',             detail: 'The lowest point on Earth\'s surface',      flag: '🇯🇴', color: '#06b6d4' },
-  { fact: 'Canada has 202,080 km of coastline',               detail: 'The longest coastline of any country',      flag: '🇨🇦', color: '#ef4444' },
-  { fact: 'Vatican City fits inside Central Park',            detail: 'The world\'s smallest country at 0.44 km²', flag: '🇻🇦', color: '#a855f7' },
-  { fact: 'The Nile flows through 11 countries',              detail: '6,650 km — the world\'s longest river',     flag: '🇪🇬', color: '#00d4aa' },
-  { fact: 'New Zealand has more sheep than people',           detail: '5 sheep for every 1 person',                flag: '🇳🇿', color: '#84cc16' },
-  { fact: 'Iceland runs on 100% renewable energy',           detail: 'Geothermal and hydro power the whole island', flag: '🇮🇸', color: '#60a5fa' },
-]
+  // Geography records
+  { fact: 'Russia spans 11 time zones', detail: 'Largest country on Earth at 17.1 million km²', flag: '🇷🇺' },
+  { fact: 'Vatican City is the world\'s smallest country', detail: 'Just 0.44 km² — fits inside New York\'s Central Park', flag: '🇻🇦' },
+  { fact: 'Mount Everest stands at 8,849 metres', detail: 'The highest point on Earth, still growing 5mm per year', flag: '🇳🇵' },
+  { fact: 'The Mariana Trench is 11,034 metres deep', detail: 'Deepest known point in any ocean on Earth', flag: '🇺🇲' },
+  { fact: 'The Dead Sea sits 430 metres below sea level', detail: 'The lowest point on Earth\'s surface', flag: '🇯🇴' },
+  { fact: 'The Nile is the world\'s longest river', detail: '6,650 km flowing through 11 countries', flag: '🇪🇬' },
+  { fact: 'Lake Baikal holds 20% of Earth\'s freshwater', detail: 'The world\'s deepest lake at 1,642 metres', flag: '🇷🇺' },
+  { fact: 'The Sahara is larger than the continental USA', detail: '9.2 million km² of the world\'s largest hot desert', flag: '🇲🇦' },
+  { fact: 'Antarctica is the largest desert on Earth', detail: 'At 14.2 million km², it\'s a cold desert', flag: '🇦🇶' },
+  { fact: 'Angel Falls drops 979 metres', detail: 'World\'s highest uninterrupted waterfall, in Venezuela', flag: '🇻🇪' },
+  { fact: 'The Pacific Ocean is larger than all land combined', detail: 'Covers 165 million km² — 30% of Earth\'s surface', flag: '🌊' },
+  { fact: 'Greenland is the world\'s largest island', detail: '2.13 million km², covered 80% by ice sheet', flag: '🇬🇱' },
+  { fact: 'The Amazon discharges 20% of all river water', detail: 'Into the Atlantic Ocean — more than the next 7 rivers combined', flag: '🇧🇷' },
+  { fact: 'K2 has a 1-in-4 death rate for climbers', detail: 'The world\'s most dangerous mountain to summit', flag: '🇵🇰' },
+  { fact: 'Victoria Falls is the world\'s largest waterfall', detail: '1,708 metres wide — called "The Smoke That Thunders"', flag: '🇿🇲' },
+  // Cities
+  { fact: 'Tokyo is the world\'s most populous city', detail: '37 million people in the greater metro area', flag: '🇯🇵' },
+  { fact: 'Istanbul is the only city on two continents', detail: 'Split between Europe and Asia by the Bosphorus Strait', flag: '🇹🇷' },
+  { fact: 'Venice is built on 118 small islands', detail: 'Connected by 400+ bridges, cars are banned', flag: '🇮🇹' },
+  { fact: 'Hong Kong has 7,500 skyscrapers', detail: 'More skyscrapers than any other city on Earth', flag: '🇭🇰' },
+  { fact: 'Dubai grew from 40,000 to 3.5 million in 60 years', detail: 'One of the fastest growing cities in history', flag: '🇦🇪' },
+  { fact: 'New York City has 800+ languages spoken', detail: 'The most linguistically diverse city in the world', flag: '🇺🇸' },
+  { fact: 'London has 80+ languages spoken daily', detail: 'Over 300 nationalities call London home', flag: '🇬🇧' },
+  { fact: 'Mexico City sits at 2,240 metres altitude', detail: 'The world\'s highest altitude major city', flag: '🇲🇽' },
+  { fact: 'Singapore fits 5.6 million people in 733 km²', detail: 'One of the world\'s most densely populated countries', flag: '🇸🇬' },
+  { fact: 'Cairo is home to 21 million people', detail: 'The largest city in Africa and the Arab world', flag: '🇪🇬' },
+  { fact: 'Reykjavik is the world\'s most northerly capital', detail: 'And still one of the warmest thanks to the Gulf Stream', flag: '🇮🇸' },
+  { fact: 'Amsterdam has 1,000+ km of canals', detail: 'More canals than Venice, with 1,500 bridges', flag: '🇳🇱' },
+  { fact: 'Chicago built the world\'s first skyscraper in 1885', detail: 'The 10-storey Home Insurance Building changed cities forever', flag: '🇺🇸' },
+  { fact: 'Kathmandu is ringed by 8 of the 10 highest peaks', detail: 'The Himalayas surround Nepal\'s capital on all sides', flag: '🇳🇵' },
+  { fact: 'Baghdad was once the world\'s largest city', detail: 'In the 8th century it had over 1 million people', flag: '🇮🇶' },
+  // Countries
+  { fact: 'Canada has the world\'s longest coastline', detail: '202,080 km — longer than the next 4 countries combined', flag: '🇨🇦' },
+  { fact: 'Indonesia has 17,000+ islands', detail: 'The world\'s largest archipelago nation', flag: '🇮🇩' },
+  { fact: 'Japan\'s monarchy is the oldest in the world', detail: 'Continuous for over 2,600 years', flag: '🇯🇵' },
+  { fact: 'Iceland runs on 100% renewable energy', detail: 'Powered entirely by geothermal and hydropower', flag: '🇮🇸' },
+  { fact: 'India speaks 780+ languages', detail: 'More languages than any other country on Earth', flag: '🇮🇳' },
+  { fact: 'Papua New Guinea has 800+ languages', detail: 'The most languages per capita of any country', flag: '🇵🇬' },
+  { fact: 'Bolivia has two capital cities', detail: 'Sucre (constitutional) and La Paz (government seat)', flag: '🇧🇴' },
+  { fact: 'New Zealand gave women the vote in 1893', detail: 'The first self-governing country to do so', flag: '🇳🇿' },
+  { fact: 'Philippines has 7,641 islands', detail: 'Only about 2,000 of them are inhabited', flag: '🇵🇭' },
+  { fact: 'Bhutan measures Gross National Happiness', detail: 'The world\'s only country to prioritise happiness over GDP', flag: '🇧🇹' },
+  { fact: 'Netherlands has 26% of land below sea level', detail: 'Protected by 3,500 km of dikes and barriers', flag: '🇳🇱' },
+  { fact: 'Australia is both a continent and a country', detail: 'The only nation to occupy an entire continent', flag: '🇦🇺' },
+  { fact: 'France is the world\'s most visited country', detail: '89 million tourists arrive every year', flag: '🇫🇷' },
+  { fact: 'Switzerland has 4 official languages', detail: 'German, French, Italian and Romansh', flag: '🇨🇭' },
+  { fact: 'Norway has a sovereign wealth fund of $1.4 trillion', detail: 'The world\'s largest, funded by North Sea oil', flag: '🇳🇴' },
+  { fact: 'Costa Rica has had no army since 1948', detail: 'Spends its military budget on education and healthcare', flag: '🇨🇷' },
+  { fact: 'Finland is the world\'s happiest country', detail: 'Ranked #1 in the World Happiness Report 7 years running', flag: '🇫🇮' },
+  { fact: 'South Korea has the world\'s fastest internet', detail: 'Average speeds of over 200 Mbps nationwide', flag: '🇰🇷' },
+  { fact: 'Brazil is larger than the contiguous USA', detail: 'Fifth largest country by area at 8.5 million km²', flag: '🇧🇷' },
+  { fact: 'Ethiopia is the oldest independent country in Africa', detail: 'Never colonised — defeated Italy at Adwa in 1896', flag: '🇪🇹' },
+  { fact: 'China\'s civilisation is 5,000 years old', detail: 'The world\'s longest continuously existing civilisation', flag: '🇨🇳' },
+  // Nature & Wildlife
+  { fact: 'The Amazon rainforest produces 20% of Earth\'s oxygen', detail: 'Spanning 9 countries across South America', flag: '🇧🇷' },
+  { fact: 'Madagascar has 90% unique wildlife', detail: '90% of species found there exist nowhere else on Earth', flag: '🇲🇬' },
+  { fact: 'The Great Barrier Reef is visible from space', detail: '2,300 km long — the world\'s largest living structure', flag: '🇦🇺' },
+  { fact: 'Galápagos Islands inspired Darwin', detail: 'His 1835 visit led directly to the theory of evolution', flag: '🇪🇨' },
+  { fact: 'The blue whale is the largest animal ever', detail: 'Up to 33 metres long and 150 tonnes in weight', flag: '🌊' },
+  { fact: 'Komodo dragons can grow up to 3 metres long', detail: 'The world\'s largest living lizards, found in Indonesia', flag: '🇮🇩' },
+  { fact: '1.5 million wildebeest migrate across the Serengeti', detail: 'The world\'s largest land animal migration', flag: '🇹🇿' },
+  { fact: 'Monarch butterflies migrate 4,500 km', detail: 'From Canada to Mexico — guided by Earth\'s magnetic field', flag: '🇲🇽' },
+  { fact: 'The Amazon has 390 billion trees', detail: '16,000 species in the world\'s most biodiverse forest', flag: '🇧🇷' },
+  { fact: 'Saharan sand reaches the Caribbean', detail: 'Dust particles travel 8,000 km across the Atlantic Ocean', flag: '🌍' },
+  { fact: 'The Maldives beaches glow at night', detail: 'Bioluminescent plankton create a natural blue glow in the waves', flag: '🇲🇻' },
+  { fact: 'Yellowstone has 10,000 thermal features', detail: 'More than any other place on Earth — a supervolcano below', flag: '🇺🇸' },
+  { fact: 'Borneo is shared by three countries', detail: 'Malaysia, Indonesia and Brunei share the world\'s 3rd largest island', flag: '🇲🇾' },
+  { fact: 'The Namib Desert is 55 million years old', detail: 'The world\'s oldest desert, stretching 2,000 km along Africa\'s coast', flag: '🇳🇦' },
+  { fact: 'Giant pandas exist only in 6 mountain ranges', detail: 'All in Sichuan, Shaanxi and Gansu provinces of China', flag: '🇨🇳' },
+  // Oceans & Water
+  { fact: 'The Pacific Ocean has 25,000+ islands', detail: 'More islands than all other oceans combined', flag: '🌊' },
+  { fact: 'The Mediterranean touches 22 countries', detail: 'Bordered by Europe, Africa and Asia simultaneously', flag: '🌊' },
+  { fact: 'The Black Sea has almost no oxygen below 150m', detail: 'Ancient ships are preserved perfectly in its depths', flag: '🌊' },
+  { fact: 'The Congo is the world\'s deepest river', detail: 'Over 220 metres deep in places — too deep to measure easily', flag: '🇨🇩' },
+  { fact: 'The Dead Sea is shrinking by 1 metre per year', detail: 'Over-extraction of water has reduced it by a third since 1960', flag: '🇯🇴' },
+  { fact: 'The Mekong River flows through 6 countries', detail: 'From China\'s Tibetan Plateau to Vietnam\'s delta', flag: '🇻🇳' },
+  { fact: 'Lake Titicaca is the world\'s highest navigable lake', detail: 'At 3,812 metres, on the Bolivia-Peru border', flag: '🇵🇪' },
+  { fact: 'The Thames was declared biologically dead in 1957', detail: 'Now has 115 species of fish — one of history\'s greatest cleanups', flag: '🇬🇧' },
+  { fact: '75% of Earth\'s volcanoes are in the Pacific Ring of Fire', detail: '452 volcanoes encircle the Pacific Ocean', flag: '🌊' },
+  { fact: 'The Okavango Delta floods every year in a desert', detail: 'The Kalahari Desert fills with water from Angola\'s rains', flag: '🇧🇼' },
+  // Mountains
+  { fact: 'The Himalayas are still growing', detail: 'India colliding with Asia pushes them 5mm higher each year', flag: '🇳🇵' },
+  { fact: 'Kilimanjaro is Africa\'s highest peak', detail: '5,895 metres — a free-standing volcano in Tanzania', flag: '🇹🇿' },
+  { fact: 'The Andes stretch 7,000 km', detail: 'The world\'s longest mountain range, through 7 countries', flag: '🇨🇱' },
+  { fact: 'The Alps span 8 countries', detail: 'Visited by 120 million tourists every year', flag: '🇨🇭' },
+  { fact: 'Mauna Kea is 10,210m from the ocean floor', detail: 'Taller than Everest when measured from its base', flag: '🇺🇸' },
+  { fact: 'The Carpathians hold 50% of Europe\'s brown bears', detail: 'Stretching 1,500 km across 8 countries', flag: '🇷🇴' },
+  // Landmarks & Architecture
+  { fact: 'The Great Wall of China is 21,196 km long', detail: 'Built over 2,000 years — not visible from space (a myth)', flag: '🇨🇳' },
+  { fact: 'The Colosseum held 80,000 spectators', detail: 'Built in just 8 years and completed in 80 AD', flag: '🇮🇹' },
+  { fact: 'The Eiffel Tower was built in 2 years and 2 months', detail: 'Originally meant to be demolished after the 1889 World\'s Fair', flag: '🇫🇷' },
+  { fact: 'The Burj Khalifa has 163 floors', detail: '828 metres tall — took 22 million man-hours to build', flag: '🇦🇪' },
+  { fact: 'The Taj Mahal took 22 years to build', detail: '20,000 workers and 1,000 elephants were used in its construction', flag: '🇮🇳' },
+  { fact: 'Machu Picchu sits at 2,430 metres altitude', detail: 'Built by the Incas in the 15th century without wheeled transport', flag: '🇵🇪' },
+  { fact: 'Angkor Wat is the world\'s largest religious monument', detail: '400 km² in Cambodia — built in the 12th century', flag: '🇰🇭' },
+  { fact: 'Stonehenge stones weigh up to 25 tonnes each', detail: 'Transported 250 km from Wales — how remains a mystery', flag: '🇬🇧' },
+  { fact: 'Sagrada Familia has been under construction since 1882', detail: 'Still being built — Antoni Gaudí\'s masterpiece in Barcelona', flag: '🇪🇸' },
+  { fact: 'The Sydney Opera House has 1 million roof tiles', detail: 'Completed in 1973 after 14 years of construction', flag: '🇦🇺' },
+  { fact: 'Chichen Itza aligns perfectly with the solstice', detail: 'On equinox days, a serpent shadow slithers down the pyramid', flag: '🇲🇽' },
+  { fact: 'Petra is half buried underground', detail: 'The rose-red city carved into rock by the Nabataeans in 300 BC', flag: '🇯🇴' },
+  { fact: 'The Pyramids of Giza are the only ancient wonder standing', detail: 'Built 4,500 years ago with 2.3 million stone blocks each', flag: '🇪🇬' },
+  { fact: 'Easter Island\'s Moai weigh 13 tonnes on average', detail: '900 statues carved by the Rapa Nui people, purpose still debated', flag: '🗿' },
+  { fact: 'The Acropolis was built in just 15 years', detail: 'Completed 432 BC — the Parthenon withstood 2,400 years of history', flag: '🇬🇷' },
+  { fact: 'Hagia Sophia was the world\'s largest church for 1,000 years', detail: 'Built in Constantinople in 537 AD, now a mosque', flag: '🇹🇷' },
+  { fact: 'The Golden Gate Bridge has 83,000 km of wire', detail: 'Enough to circle the Earth three times', flag: '🇺🇸' },
+  { fact: 'Big Ben\'s clock hands are 4.3 metres long', detail: 'The Great Bell weighs 13.5 tonnes and was cast in 1858', flag: '🇬🇧' },
+  // Planet Earth
+  { fact: '71% of Earth\'s surface is covered by water', detail: 'Yet 97% of that water is saltwater, undrinkable', flag: '🌍' },
+  { fact: 'Earth rotates at 1,674 km/h at the equator', detail: 'We don\'t feel it because we rotate with the planet', flag: '🌍' },
+  { fact: 'Earth\'s core is as hot as the surface of the Sun', detail: 'Around 5,100°C — iron and nickel in a liquid state', flag: '🌍' },
+  { fact: 'Earth has 8.7 million species', detail: 'Only 1.2 million have been formally identified by science', flag: '🌍' },
+  { fact: 'The tectonic plates move 2.5 cm per year', detail: 'Africa and South America were once one continent', flag: '🌍' },
+  { fact: 'Earth\'s magnetic north moves 55 km per year', detail: 'It has reversed 180 times in the past 20 million years', flag: '🌍' },
+  { fact: 'The atmosphere is 78% nitrogen, 21% oxygen', detail: 'The remaining 1% is argon, CO₂ and other gases', flag: '🌍' },
+  { fact: 'A day on Earth is 23 hours 56 minutes', detail: 'Not exactly 24 hours — our clocks slowly drift', flag: '🌍' },
+  // Food & Culture
+  { fact: 'Italy has 350+ distinct pasta shapes', detail: 'Each region has its own traditional varieties', flag: '🇮🇹' },
+  { fact: 'Japan has the world\'s most Michelin-starred restaurants', detail: 'Tokyo alone has more stars than Paris or New York', flag: '🇯🇵' },
+  { fact: 'India has 30% of the world\'s vegetarians', detail: 'More vegetarians than the rest of the world combined', flag: '🇮🇳' },
+  { fact: 'France produces 1,200+ varieties of cheese', detail: 'Charles de Gaulle once said it\'s impossible to govern such a country', flag: '🇫🇷' },
+  { fact: 'Thailand exports more rice than any other country', detail: 'Rice has been grown there for 5,500 years', flag: '🇹🇭' },
+  { fact: 'Brazil consumes more coffee than any country except the USA', detail: 'Also the world\'s largest producer of coffee', flag: '🇧🇷' },
+  { fact: 'South Korea has over 90,000 coffee shops', detail: 'The highest coffee shop density per capita in the world', flag: '🇰🇷' },
+  { fact: 'Mexico is the birthplace of chocolate', detail: 'The Aztecs used cacao beans as currency 3,000 years ago', flag: '🇲🇽' },
+  // Language
+  { fact: 'There are 7,000+ living languages in the world', detail: 'One language dies every 2 weeks on average', flag: '🌍' },
+  { fact: 'Mandarin Chinese has 50,000+ characters', detail: 'You need to know about 2,000 to read a newspaper', flag: '🇨🇳' },
+  { fact: 'English has over 170,000 words in current use', detail: 'Plus 47,000 obsolete words in the full Oxford Dictionary', flag: '🇬🇧' },
+  { fact: 'Arabic is written right to left', detail: 'And is the 5th most spoken language with 274 million speakers', flag: '🇸🇦' },
+  { fact: 'Hawaiian has only 13 letters in its alphabet', detail: 'The shortest alphabet of any language', flag: '🇺🇸' },
+  // Space & Exploration
+  { fact: 'The ISS travels at 28,000 km/h', detail: 'It orbits Earth every 90 minutes — 16 sunrises per day', flag: '🚀' },
+  { fact: 'The Moon is moving away from Earth', detail: '3.8 cm further away every year — it was once 10x closer', flag: '🌕' },
+  { fact: 'Voyager 1 is the most distant human-made object', detail: 'Over 23 billion km from Earth — still sending data', flag: '🚀' },
+  { fact: 'The Sun makes up 99.86% of the solar system\'s mass', detail: 'Over 1.3 million Earths could fit inside it', flag: '☀️' },
+  { fact: 'Light from the Sun takes 8 minutes to reach Earth', detail: 'If the Sun disappeared, we wouldn\'t know for 8 minutes', flag: '☀️' },
+].map((f, i) => ({ ...f, color: FACT_COLORS[i % FACT_COLORS.length] }))
 
 const ACTIVITY_EVENTS = [
   { msg: '4 players started a game', loc: 'Tokyo, Japan',          flag: '🇯🇵' },
@@ -166,19 +361,19 @@ function AnimatedGlobe({ stats = {}, recentEvents = [] }) {
   const [liveIdx, setLiveIdx] = useState(0)
   const [activity, setActivity] = useState({ idx: 0, visible: false })
   const allEventsRef = useRef(ACTIVITY_EVENTS)
-  const [pin, setPin] = useState({ idx: 0, top: '30%', left: '40%', visible: true })
+  const [pins, setPins] = useState(() =>
+    PIN_ZONES.map((pos, i) => ({ ...pos, countryIdx: i % ALL_COUNTRIES.length, ver: i }))
+  )
 
-  // Cycle one country pin at a time — random position, no overlap
+  // Cycle 10 pins simultaneously — each slot swaps to a new country independently
   useEffect(() => {
-    let countryIdx = 0
-    const next = () => {
-      countryIdx = (countryIdx + 1) % ALL_COUNTRIES.length
-      const top  = `${15 + Math.random() * 65}%`
-      const left = `${10 + Math.random() * 75}%`
-      setPin({ idx: countryIdx, top, left, visible: true })
-      setTimeout(() => setPin(p => ({ ...p, visible: false })), 2200)
-    }
-    const id = setInterval(next, 2800)
+    let nextCountryIdx = PIN_ZONES.length % ALL_COUNTRIES.length
+    const id = setInterval(() => {
+      const slotIdx = Math.floor(Math.random() * PIN_ZONES.length)
+      const ci = nextCountryIdx
+      nextCountryIdx = (nextCountryIdx + 1) % ALL_COUNTRIES.length
+      setPins(prev => prev.map((p, i) => i === slotIdx ? { ...p, countryIdx: ci, ver: p.ver + 1 } : p))
+    }, 1200)
     return () => clearInterval(id)
   }, [])
 
@@ -287,10 +482,10 @@ function AnimatedGlobe({ stats = {}, recentEvents = [] }) {
         )}
       </AnimatePresence>
 
-      {/* Single cycling country pin — one at a time, random position */}
-      <AnimatePresence>
-        {pin.visible && (
-          <motion.div key={pin.idx} className="absolute"
+      {/* 10 simultaneous country pins — one per PIN_ZONE slot, each cycles independently */}
+      {pins.map((pin, slotIdx) => (
+        <AnimatePresence key={slotIdx}>
+          <motion.div key={pin.ver} className="absolute"
             style={{ top: pin.top, left: pin.left, pointerEvents: 'none', zIndex: 10 }}
             initial={{ opacity: 0, scale: 0.6 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -301,18 +496,18 @@ function AnimatedGlobe({ stats = {}, recentEvents = [] }) {
                 background: 'rgba(0,212,170,0.8)', border: '1.5px solid #00d4aa',
                 boxShadow: '0 0 8px rgba(0,212,170,0.6)' }}
                 animate={{ scale: [1, 1.7, 1], opacity: [0.6, 1, 0.6] }}
-                transition={{ duration: 1.2, repeat: Infinity }} />
+                transition={{ duration: 1.2, repeat: Infinity, delay: slotIdx * 0.12 }} />
               <div style={{ background: 'rgba(8,15,30,0.9)', border: '1px solid rgba(0,212,170,0.2)',
                 borderRadius: 6, padding: '3px 9px', whiteSpace: 'nowrap',
                 fontSize: 10, fontFamily: "'JetBrains Mono',monospace", color: '#94a3b8',
                 backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', gap: 5 }}>
-                <span style={{ fontSize: 12 }}>{ALL_COUNTRIES[pin.idx].flag}</span>
-                {ALL_COUNTRIES[pin.idx].city}
+                <span style={{ fontSize: 12 }}>{ALL_COUNTRIES[pin.countryIdx].flag}</span>
+                {ALL_COUNTRIES[pin.countryIdx].city}
               </div>
             </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>
+      ))}
 
       {/* TOP-RIGHT — Active Games */}
       <motion.div className="absolute top-10 right-4 rounded-2xl px-5 py-3"
