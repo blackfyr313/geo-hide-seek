@@ -400,7 +400,7 @@ export default function LobbyPage() {
             <div style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: '#334155',
               textTransform: 'uppercase', letterSpacing: '0.15em' }}>Game Lobby</div>
             <div style={{ fontSize: 14, fontFamily: "'Syne',sans-serif", fontWeight: 900,
-              color: '#fff', lineHeight: 1.2 }}>Geo Hide & Seek</div>
+              color: '#fff', lineHeight: 1.2 }}>GeoHiders.com</div>
           </div>
         </div>
 

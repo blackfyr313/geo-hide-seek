@@ -381,7 +381,7 @@ function GameHeader({ room, secs, phase, roundResults, onLeave }) {
           <FiGlobe size={14} style={{ color: '#00d4aa' }} />
         </div>
         <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 900, fontSize: 12, color: '#fff' }}>
-          GEO HIDE & SEEK
+          GEOHIDERS.COM
         </span>
       </div>
 

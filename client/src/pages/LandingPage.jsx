@@ -809,7 +809,7 @@ export default function LandingPage() {
               <FiGlobe size={18} style={{ color: '#00d4aa' }} />
             </div>
             <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 900, color: '#fff', letterSpacing: '-0.5px', fontSize: 16 }}>
-              GEO HIDE & SEEK
+              GEOHIDERS.COM
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

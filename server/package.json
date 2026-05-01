@@ -1,7 +1,7 @@
 {
-  "name": "geo-hide-seek-server",
+  "name": "geohiders-server",
   "version": "1.0.0",
-  "description": "Geo Hide & Seek multiplayer game server",
+  "description": "GeoHiders multiplayer game server",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
