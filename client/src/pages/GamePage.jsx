@@ -71,7 +71,7 @@ function useCountdown(endsAt) {
 }
 
 // ─── Street View (3D Panorama) ───────────────────────────────────────────────
-function StreetView({ lat, lng, onLocationConfirmed, onNoStreetView }) {
+function StreetView({ lat, lng, panoId: directPanoId, onLocationConfirmed, onNoStreetView }) {
   const ref             = useRef(null)
   const confirmedRef    = useRef(false)
   const onConfirmedRef  = useRef(onLocationConfirmed)
@@ -86,6 +86,22 @@ function StreetView({ lat, lng, onLocationConfirmed, onNoStreetView }) {
     if (!apiKey || !ref.current) return
     loadGoogleMaps(apiKey, () => {
       if (!ref.current || !window.google) return
+
+      // Spectator / reconnect path: panoId already known — load it directly so
+      // everyone sees the exact same panorama as the explorer, not a nearby one.
+      if (directPanoId) {
+        new window.google.maps.StreetViewPanorama(ref.current, {
+          pano:             directPanoId,
+          addressControl:   false,
+          showRoadLabels:   false,
+          motionTracking:   false,
+          fullscreenControl: false,
+          zoomControl:      true,
+        })
+        return
+      }
+
+      // Explorer path: find the nearest panorama from the seed coords.
       const svc = new window.google.maps.StreetViewService()
       svc.getPanorama(
         { location: { lat, lng }, radius: 20000, preference: 'nearest',
@@ -131,7 +147,7 @@ function StreetView({ lat, lng, onLocationConfirmed, onNoStreetView }) {
         }
       )
     })
-  }, [lat, lng, apiKey])
+  }, [lat, lng, directPanoId, apiKey])
 
   if (!apiKey) {
     return (
@@ -842,7 +858,7 @@ function SpectatorView({ room, activeClues, phase, location, spectatorGuesses })
         {/* Left panel — Street View (hiding) or live guess map (guessing) */}
         <div style={{ flex: 1, padding: isMobile ? 8 : 14, minWidth: 0, position: 'relative' }}>
           {phase === 'hiding' && location ? (
-            <StreetView lat={location.lat} lng={location.lng} />
+            <StreetView lat={location.lat} lng={location.lng} panoId={location.panoId} />
           ) : phase === 'hiding' && !location ? (
             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center',
               justifyContent: 'center', gap: 14, flexDirection: 'column' }}>
