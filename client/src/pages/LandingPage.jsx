@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useTransition, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   FiGlobe, FiUsers, FiHash, FiArrowRight, FiX,
@@ -1139,12 +1139,17 @@ export default function LandingPage() {
   const [serverStats, setServerStats] = useState({ activePlayers: 0, activeGames: 0, lobbyRooms: 0 })
   const [recentEvents, setRecentEvents] = useState([])
   const [visitors, setVisitors] = useState(0)
+  const [, startTransition] = useTransition()
   const { socket, connected } = useSocket()
+
+  // Wrap modal opens in startTransition so the button paint is never blocked
+  const openModal = useCallback((name) => startTransition(() => setModal(name)), [])
+  const closeModal = useCallback(() => startTransition(() => setModal(null)), [])
 
   // Auto-open join modal when a ?code= param is present in the URL
   useEffect(() => {
     const code = new URLSearchParams(window.location.search).get('code')
-    if (code) { setJoinPrefill(code.toUpperCase()); setModal('join') }
+    if (code) { setJoinPrefill(code.toUpperCase()); openModal('join') }
   }, [])
 
   useEffect(() => {
@@ -1181,7 +1186,10 @@ export default function LandingPage() {
     return () => socket.off('visitor_count', handle)
   }, [socket])
 
-  const openQuickJoin = (code) => { setJoinPrefill(code); setModal('join') }
+  const openQuickJoin = useCallback((code) => {
+    setJoinPrefill(code)
+    startTransition(() => setModal('join'))
+  }, [])
 
   return (
     <div style={{ width: '100vw', height: '100vh', overflow: 'hidden', display: 'flex',
@@ -1304,7 +1312,7 @@ export default function LandingPage() {
             {/* CTAs */}
             <motion.div variants={{ h: { opacity: 0, y: 20 }, v: { opacity: 1, y: 0 } }}
               style={{ display: 'flex', gap: 14 }}>
-              <button onClick={() => setModal('create')}
+              <button onClick={() => openModal('create')}
                 style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 28px',
                   borderRadius: 18, border: 'none', cursor: 'pointer', fontFamily: "'Syne',sans-serif",
                   fontWeight: 900, fontSize: 15, background: '#00d4aa', color: '#050912',
@@ -1314,7 +1322,7 @@ export default function LandingPage() {
                 <FiUsers size={18} /> Create Room <FiChevronRight size={16} />
               </button>
 
-              <button onClick={() => { setJoinPrefill(''); setModal('join') }}
+              <button onClick={() => { setJoinPrefill(''); openModal('join') }}
                 style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 28px',
                   borderRadius: 18, cursor: 'pointer', fontFamily: "'Syne',sans-serif",
                   fontWeight: 900, fontSize: 15, color: '#fff',
@@ -1386,8 +1394,8 @@ export default function LandingPage() {
       </div>
 
       <AnimatePresence>
-        {modal === 'create' && <CreateModal onClose={() => setModal(null)} />}
-        {modal === 'join'   && <JoinModal   onClose={() => setModal(null)} initialCode={joinPrefill} />}
+        {modal === 'create' && <CreateModal onClose={closeModal} />}
+        {modal === 'join'   && <JoinModal   onClose={closeModal} initialCode={joinPrefill} />}
       </AnimatePresence>
 
     </div>
