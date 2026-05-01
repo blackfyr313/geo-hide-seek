@@ -893,26 +893,7 @@ export default function LandingPage() {
               </span>
             </motion.div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 16 }}>
-              {/* Globe icon — spins in then rotates slowly on loop */}
-              <motion.div
-                initial={{ scale: 0, rotate: -180, opacity: 0 }}
-                animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                transition={{ duration: 0.8, ease: 'backOut' }}
-                style={{ width: 64, height: 64, borderRadius: 18, display: 'flex', alignItems: 'center',
-                  justifyContent: 'center', background: 'rgba(0,212,170,0.1)', border: '1px solid rgba(0,212,170,0.25)',
-                  flexShrink: 0 }}
-              >
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
-                >
-                  <FiGlobe size={30} style={{ color: '#00d4aa' }} />
-                </motion.div>
-              </motion.div>
-
-              {/* Heading */}
-              <h1 style={{ lineHeight: 1.0, margin: 0, fontFamily: "'Syne',sans-serif", fontWeight: 900,
+            <h1 style={{ lineHeight: 1.0, marginBottom: 16, fontFamily: "'Syne',sans-serif", fontWeight: 900,
                 fontSize: 'clamp(52px, 6vw, 96px)', letterSpacing: '-2px', display: 'flex' }}>
 
                 {/* Geo — fades + slides up from below */}
@@ -948,8 +929,7 @@ export default function LandingPage() {
                     </motion.span>
                   ))}
                 </motion.span>
-              </h1>
-            </div>
+            </h1>
 
             <motion.p variants={{ h: { opacity: 0, y: 20 }, v: { opacity: 1, y: 0 } }}
               style={{ fontSize: 15, lineHeight: 1.7, color: '#64748b', maxWidth: 400, marginBottom: 10 }}>
