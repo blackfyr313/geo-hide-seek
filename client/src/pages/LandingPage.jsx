@@ -893,50 +893,63 @@ export default function LandingPage() {
               </span>
             </motion.div>
 
-            <h1 style={{ lineHeight: 1.0, marginBottom: 16, display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
-              {/* Geo — Bebas Neue, slides in from left with blur */}
-              <motion.span
-                initial={{ x: -80, opacity: 0, filter: 'blur(12px)' }}
-                animate={{ x: 0, opacity: 1, filter: 'blur(0px)' }}
-                transition={{ duration: 0.9, ease: [0.25, 0.1, 0.25, 1] }}
-                style={{
-                  fontFamily: "'Bebas Neue',cursive",
-                  fontSize: 'clamp(56px, 7vw, 108px)',
-                  color: '#fff', letterSpacing: '4px', display: 'inline-block',
-                }}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 16 }}>
+              {/* Globe icon — spins in then rotates slowly on loop */}
+              <motion.div
+                initial={{ scale: 0, rotate: -180, opacity: 0 }}
+                animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                transition={{ duration: 0.8, ease: 'backOut' }}
+                style={{ width: 64, height: 64, borderRadius: 18, display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', background: 'rgba(0,212,170,0.1)', border: '1px solid rgba(0,212,170,0.25)',
+                  flexShrink: 0 }}
               >
-                Geo
-              </motion.span>
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
+                >
+                  <FiGlobe size={30} style={{ color: '#00d4aa' }} />
+                </motion.div>
+              </motion.div>
 
-              {/* Hiders — Orbitron, each letter staggers up then glow loops */}
-              <motion.span
-                animate={{
-                  textShadow: [
-                    '0 0 8px rgba(0,212,170,0.2)',
-                    '0 0 30px rgba(0,212,170,1), 0 0 60px rgba(0,212,170,0.4)',
-                    '0 0 8px rgba(0,212,170,0.2)',
-                  ],
-                }}
-                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 1.2 }}
-                style={{
-                  fontFamily: "'Orbitron',sans-serif",
-                  fontSize: 'clamp(38px, 4.8vw, 78px)',
-                  fontWeight: 900, color: '#00d4aa',
-                  letterSpacing: '-1px', display: 'inline-flex',
-                }}
-              >
-                {'Hiders'.split('').map((letter, i) => (
-                  <motion.span
-                    key={i}
-                    initial={{ y: 50, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ duration: 0.5, delay: 0.35 + i * 0.07, ease: 'backOut' }}
-                  >
-                    {letter}
-                  </motion.span>
-                ))}
-              </motion.span>
-            </h1>
+              {/* Heading */}
+              <h1 style={{ lineHeight: 1.0, margin: 0, fontFamily: "'Syne',sans-serif", fontWeight: 900,
+                fontSize: 'clamp(52px, 6vw, 96px)', letterSpacing: '-2px', display: 'flex' }}>
+
+                {/* Geo — fades + slides up from below */}
+                <motion.span
+                  initial={{ y: 60, opacity: 0, filter: 'blur(8px)' }}
+                  animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
+                  transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                  style={{ color: '#fff' }}
+                >
+                  Geo
+                </motion.span>
+
+                {/* Hiders — each letter bounces up staggered, then whole word glows on loop */}
+                <motion.span
+                  animate={{
+                    textShadow: [
+                      '0 0 0px rgba(0,212,170,0)',
+                      '0 0 24px rgba(0,212,170,0.9), 0 0 48px rgba(0,212,170,0.35)',
+                      '0 0 0px rgba(0,212,170,0)',
+                    ],
+                  }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 1.0 }}
+                  style={{ color: '#00d4aa', display: 'inline-flex' }}
+                >
+                  {'Hiders'.split('').map((l, i) => (
+                    <motion.span
+                      key={i}
+                      initial={{ y: 60, opacity: 0, filter: 'blur(6px)' }}
+                      animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
+                      transition={{ duration: 0.6, delay: 0.15 + i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      {l}
+                    </motion.span>
+                  ))}
+                </motion.span>
+              </h1>
+            </div>
 
             <motion.p variants={{ h: { opacity: 0, y: 20 }, v: { opacity: 1, y: 0 } }}
               style={{ fontSize: 15, lineHeight: 1.7, color: '#64748b', maxWidth: 400, marginBottom: 10 }}>
