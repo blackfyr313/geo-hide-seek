@@ -485,7 +485,7 @@ function GameHeader({ room, secs, phase, roundResults, onLeave }) {
             fontFamily: "'Syne',sans-serif" }}>
             {activeTeam.charAt(0).toUpperCase() + activeTeam.slice(1)} Team
           </span>
-          <span style={{ fontSize: 11, color: '#475569', fontFamily: "'JetBrains Mono',monospace" }}>
+          <span style={{ fontSize: 11, color: '#94a3b8', fontFamily: "'JetBrains Mono',monospace" }}>
             Round {teamRound}/{totalRounds}
           </span>
         </div>
@@ -510,7 +510,7 @@ function GameHeader({ room, secs, phase, roundResults, onLeave }) {
           <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 900, fontSize: 14, color: '#fff' }}>
             {(room?.scores?.[team] ?? 0).toLocaleString()}
           </span>
-          <span style={{ fontSize: 9, color: '#475569', fontFamily: "'JetBrains Mono',monospace" }}>pts</span>
+          <span style={{ fontSize: 9, color: '#94a3b8', fontFamily: "'JetBrains Mono',monospace" }}>pts</span>
         </div>
       ))}
 
@@ -519,7 +519,7 @@ function GameHeader({ room, secs, phase, roundResults, onLeave }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 12px',
           borderRadius: 8, background: urgent ? 'rgba(255,77,109,0.1)' : 'rgba(255,255,255,0.04)',
           border: `1px solid ${urgent ? 'rgba(255,77,109,0.3)' : '#1a2540'}` }}>
-          <FiClock size={12} style={{ color: urgent ? '#f87171' : '#475569' }} />
+          <FiClock size={12} style={{ color: urgent ? '#f87171' : '#94a3b8' }} />
           <span style={{ fontFamily: "'JetBrains Mono',monospace", fontWeight: 700, fontSize: 14,
             color: urgent ? '#f87171' : '#fff' }}>
             {minutes}:{secsStr}
@@ -531,10 +531,10 @@ function GameHeader({ room, secs, phase, roundResults, onLeave }) {
       <button onClick={onLeave}
         style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 13px',
           borderRadius: 9, background: 'transparent', border: '1px solid #1a2540',
-          cursor: 'pointer', fontSize: 12, color: '#475569', fontFamily: "'DM Sans',sans-serif",
+          cursor: 'pointer', fontSize: 12, color: '#94a3b8', fontFamily: "'DM Sans',sans-serif",
           transition: 'all 0.2s', flexShrink: 0 }}
         onMouseEnter={e => { e.currentTarget.style.color = '#f87171'; e.currentTarget.style.borderColor = 'rgba(248,113,113,0.3)' }}
-        onMouseLeave={e => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = '#1a2540' }}>
+        onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = '#1a2540' }}>
         <FiLogOut size={12} /> Leave
       </button>
     </div>
@@ -560,9 +560,9 @@ function CluePanel({ clues, isExplorer, clueInput, setClueInput, onSubmitClue, o
     }}>
 
       <div style={{ padding: '14px 18px', borderBottom: '1px solid #1a2540' }}>
-        <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono',monospace", color: '#475569',
+        <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono',monospace", color: '#94a3b8',
           textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 3 }}>Clues</div>
-        <div style={{ fontSize: 11, color: '#334155' }}>
+        <div style={{ fontSize: 11, color: '#94a3b8' }}>
           {isExplorer ? 'Drop hints — no coords or country names!' : 'Decode the clues and find the spot.'}
         </div>
       </div>
@@ -571,7 +571,7 @@ function CluePanel({ clues, isExplorer, clueInput, setClueInput, onSubmitClue, o
         <AnimatePresence>
           {safeClues.length === 0 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              style={{ textAlign: 'center', color: '#1e2d45', fontSize: 12, paddingTop: 20 }}>
+              style={{ textAlign: 'center', color: '#475569', fontSize: 12, paddingTop: 20 }}>
               {isExplorer ? 'No clues yet — add your first one!' : 'Waiting for the explorer…'}
             </motion.div>
           )}
@@ -580,7 +580,7 @@ function CluePanel({ clues, isExplorer, clueInput, setClueInput, onSubmitClue, o
               style={{ background: 'rgba(0,212,170,0.05)', border: '1px solid rgba(0,212,170,0.12)',
                 borderRadius: 10, padding: '9px 11px' }}>
               <div style={{ fontSize: 13, color: '#e2e8f0', lineHeight: 1.5 }}>{c.text}</div>
-              <div style={{ fontSize: 10, color: '#334155', marginTop: 3,
+              <div style={{ fontSize: 10, color: '#64748b', marginTop: 3,
                 fontFamily: "'JetBrains Mono',monospace" }}>clue #{i + 1}</div>
             </motion.div>
           ))}
@@ -622,7 +622,7 @@ function CluePanel({ clues, isExplorer, clueInput, setClueInput, onSubmitClue, o
       {!isExplorer && (
         <div style={{ padding: '12px 14px', borderTop: '1px solid #1a2540' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: 11, color: '#475569', fontFamily: "'JetBrains Mono',monospace" }}>Guesses</span>
+            <span style={{ fontSize: 11, color: '#94a3b8', fontFamily: "'JetBrains Mono',monospace" }}>Guesses</span>
             <span style={{ fontSize: 13, fontWeight: 700,
               color: guessCount === totalAgents && totalAgents > 0 ? '#00d4aa' : '#fff' }}>
               {guessCount}/{totalAgents}
@@ -703,7 +703,7 @@ function AgentWaiting({ room, activeClues }) {
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 900, fontFamily: "'Syne',sans-serif",
             color: '#fff', marginBottom: 7 }}>Explorer is hiding…</div>
-          <div style={{ fontSize: 13, color: '#475569' }}>
+          <div style={{ fontSize: 13, color: '#94a3b8' }}>
             <span style={{ color: TEAM_COLORS[explorer?.team ?? 'red'] }}>
               {explorer?.name ?? 'Explorer'}
             </span>{' '}is roaming a secret location. Clues will appear here.
@@ -735,7 +735,7 @@ function AgentGuessing({ room, activeClues }) {
     <div style={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', minHeight: 0 }}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: isMobile ? 8 : 14, gap: 10, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ fontSize: 13, color: '#475569' }}>
+          <div style={{ fontSize: 13, color: '#94a3b8' }}>
             {submitted
               ? <span style={{ color: '#00d4aa' }}>✓ Guess locked in — waiting for others…</span>
               : 'Click the map to place your guess, then confirm.'}
@@ -779,11 +779,11 @@ function ExplorerWaiting({ room, activeClues }) {
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 20, fontWeight: 900, fontFamily: "'Syne',sans-serif",
             color: '#fff', marginBottom: 7 }}>Agents are guessing…</div>
-          <div style={{ fontSize: 13, color: '#475569' }}>Sit tight while your teammates find you!</div>
+          <div style={{ fontSize: 13, color: '#94a3b8' }}>Sit tight while your teammates find you!</div>
         </div>
         <div style={{ width: 220 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 7 }}>
-            <span style={{ fontSize: 11, color: '#475569', fontFamily: "'JetBrains Mono',monospace" }}>Guesses in</span>
+            <span style={{ fontSize: 11, color: '#94a3b8', fontFamily: "'JetBrains Mono',monospace" }}>Guesses in</span>
             <span style={{ fontSize: 13, fontWeight: 700,
               color: guessCount === totalAgents && totalAgents > 0 ? '#00d4aa' : '#fff' }}>
               {guessCount}/{totalAgents}
@@ -824,12 +824,12 @@ function SpectatorView({ room, activeClues, phase, location, spectatorGuesses })
           color: teamColor, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
           SPECTATING
         </span>
-        <span style={{ fontSize: 12, color: '#475569' }}>
+        <span style={{ fontSize: 12, color: '#94a3b8' }}>
           {teamEmoji} {playingTeam?.charAt(0).toUpperCase()}{playingTeam?.slice(1)} Team is playing
           {phase === 'hiding' && explorer && ` — ${explorer.name} is the explorer`}
         </span>
         {phase === 'guessing' && (
-          <span style={{ marginLeft: 'auto', fontSize: 11, color: '#475569',
+          <span style={{ marginLeft: 'auto', fontSize: 11, color: '#94a3b8',
             fontFamily: "'JetBrains Mono',monospace" }}>
             {guessCount}/{totalAgents} guesses in
           </span>
@@ -898,13 +898,13 @@ function RoundResults({ data, room }) {
         {/* Location reveal */}
         <div style={{ padding: '18px 20px', borderBottom: '1px solid #1a2540',
           background: 'rgba(0,212,170,0.04)' }}>
-          <div style={{ fontSize: 9, color: '#475569', fontFamily: "'JetBrains Mono',monospace",
+          <div style={{ fontSize: 9, color: '#94a3b8', fontFamily: "'JetBrains Mono',monospace",
             textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 5 }}>
             📍 The Location Was
           </div>
           <div style={{ fontSize: 17, fontWeight: 900, color: '#00d4aa',
             fontFamily: "'Syne',sans-serif" }}>{location.name}</div>
-          <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{location.city}</div>
+          <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{location.city}</div>
           <div style={{ marginTop: 8, fontSize: 11, color: teamColor,
             fontFamily: "'JetBrains Mono',monospace" }}>
             {teamEmoji} {currentTeamPlaying?.charAt(0).toUpperCase()}{currentTeamPlaying?.slice(1)} Team — Round {teamRound}/{totalRounds}
@@ -913,10 +913,10 @@ function RoundResults({ data, room }) {
 
         {/* Guess results */}
         <div style={{ padding: '14px 18px', borderBottom: '1px solid #1a2540' }}>
-          <div style={{ fontSize: 10, color: '#475569', fontFamily: "'JetBrains Mono',monospace",
+          <div style={{ fontSize: 10, color: '#94a3b8', fontFamily: "'JetBrains Mono',monospace",
             textTransform: 'uppercase', marginBottom: 10 }}>Round Guesses</div>
           {results.length === 0 && (
-            <div style={{ color: '#334155', fontSize: 12 }}>No guesses were submitted.</div>
+            <div style={{ color: '#94a3b8', fontSize: 12 }}>No guesses were submitted.</div>
           )}
           {results.map((r, i) => (
             <motion.div key={r.playerId}
@@ -936,14 +936,14 @@ function RoundResults({ data, room }) {
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0' }}>{r.playerName}</div>
-                <div style={{ fontSize: 10, color: '#475569', marginTop: 1 }}>
+                <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 1 }}>
                   {r.distanceKm.toLocaleString()} km away
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: 13, fontWeight: 900, fontFamily: "'Syne',sans-serif",
                   color: '#00d4aa' }}>+{r.points.toLocaleString()}</div>
-                <div style={{ fontSize: 9, color: '#334155', fontFamily: "'JetBrains Mono',monospace" }}>pts</div>
+                <div style={{ fontSize: 9, color: '#64748b', fontFamily: "'JetBrains Mono',monospace" }}>pts</div>
               </div>
             </motion.div>
           ))}
@@ -951,7 +951,7 @@ function RoundResults({ data, room }) {
 
         {/* Totals */}
         <div style={{ padding: '14px 18px' }}>
-          <div style={{ fontSize: 10, color: '#475569', fontFamily: "'JetBrains Mono',monospace",
+          <div style={{ fontSize: 10, color: '#94a3b8', fontFamily: "'JetBrains Mono',monospace",
             textTransform: 'uppercase', marginBottom: 10 }}>Totals</div>
           {['red', 'blue'].map(team => (
             <div key={team} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -967,8 +967,8 @@ function RoundResults({ data, room }) {
             </div>
           ))}
           {secs > 0 && (
-            <div style={{ textAlign: 'center', fontSize: 11, color: '#334155',
-              fontFamily: "'JetBrains Mono',monospace', marginTop: 8" }}>
+            <div style={{ textAlign: 'center', fontSize: 11, color: '#64748b',
+              fontFamily: "'JetBrains Mono',monospace", marginTop: 8 }}>
               Next in {secs}s…
             </div>
           )}
@@ -1047,7 +1047,7 @@ function GameOver({ data, room }) {
                 color: TEAM_COLORS[team] }}>
                 {(scores[team] ?? 0).toLocaleString()}
               </div>
-              <div style={{ fontSize: 10, color: '#475569', fontFamily: "'JetBrains Mono',monospace",
+              <div style={{ fontSize: 10, color: '#94a3b8', fontFamily: "'JetBrains Mono',monospace",
                 textTransform: 'uppercase', marginTop: 3 }}>points</div>
             </div>
           ))}
@@ -1081,7 +1081,7 @@ function GameOver({ data, room }) {
             </>
           )}
           {!isHost && (
-            <div style={{ fontSize: 12, color: '#334155', fontFamily: "'JetBrains Mono',monospace",
+            <div style={{ fontSize: 12, color: '#94a3b8', fontFamily: "'JetBrains Mono',monospace",
               marginBottom: 8 }}>
               Waiting for host to start rematch or return to lobby…
             </div>
@@ -1090,10 +1090,10 @@ function GameOver({ data, room }) {
             style={{ display: 'inline-flex', alignItems: 'center', gap: 9, padding: '11px 24px',
               borderRadius: 14, border: '1px solid #1a2540', cursor: 'pointer',
               fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 13,
-              background: 'transparent', color: '#475569', transition: 'all 0.2s',
+              background: 'transparent', color: '#94a3b8', transition: 'all 0.2s',
               width: '100%', justifyContent: 'center', maxWidth: 280 }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(248,113,113,0.3)'; e.currentTarget.style.color = '#f87171' }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = '#1a2540'; e.currentTarget.style.color = '#475569' }}>
+            onMouseLeave={e => { e.currentTarget.style.borderColor = '#1a2540'; e.currentTarget.style.color = '#94a3b8' }}>
             <FiHome size={14} /> Leave Game
           </button>
         </div>
@@ -1211,7 +1211,7 @@ export default function GamePage() {
         {!phase && (
           <motion.div key="loading" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <div style={{ color: '#475569', fontFamily: "'JetBrains Mono',monospace", fontSize: 14 }}>
+            <div style={{ color: '#94a3b8', fontFamily: "'JetBrains Mono',monospace", fontSize: 14 }}>
               Starting game…
             </div>
           </motion.div>
@@ -1228,7 +1228,7 @@ export default function GamePage() {
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 19, fontWeight: 900, fontFamily: "'Syne',sans-serif",
                 color: '#fff', marginBottom: 5 }}>Receiving your location…</div>
-              <div style={{ fontSize: 13, color: '#475569' }}>Your secret spot is being assigned.</div>
+              <div style={{ fontSize: 13, color: '#94a3b8' }}>Your secret spot is being assigned.</div>
             </div>
           </motion.div>
         )}
