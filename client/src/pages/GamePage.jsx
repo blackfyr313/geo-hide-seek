@@ -20,20 +20,7 @@ import { useGame } from '../context/GameContext'
 
 const TEAM_COLORS = { red: '#ff4d6d', blue: '#4d9fff' }
 
-const DARK_MAP_STYLES = [
-  { elementType: 'geometry', stylers: [{ color: '#0a1628' }] },
-  { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
-  { elementType: 'labels.text.fill', stylers: [{ color: '#475569' }] },
-  { elementType: 'labels.text.stroke', stylers: [{ color: '#0a1628' }] },
-  { featureType: 'administrative', elementType: 'geometry', stylers: [{ color: '#1a2540' }] },
-  { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#64748b' }] },
-  { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#64748b' }] },
-  { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-  { featureType: 'road', stylers: [{ visibility: 'off' }] },
-  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0d1b2a' }] },
-  { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#334155' }] },
-]
+const DEFAULT_MAP_STYLES = []
 
 // ─── Toast ───────────────────────────────────────────────────────────────────
 function Toast({ msg, type }) {
@@ -137,7 +124,7 @@ function GoogleGuessMap({ guess, onPin, submitted }) {
       const map = new window.google.maps.Map(mapRef.current, {
         center: { lat: 20, lng: 0 },
         zoom: 2,
-        styles: DARK_MAP_STYLES,
+        styles: DEFAULT_MAP_STYLES,
         mapTypeControl: false,
         streetViewControl: false,
         fullscreenControl: false,
@@ -202,7 +189,7 @@ function GoogleResultsMap({ location, results }) {
       const map = new window.google.maps.Map(mapRef.current, {
         center,
         zoom: 3,
-        styles: DARK_MAP_STYLES,
+        styles: DEFAULT_MAP_STYLES,
         mapTypeControl: false,
         streetViewControl: false,
         fullscreenControl: false,
@@ -291,7 +278,7 @@ function SpectatorGuessMap({ location, guesses }) {
       const center = { lat: location.lat, lng: location.lng }
       const map = new window.google.maps.Map(mapRef.current, {
         center, zoom: 3,
-        styles: DARK_MAP_STYLES,
+        styles: DEFAULT_MAP_STYLES,
         mapTypeControl: false, streetViewControl: false,
         fullscreenControl: false, zoomControl: true, minZoom: 2,
       })
