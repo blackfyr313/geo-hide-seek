@@ -851,10 +851,7 @@ export default function LandingPage() {
             <motion.h1 variants={{ h: { opacity: 0, y: 50 }, v: { opacity: 1, y: 0 } }}
               style={{ fontFamily: "'Syne',sans-serif", fontWeight: 900, lineHeight: 1.0,
                 fontSize: 'clamp(52px, 6vw, 96px)', color: '#fff', letterSpacing: '-2px', marginBottom: 16 }}>
-              Geo<br/>
-              <span style={{ color: '#00d4aa' }}>Hide</span>
-              <span style={{ color: '#1e2d45' }}> &</span><br/>
-              Seek
+              Geo<span style={{ color: '#00d4aa' }}>Hiders</span>
             </motion.h1>
 
             <motion.p variants={{ h: { opacity: 0, y: 20 }, v: { opacity: 1, y: 0 } }}
