@@ -655,15 +655,6 @@ function ExplorerHiding({ room, location, activeClues }) {
         onSubmitClue={submitClue} onDone={done}
         guessCount={0} totalAgents={0}
       />
-      {/* Secret location overlay */}
-      <div style={{ position: 'absolute', bottom: 24, left: 24, zIndex: 100,
-        background: 'rgba(8,15,30,0.92)', border: '1px solid rgba(0,212,170,0.2)',
-        borderRadius: 12, padding: '9px 14px', backdropFilter: 'blur(12px)' }}>
-        <div style={{ fontSize: 9, color: '#475569', fontFamily: "'JetBrains Mono',monospace",
-          textTransform: 'uppercase', marginBottom: 2 }}>Your location (secret)</div>
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#00d4aa' }}>{location.name}</div>
-        <div style={{ fontSize: 11, color: '#64748b' }}>{location.city}</div>
-      </div>
     </div>
   )
 }
