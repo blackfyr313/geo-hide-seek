@@ -20,7 +20,6 @@ import { useGame } from '../context/GameContext'
 
 const TEAM_COLORS = { red: '#ff4d6d', blue: '#4d9fff' }
 
-const DEFAULT_MAP_STYLES = []
 
 // ─── Toast ───────────────────────────────────────────────────────────────────
 function Toast({ msg, type }) {
@@ -112,10 +111,14 @@ function GoogleGuessMap({ guess, onPin, submitted }) {
   const mapRef          = useRef(null)
   const markerRef       = useRef(null)
   const mapInstanceRef  = useRef(null)
+  const transitLayerRef = useRef(null)
   const onPinRef        = useRef(onPin)
+  const submittedRef    = useRef(submitted)
+  const [mapType, setMapType] = useState('roadmap')
   const apiKey          = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
 
   useEffect(() => { onPinRef.current = onPin }, [onPin])
+  useEffect(() => { submittedRef.current = submitted }, [submitted])
 
   useEffect(() => {
     if (!apiKey || !mapRef.current) return
@@ -124,20 +127,27 @@ function GoogleGuessMap({ guess, onPin, submitted }) {
       const map = new window.google.maps.Map(mapRef.current, {
         center: { lat: 20, lng: 0 },
         zoom: 2,
-        styles: DEFAULT_MAP_STYLES,
+        mapTypeId: 'roadmap',
         mapTypeControl: false,
         streetViewControl: false,
         fullscreenControl: false,
         zoomControl: true,
-        minZoom: 2, maxZoom: 12,
+        minZoom: 2, maxZoom: 18,
       })
       mapInstanceRef.current = map
+      const transit = new window.google.maps.TransitLayer()
+      transit.setMap(map)
+      transitLayerRef.current = transit
       map.addListener('click', e => {
-        if (submitted) return
+        if (submittedRef.current) return
         onPinRef.current({ lat: e.latLng.lat(), lng: e.latLng.lng() })
       })
     })
   }, [apiKey])
+
+  useEffect(() => {
+    if (mapInstanceRef.current) mapInstanceRef.current.setMapTypeId(mapType)
+  }, [mapType])
 
   useEffect(() => {
     if (!mapInstanceRef.current || !window.google) return
@@ -165,13 +175,30 @@ function GoogleGuessMap({ guess, onPin, submitted }) {
   if (!apiKey) {
     return (
       <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center',
-        justifyContent: 'center', background: '#080f1e', border: '1px solid #1a2540', borderRadius: 16 }}>
-        <p style={{ color: '#475569', fontSize: 14 }}>Add VITE_GOOGLE_MAPS_API_KEY to enable map</p>
+        justifyContent: 'center', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 16 }}>
+        <p style={{ color: '#94a3b8', fontSize: 14 }}>Add VITE_GOOGLE_MAPS_API_KEY to enable map</p>
       </div>
     )
   }
 
-  return <div ref={mapRef} style={{ width: '100%', height: '100%', borderRadius: 16, overflow: 'hidden' }} />
+  return (
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <div ref={mapRef} style={{ width: '100%', height: '100%', borderRadius: 16, overflow: 'hidden' }} />
+      <div style={{ position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)',
+        display: 'flex', borderRadius: 10, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.25)', zIndex: 5 }}>
+        {[['roadmap', 'Map'], ['satellite', 'Satellite']].map(([id, label]) => (
+          <button key={id} onClick={() => setMapType(id)}
+            style={{ padding: '7px 16px', fontSize: 11, fontWeight: 700, border: 'none', cursor: 'pointer',
+              fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.03em',
+              background: mapType === id ? '#00d4aa' : 'rgba(255,255,255,0.95)',
+              color: mapType === id ? '#050912' : '#475569',
+              transition: 'background 0.15s, color 0.15s' }}>
+            {label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 // ─── Google 2D Results Map ────────────────────────────────────────────────────
@@ -189,7 +216,7 @@ function GoogleResultsMap({ location, results }) {
       const map = new window.google.maps.Map(mapRef.current, {
         center,
         zoom: 3,
-        styles: DEFAULT_MAP_STYLES,
+        mapTypeId: 'roadmap',
         mapTypeControl: false,
         streetViewControl: false,
         fullscreenControl: false,
@@ -278,7 +305,7 @@ function SpectatorGuessMap({ location, guesses }) {
       const center = { lat: location.lat, lng: location.lng }
       const map = new window.google.maps.Map(mapRef.current, {
         center, zoom: 3,
-        styles: DEFAULT_MAP_STYLES,
+        mapTypeId: 'roadmap',
         mapTypeControl: false, streetViewControl: false,
         fullscreenControl: false, zoomControl: true, minZoom: 2,
       })
