@@ -917,8 +917,15 @@ export default function LandingPage() {
       <div style={{ position: 'relative', zIndex: 10, width: '50%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ position: 'absolute', inset: 24, borderRadius: 28,
           background: 'rgba(14,22,37,0.35)', border: '1px solid rgba(26,37,64,0.7)', backdropFilter: 'blur(6px)' }} />
-        <div style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%', padding: 40 }}>
+        <div style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%', padding: 40, display: 'flex', flexDirection: 'column' }}>
           <AnimatedGlobe stats={serverStats} recentEvents={recentEvents} />
+          <p style={{
+            fontFamily: "'JetBrains Mono',monospace", fontSize: 11, textAlign: 'right',
+            color: 'rgba(71,85,105,0.7)', letterSpacing: '0.12em',
+            textTransform: 'lowercase', userSelect: 'none', marginTop: 12,
+          }}>
+            crafted by <span style={{ color: 'rgba(0,212,170,0.6)', fontWeight: 700 }}>blackfyre</span>
+          </p>
         </div>
       </div>
 
@@ -927,19 +934,6 @@ export default function LandingPage() {
         {modal === 'join'   && <JoinModal   onClose={() => setModal(null)} initialCode={joinPrefill} />}
       </AnimatePresence>
 
-      {/* ── Signature ── */}
-      <div style={{
-        position: 'fixed', bottom: 16, left: '50%', transform: 'translateX(-50%)',
-        zIndex: 50, pointerEvents: 'none',
-      }}>
-        <p style={{
-          fontFamily: "'JetBrains Mono',monospace", fontSize: 11,
-          color: 'rgba(71,85,105,0.7)', letterSpacing: '0.12em',
-          textTransform: 'lowercase', userSelect: 'none',
-        }}>
-          crafted by <span style={{ color: 'rgba(0,212,170,0.6)', fontWeight: 700 }}>blackfyre</span>
-        </p>
-      </div>
     </div>
   )
 }
