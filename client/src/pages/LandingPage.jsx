@@ -10,39 +10,77 @@ import { useGame } from '../context/GameContext'
 
 /* ─── Data ───────────────────────────────────────────────────────────────── */
 const LIVE_LOCATIONS = [
-  { city: 'Tokyo',          country: 'Japan',        lat: '35.67° N', lng: '139.65° E', flag: '🇯🇵' },
-  { city: 'Paris',          country: 'France',       lat: '48.86° N', lng: '2.35° E',   flag: '🇫🇷' },
-  { city: 'Rio de Janeiro', country: 'Brazil',       lat: '22.91° S', lng: '43.17° W',  flag: '🇧🇷' },
-  { city: 'Sydney',         country: 'Australia',    lat: '33.87° S', lng: '151.21° E', flag: '🇦🇺' },
-  { city: 'Cairo',          country: 'Egypt',        lat: '30.04° N', lng: '31.24° E',  flag: '🇪🇬' },
-  { city: 'New York',       country: 'USA',          lat: '40.71° N', lng: '74.01° W',  flag: '🇺🇸' },
-  { city: 'Mumbai',         country: 'India',        lat: '19.08° N', lng: '72.88° E',  flag: '🇮🇳' },
-  { city: 'Cape Town',      country: 'South Africa', lat: '33.93° S', lng: '18.42° E',  flag: '🇿🇦' },
+  { city: 'Tokyo',          country: 'Japan',           lat: '35.67° N', lng: '139.65° E', flag: '🇯🇵' },
+  { city: 'Paris',          country: 'France',          lat: '48.86° N', lng: '2.35° E',   flag: '🇫🇷' },
+  { city: 'Rio de Janeiro', country: 'Brazil',          lat: '22.91° S', lng: '43.17° W',  flag: '🇧🇷' },
+  { city: 'Sydney',         country: 'Australia',       lat: '33.87° S', lng: '151.21° E', flag: '🇦🇺' },
+  { city: 'Cairo',          country: 'Egypt',           lat: '30.04° N', lng: '31.24° E',  flag: '🇪🇬' },
+  { city: 'New York',       country: 'USA',             lat: '40.71° N', lng: '74.01° W',  flag: '🇺🇸' },
+  { city: 'Mumbai',         country: 'India',           lat: '19.08° N', lng: '72.88° E',  flag: '🇮🇳' },
+  { city: 'Cape Town',      country: 'South Africa',    lat: '33.93° S', lng: '18.42° E',  flag: '🇿🇦' },
+  { city: 'Dubai',          country: 'UAE',             lat: '25.20° N', lng: '55.27° E',  flag: '🇦🇪' },
+  { city: 'London',         country: 'United Kingdom',  lat: '51.51° N', lng: '0.13° W',   flag: '🇬🇧' },
+  { city: 'Istanbul',       country: 'Turkey',          lat: '41.01° N', lng: '28.95° E',  flag: '🇹🇷' },
+  { city: 'Buenos Aires',   country: 'Argentina',       lat: '34.60° S', lng: '58.38° W',  flag: '🇦🇷' },
+  { city: 'Bangkok',        country: 'Thailand',        lat: '13.76° N', lng: '100.50° E', flag: '🇹🇭' },
+  { city: 'Mexico City',    country: 'Mexico',          lat: '19.43° N', lng: '99.13° W',  flag: '🇲🇽' },
+  { city: 'Lagos',          country: 'Nigeria',         lat: '6.52° N',  lng: '3.38° E',   flag: '🇳🇬' },
+  { city: 'Seoul',          country: 'South Korea',     lat: '37.57° N', lng: '126.98° E', flag: '🇰🇷' },
+  { city: 'Moscow',         country: 'Russia',          lat: '55.75° N', lng: '37.62° E',  flag: '🇷🇺' },
+  { city: 'Singapore',      country: 'Singapore',       lat: '1.35° N',  lng: '103.82° E', flag: '🇸🇬' },
+  { city: 'Nairobi',        country: 'Kenya',           lat: '1.29° S',  lng: '36.82° E',  flag: '🇰🇪' },
+  { city: 'Toronto',        country: 'Canada',          lat: '43.65° N', lng: '79.38° W',  flag: '🇨🇦' },
 ]
 
 const GLOBE_PINS = [
-  { top: '20%', left: '26%', delay: 0,   city: 'Tokyo',    flag: '🇯🇵' },
-  { top: '58%', left: '68%', delay: 0.7, city: 'Sydney',   flag: '🇦🇺' },
-  { top: '72%', left: '34%', delay: 1.4, city: 'Rio',      flag: '🇧🇷' },
-  { top: '28%', left: '64%', delay: 2.1, city: 'Paris',    flag: '🇫🇷' },
-  { top: '45%', left: '20%', delay: 1.8, city: 'New York', flag: '🇺🇸' },
-  { top: '38%', left: '74%', delay: 2.6, city: 'Dubai',    flag: '🇦🇪' },
-  { top: '62%', left: '22%', delay: 3.1, city: 'Cairo',    flag: '🇪🇬' },
-  { top: '15%', left: '52%', delay: 1.1, city: 'London',   flag: '🇬🇧' },
-  { top: '55%', left: '50%', delay: 2.4, city: 'Mumbai',   flag: '🇮🇳' },
+  { top: '20%', left: '26%', delay: 0,   city: 'Tokyo',        flag: '🇯🇵' },
+  { top: '58%', left: '68%', delay: 0.7, city: 'Sydney',       flag: '🇦🇺' },
+  { top: '72%', left: '34%', delay: 1.4, city: 'Rio',          flag: '🇧🇷' },
+  { top: '28%', left: '64%', delay: 2.1, city: 'Paris',        flag: '🇫🇷' },
+  { top: '45%', left: '20%', delay: 1.8, city: 'New York',     flag: '🇺🇸' },
+  { top: '38%', left: '74%', delay: 2.6, city: 'Dubai',        flag: '🇦🇪' },
+  { top: '62%', left: '22%', delay: 3.1, city: 'Cairo',        flag: '🇪🇬' },
+  { top: '15%', left: '52%', delay: 1.1, city: 'London',       flag: '🇬🇧' },
+  { top: '55%', left: '50%', delay: 2.4, city: 'Mumbai',       flag: '🇮🇳' },
+  { top: '30%', left: '44%', delay: 3.4, city: 'Istanbul',     flag: '🇹🇷' },
+  { top: '78%', left: '55%', delay: 2.8, city: 'Cape Town',    flag: '🇿🇦' },
+  { top: '25%', left: '80%', delay: 1.6, city: 'Seoul',        flag: '🇰🇷' },
+  { top: '50%', left: '78%', delay: 3.7, city: 'Singapore',    flag: '🇸🇬' },
+  { top: '48%', left: '36%', delay: 3.9, city: 'Lagos',        flag: '🇳🇬' },
 ]
 
 const TICKER_ITEMS = [
-  '🌍 Real Google Street View locations',
-  '🎯 Guess accuracy down to 0.1 km',
-  '👥 Up to 8 players per game',
-  '🏆 195+ countries to hide in',
-  '⚡ Live multiplayer — no login needed',
-  '🗺️ Pin your guess on a world map',
-  '🔍 Clues crafted by the hider',
-  '🌐 Play from anywhere on Earth',
-  '🎮 Create a private or public room',
-  '📍 Every round is a new location',
+  '🌍 Real Google Street View locations across 195 countries',
+  '🗼 Eiffel Tower stands 330m tall in Paris, France',
+  '🎯 Closest guess wins — accuracy down to 0.1 km',
+  '🌊 The Pacific Ocean covers more area than all land combined',
+  '👥 Up to 8 players per game — invite friends worldwide',
+  '🏔️ Mount Everest is 8,849m — the highest point on Earth',
+  '⚡ Live multiplayer — no account or login needed',
+  '🌵 The Sahara Desert is almost as large as the USA',
+  '🗺️ Pin your guess anywhere on the world map',
+  '🦁 Africa is home to 54 countries and 2,000+ languages',
+  '🔍 The hider crafts clues from inside Street View',
+  '🌏 Asia covers 30% of Earth\'s total land area',
+  '🎮 Create private rooms or join public games instantly',
+  '🌋 Indonesia has more volcanoes than any other country',
+  '📍 Every round is a completely new real-world location',
+  '🏙️ Tokyo is the world\'s most populous city at 37M people',
+  '🌐 Play against players from every continent',
+  '🧊 Antarctica is the largest desert on Earth',
+]
+
+const WORLD_FACTS = [
+  { fact: 'Tokyo is the world\'s most populous city',         detail: '37 million people in the metro area',      flag: '🇯🇵', color: '#f97316' },
+  { fact: 'The Amazon rainforest produces 20% of Earth\'s oxygen', detail: 'Spanning 9 countries in South America', flag: '🇧🇷', color: '#22c55e' },
+  { fact: 'Russia spans 11 time zones',                       detail: 'The largest country on Earth by area',      flag: '🇷🇺', color: '#3b82f6' },
+  { fact: 'Dubai\'s Burj Khalifa is 828m tall',               detail: 'Tallest man-made structure on Earth',       flag: '🇦🇪', color: '#f59e0b' },
+  { fact: 'The Dead Sea is 430m below sea level',             detail: 'The lowest point on Earth\'s surface',      flag: '🇯🇴', color: '#06b6d4' },
+  { fact: 'Canada has 202,080 km of coastline',               detail: 'The longest coastline of any country',      flag: '🇨🇦', color: '#ef4444' },
+  { fact: 'Vatican City fits inside Central Park',            detail: 'The world\'s smallest country at 0.44 km²', flag: '🇻🇦', color: '#a855f7' },
+  { fact: 'The Nile flows through 11 countries',              detail: '6,650 km — the world\'s longest river',     flag: '🇪🇬', color: '#00d4aa' },
+  { fact: 'New Zealand has more sheep than people',           detail: '5 sheep for every 1 person',                flag: '🇳🇿', color: '#84cc16' },
+  { fact: 'Iceland runs on 100% renewable energy',           detail: 'Geothermal and hydro power the whole island', flag: '🇮🇸', color: '#60a5fa' },
 ]
 
 const ACTIVITY_EVENTS = [
@@ -588,34 +626,50 @@ function JoinModal({ onClose, initialCode = '' }) {
   )
 }
 
-/* ─── Stats bar ─────────────────────────────────────────────────────────── */
-function StatsBar({ activePlayers = 0 }) {
-  const stats = [
-    { value: '10K+',   label: 'Games Played',  live: false },
-    { value: '195',    label: 'Countries',      live: false },
-    { value: activePlayers > 0 ? activePlayers.toLocaleString() : '1,248', label: 'Active Now', live: activePlayers > 0 },
-    { value: '847 km', label: 'Avg Guess',      live: false },
-  ]
+/* ─── World fact card ───────────────────────────────────────────────────── */
+function WorldFactCard() {
+  const [idx, setIdx] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => setIdx(i => (i + 1) % WORLD_FACTS.length), 5000)
+    return () => clearInterval(id)
+  }, [])
+  const fact = WORLD_FACTS[idx]
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }}
-      style={{ display: 'flex', background: 'rgba(255,255,255,0.02)',
-        border: '1px solid #1a2540', borderRadius: 16, overflow: 'hidden', marginTop: 22 }}>
-      {stats.map((s, i) => (
-        <div key={i} style={{ flex: 1, padding: '13px 10px', textAlign: 'center',
-          borderRight: i < 3 ? '1px solid #1a2540' : 'none' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-            <span style={{ fontSize: 17, fontWeight: 900, color: '#00d4aa',
-              fontFamily: "'Syne',sans-serif" }}>{s.value}</span>
-            {s.live && (
-              <motion.div style={{ width: 5, height: 5, borderRadius: '50%', background: '#00d4aa', flexShrink: 0 }}
-                animate={{ opacity: [1, 0.3, 1] }} transition={{ duration: 1.2, repeat: Infinity }} />
-            )}
+      style={{ marginTop: 22, background: 'rgba(255,255,255,0.02)', border: '1px solid #1a2540',
+        borderRadius: 16, overflow: 'hidden', position: 'relative' }}>
+      {/* accent bar */}
+      <motion.div animate={{ backgroundColor: fact.color }} transition={{ duration: 0.6 }}
+        style={{ height: 2, width: '100%' }} />
+      <AnimatePresence mode="wait">
+        <motion.div key={idx}
+          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.4 }}
+          style={{ padding: '14px 16px', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+          <span style={{ fontSize: 26, flexShrink: 0, lineHeight: 1 }}>{fact.flag}</span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+              <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: '#334155',
+                textTransform: 'uppercase', letterSpacing: '0.12em' }}>🌍 World Fact</span>
+              <div style={{ flex: 1, height: '1px', background: '#1a2540' }} />
+              <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace', color: '#1a2540'" }}>
+                {idx + 1}/{WORLD_FACTS.length}
+              </span>
+            </div>
+            <p style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0',
+              fontFamily: "'Syne',sans-serif", lineHeight: 1.3, marginBottom: 4 }}>{fact.fact}</p>
+            <p style={{ fontSize: 11, color: '#475569', fontFamily: "'JetBrains Mono',monospace",
+              lineHeight: 1.5 }}>{fact.detail}</p>
           </div>
-          <div style={{ fontSize: 9, color: '#475569', fontFamily: "'JetBrains Mono',monospace",
-            marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{s.label}</div>
-        </div>
-      ))}
+        </motion.div>
+      </AnimatePresence>
+      {/* progress bar */}
+      <motion.div
+        key={idx}
+        initial={{ width: '0%' }} animate={{ width: '100%' }}
+        transition={{ duration: 5, ease: 'linear' }}
+        style={{ height: 2, background: fact.color, opacity: 0.3 }} />
     </motion.div>
   )
 }
@@ -1041,8 +1095,8 @@ export default function LandingPage() {
             </motion.div>
           </motion.div>
 
-          {/* ── Stats bar ── */}
-          <StatsBar activePlayers={serverStats.activePlayers} />
+          {/* ── World fact card ── */}
+          <WorldFactCard />
 
           {/* ── Public rooms ── */}
           <PublicRooms onQuickJoin={openQuickJoin} />
