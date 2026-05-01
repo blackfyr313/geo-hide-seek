@@ -229,7 +229,7 @@ function GoogleGuessMap({ guess, onPin, submitted }) {
       <div ref={mapRef} style={{ width: '100%', height: '100%', borderRadius: 16, overflow: 'hidden' }} />
       <div style={{ position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)',
         display: 'flex', borderRadius: 10, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.25)', zIndex: 5 }}>
-        {[['roadmap', 'Map'], ['satellite', 'Satellite']].map(([id, label]) => (
+        {[['roadmap', 'Map'], ['hybrid', 'Satellite']].map(([id, label]) => (
           <button key={id} onClick={() => setMapType(id)}
             style={{ padding: '7px 16px', fontSize: 11, fontWeight: 700, border: 'none', cursor: 'pointer',
               fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.03em',
