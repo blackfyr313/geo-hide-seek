@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   FiGlobe, FiUsers, FiHash, FiArrowRight, FiX,
   FiLoader, FiLock, FiUnlock, FiChevronRight,
-  FiEye, FiTarget, FiAward, FiMap, FiPlay, FiRefreshCw, FiAlertCircle
+  FiEye, FiTarget, FiAward, FiMap, FiPlay, FiRefreshCw, FiAlertCircle,
+  FiBook, FiMapPin, FiShield, FiZap, FiClock, FiCheckCircle
 } from 'react-icons/fi'
 import { useSocket } from '../context/SocketContext'
 import { useGame } from '../context/GameContext'
@@ -599,7 +600,7 @@ function AnimatedGlobe({ stats = {}, recentEvents = [] }) {
 }
 
 /* ─── Modal wrapper ─────────────────────────────────────────────────────── */
-function Modal({ onClose, children }) {
+function Modal({ onClose, children, maxWidth = 520 }) {
   return (
     <motion.div className="fixed inset-0 z-50 flex items-center justify-center"
       style={{ background: 'rgba(5,9,18,0.88)', backdropFilter: 'blur(16px)' }}
@@ -612,7 +613,7 @@ function Modal({ onClose, children }) {
         transition={{ type: 'spring', stiffness: 320, damping: 28 }}
         onClick={e => e.stopPropagation()}
         style={{
-          maxWidth: 520,
+          maxWidth,
           background: 'linear-gradient(160deg, #0e1625 0%, #080f1e 100%)',
           border: '1px solid #1a2540', borderRadius: 28, padding: 44,
           boxShadow: '0 50px 100px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.04)',
@@ -763,6 +764,162 @@ function CreateModal({ onClose }) {
           {loading ? <FiLoader size={18} style={{ animation: 'spin 1s linear infinite' }} /> : <FiArrowRight size={18} />}
           {loading ? 'Creating Room…' : 'Create Room'}
         </button>
+      </div>
+    </Modal>
+  )
+}
+
+/* ─── Rules modal ──────────────────────────────────────────────────────── */
+function RulesModal({ onClose }) {
+  const sections = [
+    {
+      icon: FiTarget,
+      color: '#00d4aa',
+      title: 'Objective',
+      content: 'Two teams compete over several rounds. Each round, one team is the active team — their Explorer hides inside a random Google Street View location anywhere on Earth, drops clues, and their Agents must pin the exact spot on a world map. The team with the most points at the end wins.',
+    },
+    {
+      icon: FiUsers,
+      color: '#4d9fff',
+      title: 'Roles',
+      items: [
+        { label: 'Explorer', desc: 'One player per round (rotates). You are dropped into a secret Street View location. Your job: write clues that guide your teammates without giving it away directly.' },
+        { label: 'Agent', desc: 'Everyone else on the active team. You read the clues and place a pin on the world map — the closer your pin, the more points you earn.' },
+        { label: 'Spectator', desc: 'Players on the non-active team watch the round unfold on a live map. You will be the active team in the next round.' },
+      ],
+    },
+    {
+      icon: FiZap,
+      color: '#f59e0b',
+      title: 'How a Round Works',
+      steps: [
+        'The active team\'s Explorer is placed inside a random real-world Google Street View panorama.',
+        'The Explorer can look around freely and writes text clues in the Clues panel — no country names, no coordinates allowed.',
+        'When ready, the Explorer clicks "Done Exploring" to start the guessing phase.',
+        'All Agents see the clues and click the world map to drop their guess pin, then hit Confirm.',
+        'Once every Agent has guessed (or the timer runs out), results are revealed — distances and points for each guess.',
+        'Teams alternate: the other team\'s Explorer goes next. Repeat for all rounds.',
+      ],
+    },
+    {
+      icon: FiAward,
+      color: '#a855f7',
+      title: 'Scoring',
+      items: [
+        { label: 'Up to 5 000 pts', desc: 'Awarded per guess. A perfect pin on the exact location scores the maximum.' },
+        { label: 'Distance penalty', desc: 'Points decrease as your distance from the real location increases. The further away, the fewer points.' },
+        { label: 'Team total', desc: 'All Agent scores are added to the team\'s running total. The team with the highest score after all rounds wins.' },
+      ],
+    },
+    {
+      icon: FiShield,
+      color: '#ff4d6d',
+      title: 'Explorer Rules',
+      items: [
+        { label: 'Allowed', desc: 'Describe what you see — architecture style, landscape, vegetation, weather, road signs (without naming the country), culture hints, cuisine, landmarks.' },
+        { label: 'Not allowed', desc: 'No country names, city names, coordinates, or direct region identifiers (e.g. "Western Europe" is borderline — use common sense).' },
+        { label: 'Tip', desc: 'The more creative and specific your clues, the harder it is to guess — but too vague and your own team scores nothing!' },
+      ],
+    },
+    {
+      icon: FiMapPin,
+      color: '#00d4aa',
+      title: 'Guessing Tips',
+      items: [
+        { label: 'Start broad', desc: 'Use the clues to narrow down the continent first, then the country, then the region.' },
+        { label: 'Map vs Satellite', desc: 'Toggle between Map and Satellite view on the guess map to spot terrain, coastlines, and city layouts.' },
+        { label: 'Every Agent guesses independently', desc: 'Discuss clues with teammates but each Agent places their own pin — the best guess wins the round.' },
+      ],
+    },
+    {
+      icon: FiClock,
+      color: '#94a3b8',
+      title: 'Game Settings (Host)',
+      items: [
+        { label: 'Rounds', desc: 'Choose how many rounds each team plays (1–5). Both teams always play the same number of rounds.' },
+        { label: 'Timer', desc: 'Optionally set a time limit for the hiding phase and the guessing phase to keep things moving.' },
+        { label: 'Public / Private', desc: 'Create a private room and share the code, or open a public room visible to anyone on the landing page.' },
+      ],
+    },
+  ]
+
+  return (
+    <Modal onClose={onClose} maxWidth={660}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 28 }}>
+        <div style={{ width: 48, height: 48, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'rgba(0,212,170,0.1)', border: '1px solid rgba(0,212,170,0.2)', flexShrink: 0 }}>
+          <FiBook size={20} style={{ color: '#00d4aa' }} />
+        </div>
+        <div>
+          <h2 style={{ fontSize: 22, fontWeight: 900, color: '#fff', fontFamily: "'Syne',sans-serif", marginBottom: 2 }}>How to Play</h2>
+          <p style={{ fontSize: 13, color: '#94a3b8' }}>Everything you need to know to start hiding and hunting</p>
+        </div>
+      </div>
+
+      {/* Scrollable content */}
+      <div style={{ overflowY: 'auto', maxHeight: '60vh', paddingRight: 4,
+        scrollbarWidth: 'thin', scrollbarColor: '#1a2540 transparent' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          {sections.map(({ icon: Icon, color, title, content, items, steps }) => (
+            <div key={title} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid #1a2540',
+              borderRadius: 16, padding: '16px 18px' }}>
+              {/* Section header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: content || items || steps ? 12 : 0 }}>
+                <div style={{ width: 28, height: 28, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: `${color}18`, flexShrink: 0 }}>
+                  <Icon size={14} style={{ color }} />
+                </div>
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', fontFamily: "'Syne',sans-serif",
+                  textTransform: 'uppercase', letterSpacing: '0.06em' }}>{title}</span>
+              </div>
+
+              {/* Plain paragraph */}
+              {content && (
+                <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.7, margin: 0 }}>{content}</p>
+              )}
+
+              {/* Numbered steps */}
+              {steps && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {steps.map((step, i) => (
+                    <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                      <div style={{ width: 20, height: 20, borderRadius: 6, background: `${color}20`,
+                        border: `1px solid ${color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        flexShrink: 0, fontFamily: "'JetBrains Mono',monospace", fontSize: 10,
+                        fontWeight: 700, color, marginTop: 1 }}>{i + 1}</div>
+                      <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>{step}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Label + desc rows */}
+              {items && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {items.map(({ label, desc }) => (
+                    <div key={label} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                      <FiCheckCircle size={13} style={{ color, flexShrink: 0, marginTop: 2 }} />
+                      <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
+                        <span style={{ color: '#e2e8f0', fontWeight: 700 }}>{label} — </span>{desc}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Quick-start callout */}
+        <div style={{ marginTop: 18, background: 'rgba(0,212,170,0.06)', border: '1px solid rgba(0,212,170,0.2)',
+          borderRadius: 16, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <FiZap size={16} style={{ color: '#00d4aa', flexShrink: 0 }} />
+          <p style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
+            <span style={{ color: '#00d4aa', fontWeight: 700 }}>Ready to play? </span>
+            No account needed — create a room, share the code with friends, and start hiding.
+          </p>
+        </div>
       </div>
     </Modal>
   )
@@ -1499,6 +1656,16 @@ export default function LandingPage() {
                 onMouseLeave={e => { e.currentTarget.style.borderColor = '#1a2540'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.transform = 'none' }}>
                 <FiHash size={18} /> Join Room
               </button>
+              <button onClick={() => openModal('rules')}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  padding: '14px 22px', borderRadius: 18, cursor: 'pointer',
+                  fontFamily: "'Syne',sans-serif", fontWeight: 900, fontSize: 15, color: '#94a3b8',
+                  background: 'rgba(255,255,255,0.03)', border: '1px solid #1a2540',
+                  width: isMobile ? '100%' : 'auto', transition: 'all 0.25s' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(0,212,170,0.25)'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.transform = 'translateY(-3px)' }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = '#1a2540'; e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.transform = 'none' }}>
+                <FiBook size={16} /> Rules
+              </button>
             </motion.div>
           </motion.div>
 
@@ -1575,6 +1742,7 @@ export default function LandingPage() {
       <AnimatePresence>
         {modal === 'create' && <CreateModal onClose={closeModal} />}
         {modal === 'join'   && <JoinModal   onClose={closeModal} initialCode={joinPrefill} />}
+        {modal === 'rules'  && <RulesModal  onClose={closeModal} />}
       </AnimatePresence>
     </div>
   )
