@@ -820,20 +820,7 @@ function SpectatorView({ room, activeClues, phase, location, spectatorGuesses })
         {/* Left panel — Street View (hiding) or live guess map (guessing) */}
         <div style={{ flex: 1, padding: isMobile ? 8 : 14, minWidth: 0, position: 'relative' }}>
           {phase === 'hiding' && location ? (
-            <>
-              <StreetView lat={location.lat} lng={location.lng} />
-              {/* Location overlay visible to spectators */}
-              <div style={{ position: 'absolute', bottom: 24, left: 24, zIndex: 100,
-                background: 'rgba(8,15,30,0.92)', border: `1px solid ${teamColor}44`,
-                borderRadius: 12, padding: '9px 14px', backdropFilter: 'blur(12px)' }}>
-                <div style={{ fontSize: 9, color: '#475569', fontFamily: "'JetBrains Mono',monospace",
-                  textTransform: 'uppercase', marginBottom: 2 }}>
-                  👁 You are spectating — location is:
-                </div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: teamColor }}>{location.name}</div>
-                <div style={{ fontSize: 11, color: '#64748b' }}>{location.city}</div>
-              </div>
-            </>
+            <StreetView lat={location.lat} lng={location.lng} />
           ) : phase === 'hiding' && !location ? (
             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center',
               justifyContent: 'center', gap: 14, flexDirection: 'column' }}>
