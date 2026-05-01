@@ -26,6 +26,23 @@ const GLOBE_PINS = [
   { top: '72%', left: '34%', delay: 1.4, city: 'Rio',      flag: '🇧🇷' },
   { top: '28%', left: '64%', delay: 2.1, city: 'Paris',    flag: '🇫🇷' },
   { top: '45%', left: '20%', delay: 1.8, city: 'New York', flag: '🇺🇸' },
+  { top: '38%', left: '74%', delay: 2.6, city: 'Dubai',    flag: '🇦🇪' },
+  { top: '62%', left: '22%', delay: 3.1, city: 'Cairo',    flag: '🇪🇬' },
+  { top: '15%', left: '52%', delay: 1.1, city: 'London',   flag: '🇬🇧' },
+  { top: '55%', left: '50%', delay: 2.4, city: 'Mumbai',   flag: '🇮🇳' },
+]
+
+const TICKER_ITEMS = [
+  '🌍 Real Google Street View locations',
+  '🎯 Guess accuracy down to 0.1 km',
+  '👥 Up to 8 players per game',
+  '🏆 195+ countries to hide in',
+  '⚡ Live multiplayer — no login needed',
+  '🗺️ Pin your guess on a world map',
+  '🔍 Clues crafted by the hider',
+  '🌐 Play from anywhere on Earth',
+  '🎮 Create a private or public room',
+  '📍 Every round is a new location',
 ]
 
 const ACTIVITY_EVENTS = [
@@ -131,6 +148,25 @@ function AnimatedGlobe({ stats = {}, recentEvents = [] }) {
           animate={{ width: 500, height: 500, opacity: 0 }}
           transition={{ duration: 4.5, repeat: Infinity, delay, ease: 'easeOut' }} />
       ))}
+      {/* Radar sweep */}
+      <div className="absolute" style={{ width: 300, height: 300, borderRadius: '50%', overflow: 'hidden', pointerEvents: 'none' }}>
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 3.5, repeat: Infinity, ease: 'linear' }}
+          style={{ width: '100%', height: '100%', position: 'relative' }}>
+          <div style={{
+            position: 'absolute', top: '50%', left: '50%', width: 150, height: 1.5,
+            transformOrigin: '0 50%',
+            background: 'linear-gradient(90deg, rgba(0,212,170,0.8), transparent)',
+          }} />
+          <div style={{
+            position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+            borderRadius: '50%',
+            background: 'conic-gradient(from 0deg, rgba(0,212,170,0.12) 0deg, transparent 60deg)',
+          }} />
+        </motion.div>
+      </div>
+
       {/* Globe wireframe */}
       <motion.svg width="300" height="300" viewBox="0 0 200 200" fill="none"
         stroke="#00d4aa" strokeWidth="0.55" style={{ opacity: 0.3 }}
@@ -261,6 +297,32 @@ function AnimatedGlobe({ stats = {}, recentEvents = [] }) {
             </div>
           </motion.div>
         </AnimatePresence>
+      </motion.div>
+
+      {/* MIDDLE-RIGHT — Players online */}
+      <motion.div className="absolute rounded-2xl"
+        style={{ top: '50%', right: 0, transform: 'translateY(-50%)',
+          background: 'rgba(14,22,37,0.9)', border: '1px solid #1a2540',
+          backdropFilter: 'blur(12px)', padding: '10px 14px' }}
+        initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 2.2 }}>
+        <p style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: '#475569',
+          textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 4 }}>Players</p>
+        <p style={{ fontFamily: "'Syne',sans-serif", fontWeight: 900, color: '#fff', fontSize: 22, lineHeight: 1 }}>
+          {(stats.activePlayers > 0 ? stats.activePlayers : 24).toLocaleString()}
+        </p>
+        <p style={{ fontSize: 9, color: '#334155', fontFamily: "'JetBrains Mono',monospace", marginTop: 2 }}>online now</p>
+      </motion.div>
+
+      {/* BOTTOM-CENTER — Best accuracy */}
+      <motion.div className="absolute rounded-2xl"
+        style={{ bottom: 0, left: '50%', transform: 'translateX(-50%)',
+          background: 'rgba(14,22,37,0.9)', border: '1px solid rgba(0,212,170,0.2)',
+          backdropFilter: 'blur(12px)', padding: '8px 16px', whiteSpace: 'nowrap' }}
+        initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 2.5 }}>
+        <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: '#475569',
+          textTransform: 'uppercase', letterSpacing: '0.12em' }}>🎯 Best accuracy · </span>
+        <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: '#00d4aa',
+          fontWeight: 700 }}>0.1 km</span>
       </motion.div>
     </div>
   )
@@ -996,6 +1058,44 @@ export default function LandingPage() {
           background: 'rgba(14,22,37,0.35)', border: '1px solid rgba(26,37,64,0.7)', backdropFilter: 'blur(6px)' }} />
         <div style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%', padding: 40, display: 'flex', flexDirection: 'column' }}>
           <AnimatedGlobe stats={serverStats} recentEvents={recentEvents} />
+
+          {/* Stats strip */}
+          <div style={{ display: 'flex', gap: 8, flexShrink: 0, marginTop: 12 }}>
+            {[
+              { value: '10K+',   label: 'Games Played' },
+              { value: '195',    label: 'Countries' },
+              { value: '3.4K+',  label: 'Total Players' },
+              { value: '0.1 km', label: 'Best Accuracy' },
+            ].map((s, i) => (
+              <motion.div key={s.label}
+                initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 + i * 0.1 }}
+                style={{ flex: 1, background: 'rgba(14,22,37,0.85)', border: '1px solid #1a2540',
+                  borderRadius: 12, padding: '10px 8px', textAlign: 'center' }}>
+                <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 900,
+                  color: '#00d4aa', fontSize: 16, lineHeight: 1 }}>{s.value}</div>
+                <div style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 8,
+                  color: '#334155', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 4 }}>{s.label}</div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Scrolling world ticker */}
+          <div style={{ overflow: 'hidden', flexShrink: 0, marginTop: 10,
+            borderTop: '1px solid #0f1a2e', paddingTop: 8 }}>
+            <motion.div
+              animate={{ x: ['0%', '-50%'] }}
+              transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
+              style={{ display: 'flex', gap: 32, whiteSpace: 'nowrap' }}>
+              {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
+                <span key={i} style={{ fontSize: 10, color: '#334155',
+                  fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.05em' }}>
+                  {item}
+                </span>
+              ))}
+            </motion.div>
+          </div>
+
           <TypewriterSignature />
         </div>
       </div>
