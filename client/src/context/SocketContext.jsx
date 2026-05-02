@@ -8,7 +8,11 @@ export function SocketProvider({ children }) {
   const [connected, setConnected] = useState(false)
 
   useEffect(() => {
-    const socket = io(import.meta.env.VITE_SERVER_URL || 'http://localhost:4000', { autoConnect: true })
+    const socket = io(import.meta.env.VITE_SERVER_URL || 'http://localhost:4000', {
+      transports: ['websocket'],  // skip HTTP long-polling — no XHR flood when server is cold
+      reconnectionAttempts: 5,
+      timeout: 10000,
+    })
     socket.on('connect',    () => setConnected(true))
     socket.on('disconnect', () => setConnected(false))
     socketRef.current = socket
