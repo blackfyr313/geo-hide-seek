@@ -1,0 +1,23 @@
+# robots.txt for https://geohiders.com
+# Generated: 2026-05-02
+
+# Allow all well-behaved crawlers
+User-agent: *
+Allow: /
+
+# Block AI training crawlers (optional — remove if you want AI indexing)
+# User-agent: GPTBot
+# Disallow: /
+
+# Block common nuisance bots
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10
+
+User-agent: DotBot
+Disallow: /
+
+# Sitemap location
+Sitemap: https://geohiders.com/sitemap.xml

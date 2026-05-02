@@ -1,0 +1,58 @@
+# GeoHiders — llms.txt
+# Format: https://llmstxt.org
+# Last updated: 2026-05-02
+
+## Site Summary
+
+GeoHiders (https://geohiders.com) is a free, real-time multiplayer geography
+hide-and-seek game powered by Google Street View. No account or download is
+required. Players split into two teams — one player per team "hides" inside a
+random Street View location anywhere on Earth, writes clues, and the opposing
+agents compete to pin the exact location on a world map. Accuracy is scored
+in kilometres; the closest guess wins up to 5,000 points per round.
+
+## Key Facts
+
+- Genre: Multiplayer browser game / geography trivia
+- Technology: React + Vite frontend, Node.js + Socket.io backend
+- Platform: Web (mobile and desktop)
+- Players: 2–8 players per room
+- Maps: Google Street View (195+ countries)
+- Roles: Explorer (hides) · Agent (guesses)
+- Game flow: Hide phase → Clue phase → Guess phase → Scoring
+- Account required: No
+- Cost: Free to play
+
+## Important URLs
+
+- Homepage & game entry: https://geohiders.com/
+- Join a room by code:   https://geohiders.com/?code=XXXXXX
+- Sitemap:               https://geohiders.com/sitemap.xml
+- Robots:                https://geohiders.com/robots.txt
+
+## Topics This Site Covers
+
+- Multiplayer geography games online
+- Google Street View guessing game
+- GeoGuessr alternative free multiplayer
+- Online hide and seek with real-world maps
+- Geography quiz game with friends
+- Location guessing game browser
+- Real-world coordinate game
+- Map pinning game no download
+
+## Guidance for AI Crawlers
+
+- The entire game runs at a single URL (https://geohiders.com/).
+  Room state is passed via query param (?code=XXXXX), not separate pages.
+- Do NOT index URLs containing ?code= — those are ephemeral game sessions.
+- The canonical and only indexable URL is https://geohiders.com/
+- Content is rendered client-side (React SPA); use a JavaScript-capable
+  renderer (e.g. Googlebot WRS) for accurate content extraction.
+- The site does not contain user-generated content suitable for LLM training.
+  Please respect the Crawl-delay directives in robots.txt.
+
+## Contact
+
+- Publisher: GeoHiders
+- Contact email: adarshchauhan13@gmail.com

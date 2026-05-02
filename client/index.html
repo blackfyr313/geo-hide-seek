@@ -3,18 +3,90 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="GeoHiders — multiplayer real-world hide &amp; seek game" />
+
+    <!-- ── Primary SEO ─────────────────────────────────────────────────── -->
+    <title>GeoHiders — Multiplayer Geography Hide &amp; Seek Game</title>
+    <meta name="description" content="Hide anywhere on Earth using Google Street View, write clues, and challenge friends to find you. Free multiplayer geography game — no account needed." />
+    <meta name="keywords" content="multiplayer geography game, google street view game, geoguessr alternative, location guessing game, hide and seek map game, free online geography game" />
+    <meta name="author" content="GeoHiders" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <link rel="canonical" href="https://geohiders.com/" />
+
+    <!-- ── Open Graph (Facebook, Discord, WhatsApp previews) ───────────── -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="GeoHiders" />
+    <meta property="og:title" content="GeoHiders — Multiplayer Geography Hide &amp; Seek Game" />
+    <meta property="og:description" content="Hide anywhere on Earth using Google Street View, write clues, and challenge friends to find you. Free multiplayer — no account needed." />
+    <meta property="og:url" content="https://geohiders.com/" />
+    <meta property="og:image" content="https://geohiders.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="GeoHiders — multiplayer geography hide and seek game" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- ── Twitter / X Card ────────────────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="GeoHiders — Multiplayer Geography Hide &amp; Seek Game" />
+    <meta name="twitter:description" content="Hide anywhere on Earth using Google Street View, write clues, and challenge friends to find you. Free multiplayer — no account needed." />
+    <meta name="twitter:image" content="https://geohiders.com/og-image.png" />
+    <meta name="twitter:image:alt" content="GeoHiders — multiplayer geography hide and seek game" />
+
+    <!-- ── Favicon ─────────────────────────────────────────────────────── -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet" />
-    <title>GeoHiders</title>
+
+    <!-- ── Resource Hints (speed up external domains) ─────────────────── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://maps.googleapis.com" />
+    <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+    <link rel="dns-prefetch" href="https://fundingchoicesmessages.google.com" />
+
+    <!-- ── Google Fonts (all in one request, display=swap on all) ──────── -->
+    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Syne:wght@400;700;800;900&family=JetBrains+Mono:wght@400;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+
+    <!-- ── JSON-LD Structured Data ─────────────────────────────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "GeoHiders",
+      "url": "https://geohiders.com/",
+      "description": "Free real-time multiplayer geography hide-and-seek game powered by Google Street View. Hide anywhere on Earth, write clues, and challenge friends to find your location.",
+      "applicationCategory": "Game",
+      "genre": "Geography",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires JavaScript",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "Real Google Street View locations",
+        "Live multiplayer up to 8 players",
+        "No account or download required",
+        "195+ countries",
+        "Mobile and desktop compatible"
+      ],
+      "screenshot": "https://geohiders.com/og-image.png",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5",
+        "ratingCount": "1"
+      }
+    }
+    </script>
+
+    <!-- ── Google AdSense ───────────────────────────────────────────────── -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6674114225076107"
      crossorigin="anonymous"></script>
+
+    <!-- ── Google Funding Choices (consent management) ─────────────────── -->
     <script async src="https://fundingchoicesmessages.google.com/i/pub-6674114225076107?ers=1"></script>
-    <script>(function() {function signalGooglefcPresent() {if (!window.frames['googlefcPresent']) {if (document.body) {const iframe = document.createElement('iframe'); iframe.style = 'width: 0; height: 0; border: none; z-index: -1000; left: -1000px; top: -1000px;'; iframe.style.display = 'none'; iframe.name = 'googlefcPresent'; document.body.appendChild(iframe);} else {setTimeout(signalGooglefcPresent, 0);}}}signalGooglefcPresent();})();</script>
+    <script>(function(){function signalGooglefcPresent(){if(!window.frames['googlefcPresent']){if(document.body){const iframe=document.createElement('iframe');iframe.style='width:0;height:0;border:none;z-index:-1000;left:-1000px;top:-1000px;';iframe.style.display='none';iframe.name='googlefcPresent';document.body.appendChild(iframe);}else{setTimeout(signalGooglefcPresent,0);}}}signalGooglefcPresent();})();</script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <div></div>
   </body>
 </html>
