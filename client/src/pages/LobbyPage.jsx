@@ -17,6 +17,7 @@ import {
 } from 'react-icons/fi'
 import { useSocket } from '../context/SocketContext'
 import { useGame } from '../context/GameContext'
+import { useUI } from '../context/UIContext'
 
 const TEAM_COLORS = { red: '#ff4d6d', blue: '#4d9fff' }
 
@@ -302,7 +303,8 @@ function LobbyGlobe() {
 export default function LobbyPage() {
   const isMobile = useIsMobile()
   const { socket } = useSocket()
-  const { room, setRoom, player, setPage, setPlayer, notifications, pushNotification, setGameLocation } = useGame()
+  const { room, setRoom, player, setPage, setPlayer, setGameLocation } = useGame()
+  const { notifications, pushNotification } = useUI()
 
   useEffect(() => {
     if (!socket) return

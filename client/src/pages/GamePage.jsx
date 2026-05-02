@@ -1,11 +1,14 @@
+import 'leaflet/dist/leaflet.css'
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useUI } from '../context/UIContext'
 
 function useIsMobile() {
   const [m, setM] = useState(() => window.innerWidth < 768)
   useEffect(() => {
-    const fn = () => setM(window.innerWidth < 768)
+    let t
+    const fn = () => { clearTimeout(t); t = setTimeout(() => setM(window.innerWidth < 768), 150) }
     window.addEventListener('resize', fn)
-    return () => window.removeEventListener('resize', fn)
+    return () => { window.removeEventListener('resize', fn); clearTimeout(t) }
   }, [])
   return m
 }
@@ -64,7 +67,7 @@ function useCountdown(endsAt) {
     if (!endsAt) return
     const tick = () => setSecs(Math.max(0, Math.ceil((endsAt - Date.now()) / 1000)))
     tick()
-    const id = setInterval(tick, 500)
+    const id = setInterval(tick, 1000)
     return () => clearInterval(id)
   }, [endsAt])
   return secs
@@ -997,7 +1000,8 @@ function RoundResults({ data, room }) {
 // ─── VIEW: Game over ──────────────────────────────────────────────────────────
 function GameOver({ data, room }) {
   const { scores, players } = data
-  const { setPage, setRoom, setPlayer, setGameLocation, setRoundResults, setGameOver, pushNotification } = useGame()
+  const { setPage, setRoom, setPlayer, setGameLocation, setRoundResults, setGameOver } = useGame()
+  const { pushNotification } = useUI()
   const { socket } = useSocket()
 
   const me     = players?.find(p => p.id === room?.players?.find(pl => pl.isHost)?.id)
@@ -1126,9 +1130,9 @@ export default function GamePage() {
     gameLocation, setGameLocation,
     roundResults, setRoundResults,
     gameOver, setGameOver,
-    notifications, pushNotification, setPage,
-    setPlayer,
+    setPage, setPlayer,
   } = useGame()
+  const { notifications, pushNotification } = useUI()
 
   const isMobile = useIsMobile()
 

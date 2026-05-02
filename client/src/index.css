@@ -1,5 +1,5 @@
-/* Google Fonts are loaded via <link> in index.html — no @import needed */
-@import 'leaflet/dist/leaflet.css';
+/* Google Fonts loaded via <link> in index.html */
+/* Leaflet CSS loaded in GamePage.jsx — only paid when game chunk loads */
 
 @tailwind base;
 @tailwind components;

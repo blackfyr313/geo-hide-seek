@@ -1,33 +1,23 @@
-import { createContext, useContext, useState, useCallback } from 'react'
+import { createContext, useContext, useState } from 'react'
 
 const GameContext = createContext(null)
 
 export function GameProvider({ children }) {
-  const [room,          setRoom]          = useState(null)
-  const [player,        setPlayer]        = useState(null)
-  const [page,          setPage]          = useState('landing')
-  const [notifications, setNotifications] = useState([])
-  const [gameLocation,  setGameLocation]  = useState(null)   // explorer's secret location
-  const [roundResults,  setRoundResults]  = useState(null)   // end-of-round data
-  const [gameOver,      setGameOver]      = useState(null)   // final scores
-
-  const pushNotification = useCallback((msg, type = 'info') => {
-    const id = Date.now()
-    setNotifications(prev => [...prev, { id, msg, type }])
-    setTimeout(() => {
-      setNotifications(prev => prev.filter(n => n.id !== id))
-    }, 3500)
-  }, [])
+  const [room,         setRoom]         = useState(null)
+  const [player,       setPlayer]       = useState(null)
+  const [page,         setPage]         = useState('landing')
+  const [gameLocation, setGameLocation] = useState(null)
+  const [roundResults, setRoundResults] = useState(null)
+  const [gameOver,     setGameOver]     = useState(null)
 
   return (
     <GameContext.Provider value={{
-      room, setRoom,
-      player, setPlayer,
-      page, setPage,
-      notifications, pushNotification,
+      room,         setRoom,
+      player,       setPlayer,
+      page,         setPage,
       gameLocation, setGameLocation,
-      roundResults,  setRoundResults,
-      gameOver,      setGameOver,
+      roundResults, setRoundResults,
+      gameOver,     setGameOver,
     }}>
       {children}
     </GameContext.Provider>

@@ -1,8 +1,9 @@
 require("dotenv").config({ path: require("path").join(__dirname, ".env") });
-const express    = require("express");
-const http       = require("http");
-const { Server } = require("socket.io");
-const cors       = require("cors");
+const express     = require("express");
+const http        = require("http");
+const { Server }  = require("socket.io");
+const cors        = require("cors");
+const compression = require("compression");
 const app = express();
 const server = http.createServer(app);
 
@@ -15,6 +16,7 @@ const io = new Server(server, {
   },
 });
 
+app.use(compression());
 app.use(cors());
 app.use(express.json());
 

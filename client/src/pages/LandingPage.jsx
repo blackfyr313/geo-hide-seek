@@ -8,6 +8,7 @@ import {
 } from 'react-icons/fi'
 import { useSocket } from '../context/SocketContext'
 import { useGame } from '../context/GameContext'
+import { useUI } from '../context/UIContext'
 
 /* ─── Data ───────────────────────────────────────────────────────────────── */
 const LIVE_LOCATIONS = [
@@ -663,7 +664,8 @@ function Field({ label, icon: Icon, ...props }) {
 /* ─── Create Room modal ────────────────────────────────────────────────── */
 function CreateModal({ onClose }) {
   const { socket } = useSocket()
-  const { setRoom, setPlayer, setPage, pushNotification } = useGame()
+  const { setRoom, setPlayer, setPage } = useGame()
+  const { pushNotification } = useUI()
   const [name, setName] = useState('')
   const [rounds, setRounds] = useState(5)
   const [isPublic, setIsPublic] = useState(true)
@@ -1064,7 +1066,8 @@ function RulesModal({ onClose }) {
 /* ─── Join Room modal ──────────────────────────────────────────────────── */
 function JoinModal({ onClose, initialCode = '' }) {
   const { socket } = useSocket()
-  const { setRoom, setPlayer, setPage, pushNotification } = useGame()
+  const { setRoom, setPlayer, setPage } = useGame()
+  const { pushNotification } = useUI()
   const [name, setName] = useState('')
   const [code, setCode] = useState(initialCode)
   const [loading, setLoading] = useState(false)
