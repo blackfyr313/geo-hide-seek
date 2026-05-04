@@ -265,36 +265,153 @@ function Toast({ msg, type }) {
   )
 }
 
-/* ─── Decorative globe ───────────────────────────────────────────────── */
-function LobbyGlobe() {
+/* ─── Location Showcase (Street View) ────────────────────────────────── */
+const SHOWCASE_LOCATIONS = [
+  { name: 'Shibuya Crossing',   country: 'Tokyo, Japan',          flag: '🇯🇵', lat:  35.6595, lng:  139.7004, heading: 140, fact: "Up to 3,000 people cross at once during rush hour — the world's busiest intersection." },
+  { name: 'Santorini',          country: 'Oia, Greece',            flag: '🇬🇷', lat:  36.4618, lng:   25.3753, heading: 200, fact: "The iconic blue domes are painted to match the Aegean sky — a tradition since the 1930s." },
+  { name: 'Eiffel Tower',       country: 'Paris, France',          flag: '🇫🇷', lat:  48.8584, lng:    2.2945, heading:  60, fact: "The Eiffel Tower grows 15 cm taller in summer as the iron expands in the heat." },
+  { name: 'Times Square',       country: 'New York, USA',          flag: '🇺🇸', lat:  40.7580, lng:  -73.9855, heading:   0, fact: "Times Square's billboards consume more electricity than some entire towns — over 60 million watts." },
+  { name: 'Colosseum',          country: 'Rome, Italy',            flag: '🇮🇹', lat:  41.8902, lng:   12.4922, heading: 180, fact: "The Colosseum could fill and empty 80,000 spectators in minutes — engineering that rivals modern stadiums." },
+  { name: 'Sydney Opera House', country: 'Sydney, Australia',      flag: '🇦🇺', lat: -33.8568, lng:  151.2153, heading: 270, fact: "Its roof tiles are self-cleaning — over one million of them glazed to shed dirt with rainwater." },
+  { name: 'Machu Picchu',       country: 'Cusco Region, Peru',     flag: '🇵🇪', lat: -13.1631, lng:  -72.5450, heading:  90, fact: "Built without mortar — the Incan stones fit so precisely that not even a knife blade can slide between them." },
+]
+
+function loadGoogleMapsForLobby(apiKey, callback) {
+  if (window.__gmapsLoaded && window.google) { callback(); return }
+  const existing = document.getElementById('gmaps-script')
+  if (existing) {
+    if (window.__gmapsLoaded) callback()
+    else existing.addEventListener('load', callback)
+    return
+  }
+  const script = document.createElement('script')
+  script.id    = 'gmaps-script'
+  script.src   = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`
+  script.async = true
+  script.onload = () => { window.__gmapsLoaded = true; callback() }
+  document.head.appendChild(script)
+}
+
+function ShowcaseStreetView({ lat, lng, heading }) {
+  const ref    = useRef(null)
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+
+  useEffect(() => {
+    if (!apiKey || !ref.current) return
+    let cancelled = false
+    loadGoogleMapsForLobby(apiKey, () => {
+      if (cancelled || !ref.current || !window.google) return
+      const svc = new window.google.maps.StreetViewService()
+      svc.getPanorama(
+        { location: { lat, lng }, radius: 80000, source: window.google.maps.StreetViewSource.OUTDOOR },
+        (data, status) => {
+          if (cancelled || !ref.current || status !== 'OK' || !data?.location) return
+          new window.google.maps.StreetViewPanorama(ref.current, {
+            pano:             data.location.pano,
+            pov:              { heading, pitch: 5 },
+            addressControl:   false,
+            showRoadLabels:   false,
+            motionTracking:   false,
+            fullscreenControl: false,
+            zoomControl:      false,
+            panControl:       true,
+            linksControl:     false,
+          })
+        }
+      )
+    })
+    return () => { cancelled = true }
+  }, [lat, lng, heading, apiKey])
+
+  if (!apiKey) {
+    return (
+      <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center', background: '#080f1e', gap: 10 }}>
+        <FiGlobe size={28} style={{ color: '#1e2d45' }} />
+        <span style={{ color: '#334155', fontSize: 12, fontFamily: "'JetBrains Mono',monospace" }}>
+          Add VITE_GOOGLE_MAPS_API_KEY to enable previews
+        </span>
+      </div>
+    )
+  }
+
+  return <div ref={ref} style={{ width: '100%', height: '100%' }} />
+}
+
+function LobbyShowcase() {
+  const [idx, setIdx]       = useState(0)
+  const [fading, setFading] = useState(false)
+  const isMobile            = useIsMobile()
+
+  const goTo = useCallback((next) => {
+    setFading(true)
+    setTimeout(() => { setIdx(next); setFading(false) }, 400)
+  }, [])
+
+  useEffect(() => {
+    const t = setInterval(() => goTo((idx + 1) % SHOWCASE_LOCATIONS.length), 10000)
+    return () => clearInterval(t)
+  }, [idx, goTo])
+
+  const loc = SHOWCASE_LOCATIONS[idx]
+
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%',
-      display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      {[300, 220, 140].map((s, i) => (
-        <motion.div key={s} style={{ position: 'absolute', width: s, height: s,
-          borderRadius: '50%', border: '1px solid rgba(0,212,170,0.07)' }}
-          animate={{ rotate: i % 2 === 0 ? 360 : -360 }}
-          transition={{ duration: 30 + i * 15, repeat: Infinity, ease: 'linear' }} />
-      ))}
-      {[0, 1.8, 3.6].map((delay, i) => (
-        <motion.div key={i} style={{ position: 'absolute', borderRadius: '50%',
-          border: '1px solid rgba(0,212,170,0.25)' }}
-          initial={{ width: 30, height: 30, opacity: 0.7 }}
-          animate={{ width: 320, height: 320, opacity: 0 }}
-          transition={{ duration: 4, repeat: Infinity, delay, ease: 'easeOut' }} />
-      ))}
-      <motion.svg width="170" height="170" viewBox="0 0 200 200" fill="none"
-        stroke="#00d4aa" strokeWidth="0.6" style={{ opacity: 0.2 }}
-        animate={{ rotate: 360 }} transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}>
-        <circle cx="100" cy="100" r="90"/>
-        <ellipse cx="100" cy="100" rx="55" ry="90"/>
-        <ellipse cx="100" cy="100" rx="90" ry="40"/>
-        <line x1="10" y1="100" x2="190" y2="100"/>
-        <line x1="100" y1="10" x2="100" y2="190"/>
-      </motion.svg>
-      <div style={{ position: 'absolute', width: 13, height: 13, borderRadius: '50%',
-        background: '#00d4aa',
-        boxShadow: '0 0 0 7px rgba(0,212,170,0.12), 0 0 36px rgba(0,212,170,0.6)' }} />
+    <div style={{ width: '100%', position: 'relative', borderRadius: 18,
+      overflow: 'hidden', border: '1px solid rgba(255,255,255,0.07)',
+      marginBottom: 14, flexShrink: 0,
+      height: isMobile ? 190 : 230,
+      opacity: fading ? 0 : 1, transition: 'opacity 0.4s ease' }}>
+
+      {/* Street View — key forces remount on location change */}
+      <ShowcaseStreetView key={`${idx}`} lat={loc.lat} lng={loc.lng} heading={loc.heading} />
+
+      {/* Gradient overlay */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none',
+        background: 'linear-gradient(to top, rgba(5,9,18,0.95) 0%, rgba(5,9,18,0.3) 40%, transparent 65%)' }} />
+
+      {/* Info */}
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0,
+        padding: '10px 14px 10px', pointerEvents: 'none' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 8 }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 900,
+              fontSize: isMobile ? 16 : 18, color: '#fff', lineHeight: 1.1, marginBottom: 1 }}>
+              {loc.flag} {loc.name}
+            </div>
+            <div style={{ fontSize: 10, color: '#94a3b8', fontFamily: "'JetBrains Mono',monospace",
+              letterSpacing: '0.06em', marginBottom: 4 }}>
+              {loc.country}
+            </div>
+            <div style={{ fontSize: 10, color: '#64748b', lineHeight: 1.5,
+              overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical' }}>
+              💡 {loc.fact}
+            </div>
+          </div>
+
+          {/* Dot indicators */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4,
+            flexShrink: 0, alignSelf: 'center', pointerEvents: 'auto' }}>
+            {SHOWCASE_LOCATIONS.map((_, i) => (
+              <div key={i} onClick={() => !fading && goTo(i)}
+                style={{ width: 5, height: i === idx ? 16 : 5, borderRadius: 99,
+                  background: i === idx ? '#00d4aa' : 'rgba(255,255,255,0.22)',
+                  cursor: 'pointer', transition: 'all 0.3s' }} />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* "Move to explore" hint */}
+      <div style={{ position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)',
+        pointerEvents: 'none' }}>
+        <div style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(6px)',
+          borderRadius: 20, padding: '4px 12px', fontSize: 10,
+          color: 'rgba(255,255,255,0.5)', fontFamily: "'JetBrains Mono',monospace",
+          whiteSpace: 'nowrap' }}>
+          drag to explore · auto-advances in 10s
+        </div>
+      </div>
     </div>
   )
 }
@@ -562,12 +679,8 @@ export default function LobbyPage() {
             justifyContent: isMobile ? 'flex-start' : 'space-between',
             padding: isMobile ? '16px 14px' : '28px 36px' }}>
 
-          {/* Globe — hidden on mobile to save space */}
-          {!isMobile && (
-            <div style={{ flex: 1, width: '100%', maxWidth: 420 }}>
-              <LobbyGlobe />
-            </div>
-          )}
+          {/* Location showcase — interactive Street View of iconic places */}
+          <LobbyShowcase />
 
           {/* Room settings */}
           <RoomSettings settings={room.settings} isHost={isHost} onUpdateSettings={updateSettings} />
