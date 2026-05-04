@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from 'react'
+import { lazy, Suspense, useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { SocketProvider } from './context/SocketContext'
 import { GameProvider, useGame } from './context/GameContext'
@@ -20,12 +20,20 @@ const PageFallback = () => (
 
 function Pages() {
   const { page, room } = useGame()
+  const initialRender = useRef(true)
 
   useEffect(() => {
     if ((page === 'lobby' || page === 'game') && room?.code) {
       window.history.replaceState(null, '', `?code=${room.code}`)
     } else if (page === 'landing') {
-      window.history.replaceState(null, '', '/')
+      // On the very first render, preserve any ?code= in the URL so
+      // LandingPage can read it and auto-open the join modal.
+      // Only clear the URL when returning to landing after a game.
+      if (initialRender.current) {
+        initialRender.current = false
+      } else {
+        window.history.replaceState(null, '', '/')
+      }
     }
   }, [page, room?.code])
 
