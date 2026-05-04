@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 
 function useIsMobile() {
   const [m, setM] = useState(() => window.innerWidth < 768)
@@ -265,151 +265,176 @@ function Toast({ msg, type }) {
   )
 }
 
-/* ─── Location Showcase (Street View) ────────────────────────────────── */
-const SHOWCASE_LOCATIONS = [
-  { name: 'Shibuya Crossing',   country: 'Tokyo, Japan',          flag: '🇯🇵', lat:  35.6595, lng:  139.7004, heading: 140, fact: "Up to 3,000 people cross at once during rush hour — the world's busiest intersection." },
-  { name: 'Santorini',          country: 'Oia, Greece',            flag: '🇬🇷', lat:  36.4618, lng:   25.3753, heading: 200, fact: "The iconic blue domes are painted to match the Aegean sky — a tradition since the 1930s." },
-  { name: 'Eiffel Tower',       country: 'Paris, France',          flag: '🇫🇷', lat:  48.8584, lng:    2.2945, heading:  60, fact: "The Eiffel Tower grows 15 cm taller in summer as the iron expands in the heat." },
-  { name: 'Times Square',       country: 'New York, USA',          flag: '🇺🇸', lat:  40.7580, lng:  -73.9855, heading:   0, fact: "Times Square's billboards consume more electricity than some entire towns — over 60 million watts." },
-  { name: 'Colosseum',          country: 'Rome, Italy',            flag: '🇮🇹', lat:  41.8902, lng:   12.4922, heading: 180, fact: "The Colosseum could fill and empty 80,000 spectators in minutes — engineering that rivals modern stadiums." },
-  { name: 'Sydney Opera House', country: 'Sydney, Australia',      flag: '🇦🇺', lat: -33.8568, lng:  151.2153, heading: 270, fact: "Its roof tiles are self-cleaning — over one million of them glazed to shed dirt with rainwater." },
-  { name: 'Machu Picchu',       country: 'Cusco Region, Peru',     flag: '🇵🇪', lat: -13.1631, lng:  -72.5450, heading:  90, fact: "Built without mortar — the Incan stones fit so precisely that not even a knife blade can slide between them." },
+/* ─── Location Showcase (random worldwide Street View) ───────────────── */
+
+// Same weighted zones as server — high Street View coverage areas
+const SV_ZONES = [
+  [ 25,  49, -124,  -67, 35], [ 44,  60, -130,  -58,  8], [ 15,  30, -117,  -87,  5],
+  [ 35,  60,  -11,   25, 28], [ 50,  58,  -10,    2,  4], [ 55,  71,    5,   32,  5],
+  [ 41,  56,   14,   40,  5], [ 30,  46,  128,  145, 12], [ 34,  38,  126,  130,  4],
+  [-40, -10,  112,  153, 10], [-47, -34,  166,  178,  3], [-35,   5,  -73,  -35,  8],
+  [-55, -22,  -73,  -53,  4], [ -5,  12,  -80,  -60,  3], [  8,  30,   68,   90,  7],
+  [  1,  22,   98,  140,  6], [ 22,  42,  108,  125,  5], [ 50,  65,   30,  100,  5],
+  [-35, -20,   16,   35,  4], [-12,  12,   30,   45,  3], [  4,  15,  -18,   15,  2],
+  [ 20,  38,   32,   62,  3], [ 22,  26,  114,  122,  3],
 ]
+
+function pickRandomCoords() {
+  const total = SV_ZONES.reduce((s, z) => s + z[4], 0)
+  let r = Math.random() * total, zone = SV_ZONES[0]
+  for (const z of SV_ZONES) { r -= z[4]; if (r <= 0) { zone = z; break } }
+  return { lat: zone[0] + Math.random() * (zone[1] - zone[0]), lng: zone[2] + Math.random() * (zone[3] - zone[2]) }
+}
+
+function codeToFlag(code) {
+  if (!code || code.length !== 2) return '🌍'
+  return [...code.toUpperCase()].map(c => String.fromCodePoint(0x1F1E6 + c.charCodeAt(0) - 65)).join('')
+}
 
 function loadGoogleMapsForLobby(apiKey, callback) {
   if (window.__gmapsLoaded && window.google) { callback(); return }
   const existing = document.getElementById('gmaps-script')
-  if (existing) {
-    if (window.__gmapsLoaded) callback()
-    else existing.addEventListener('load', callback)
-    return
-  }
+  if (existing) { if (window.__gmapsLoaded) callback(); else existing.addEventListener('load', callback); return }
   const script = document.createElement('script')
-  script.id    = 'gmaps-script'
-  script.src   = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`
+  script.id = 'gmaps-script'
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`
   script.async = true
   script.onload = () => { window.__gmapsLoaded = true; callback() }
   document.head.appendChild(script)
 }
 
-function ShowcaseStreetView({ lat, lng, heading }) {
-  const ref    = useRef(null)
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+// Mounts a random Street View panorama, skipping already-seen panoIds
+function ShowcaseStreetView({ usedPanoIds, onFound }) {
+  const ref        = useRef(null)
+  const onFoundRef = useRef(onFound)
+  const apiKey     = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+  useEffect(() => { onFoundRef.current = onFound }, [onFound])
 
   useEffect(() => {
     if (!apiKey || !ref.current) return
     let cancelled = false
-    loadGoogleMapsForLobby(apiKey, () => {
-      if (cancelled || !ref.current || !window.google) return
+    let attempts  = 0
+
+    function tryLoad() {
+      if (cancelled || attempts >= 10 || !ref.current || !window.google) return
+      attempts++
+      const coords = pickRandomCoords()
       const svc = new window.google.maps.StreetViewService()
       svc.getPanorama(
-        { location: { lat, lng }, radius: 80000, source: window.google.maps.StreetViewSource.OUTDOOR },
+        { location: coords, radius: 60000, source: window.google.maps.StreetViewSource.OUTDOOR },
         (data, status) => {
-          if (cancelled || !ref.current || status !== 'OK' || !data?.location) return
+          if (cancelled || !ref.current) return
+          if (status !== 'OK' || !data?.location) { tryLoad(); return }
+          const panoId = data.location.pano
+          if (usedPanoIds.has(panoId)) { tryLoad(); return }
+          usedPanoIds.add(panoId)
+          const lat = data.location.latLng.lat()
+          const lng = data.location.latLng.lng()
           new window.google.maps.StreetViewPanorama(ref.current, {
-            pano:             data.location.pano,
-            pov:              { heading, pitch: 5 },
-            addressControl:   false,
-            showRoadLabels:   false,
-            motionTracking:   false,
-            fullscreenControl: false,
-            zoomControl:      false,
-            panControl:       true,
-            linksControl:     false,
+            pano: panoId,
+            pov: { heading: Math.random() * 360, pitch: 0 },
+            addressControl: false, showRoadLabels: false,
+            motionTracking: false, fullscreenControl: false,
+            zoomControl: false, linksControl: false,
           })
+          onFoundRef.current?.(lat, lng)
         }
       )
-    })
+    }
+
+    loadGoogleMapsForLobby(apiKey, () => { if (!cancelled && ref.current) tryLoad() })
     return () => { cancelled = true }
-  }, [lat, lng, heading, apiKey])
+  }, [apiKey, usedPanoIds])
 
-  if (!apiKey) {
-    return (
-      <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center', background: '#080f1e', gap: 10 }}>
-        <FiGlobe size={28} style={{ color: '#1e2d45' }} />
-        <span style={{ color: '#334155', fontSize: 12, fontFamily: "'JetBrains Mono',monospace" }}>
-          Add VITE_GOOGLE_MAPS_API_KEY to enable previews
-        </span>
-      </div>
-    )
-  }
-
+  if (!apiKey) return (
+    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center',
+      justifyContent: 'center', background: '#080f1e' }}>
+      <FiGlobe size={26} style={{ color: '#1e2d45' }} />
+    </div>
+  )
   return <div ref={ref} style={{ width: '100%', height: '100%' }} />
 }
 
 function LobbyShowcase() {
-  const [idx, setIdx]       = useState(0)
-  const [fading, setFading] = useState(false)
-  const isMobile            = useIsMobile()
+  const [slotKey, setSlotKey]     = useState(0)
+  const [fading, setFading]       = useState(false)
+  const [locInfo, setLocInfo]     = useState(null)
+  const usedPanoIds               = useRef(new Set())
+  const isMobile                  = useIsMobile()
 
-  const goTo = useCallback((next) => {
-    setFading(true)
-    setTimeout(() => { setIdx(next); setFading(false) }, 400)
+  // Auto-advance every 10 s
+  useEffect(() => {
+    const t = setInterval(() => {
+      setFading(true)
+      setTimeout(() => { setSlotKey(k => k + 1); setLocInfo(null); setFading(false) }, 420)
+    }, 10000)
+    return () => clearInterval(t)
   }, [])
 
-  useEffect(() => {
-    const t = setInterval(() => goTo((idx + 1) % SHOWCASE_LOCATIONS.length), 10000)
-    return () => clearInterval(t)
-  }, [idx, goTo])
-
-  const loc = SHOWCASE_LOCATIONS[idx]
+  // Reverse-geocode discovered lat/lng to get place name + flag
+  const handleFound = useCallback((lat, lng) => {
+    if (!window.google) return
+    new window.google.maps.Geocoder().geocode({ location: { lat, lng } }, (results, status) => {
+      if (status !== 'OK' || !results?.length) return
+      const comps = results[0].address_components
+      const get   = (...types) => {
+        for (const t of types) {
+          const c = comps.find(x => x.types.includes(t))
+          if (c) return c.long_name
+        }
+        return ''
+      }
+      const city    = get('locality', 'postal_town', 'administrative_area_level_2', 'administrative_area_level_1')
+      const country = get('country')
+      const code    = comps.find(x => x.types.includes('country'))?.short_name ?? ''
+      setLocInfo({ city, country, flag: codeToFlag(code) })
+    })
+  }, [])
 
   return (
     <div style={{ width: '100%', position: 'relative', borderRadius: 18,
       overflow: 'hidden', border: '1px solid rgba(255,255,255,0.07)',
-      marginBottom: 14, flexShrink: 0,
-      height: isMobile ? 190 : 230,
-      opacity: fading ? 0 : 1, transition: 'opacity 0.4s ease' }}>
+      marginBottom: 14, flexShrink: 0, height: isMobile ? 190 : 230,
+      opacity: fading ? 0 : 1, transition: 'opacity 0.42s ease' }}>
 
-      {/* Street View — key forces remount on location change */}
-      <ShowcaseStreetView key={`${idx}`} lat={loc.lat} lng={loc.lng} heading={loc.heading} />
+      {/* key remounts the component → picks a new random pano */}
+      <ShowcaseStreetView key={slotKey} usedPanoIds={usedPanoIds.current} onFound={handleFound} />
 
       {/* Gradient overlay */}
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none',
-        background: 'linear-gradient(to top, rgba(5,9,18,0.95) 0%, rgba(5,9,18,0.3) 40%, transparent 65%)' }} />
+        background: 'linear-gradient(to top, rgba(5,9,18,0.94) 0%, rgba(5,9,18,0.25) 42%, transparent 65%)' }} />
 
-      {/* Info */}
+      {/* Location info */}
       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0,
-        padding: '10px 14px 10px', pointerEvents: 'none' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 8 }}>
-          <div style={{ minWidth: 0 }}>
+        padding: '8px 14px 10px', pointerEvents: 'none' }}>
+        {locInfo ? (
+          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
             <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 900,
-              fontSize: isMobile ? 16 : 18, color: '#fff', lineHeight: 1.1, marginBottom: 1 }}>
-              {loc.flag} {loc.name}
+              fontSize: isMobile ? 15 : 17, color: '#fff', lineHeight: 1.1 }}>
+              {locInfo.flag} {locInfo.city || locInfo.country}
             </div>
-            <div style={{ fontSize: 10, color: '#94a3b8', fontFamily: "'JetBrains Mono',monospace",
-              letterSpacing: '0.06em', marginBottom: 4 }}>
-              {loc.country}
-            </div>
-            <div style={{ fontSize: 10, color: '#64748b', lineHeight: 1.5,
-              overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical' }}>
-              💡 {loc.fact}
-            </div>
+            {locInfo.city && locInfo.country && (
+              <div style={{ fontSize: 10, color: '#94a3b8', fontFamily: "'JetBrains Mono',monospace",
+                letterSpacing: '0.05em', marginTop: 2 }}>
+                {locInfo.country}
+              </div>
+            )}
+          </motion.div>
+        ) : (
+          <div style={{ fontSize: 10, color: '#334155', fontFamily: "'JetBrains Mono',monospace" }}>
+            Locating…
           </div>
-
-          {/* Dot indicators */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4,
-            flexShrink: 0, alignSelf: 'center', pointerEvents: 'auto' }}>
-            {SHOWCASE_LOCATIONS.map((_, i) => (
-              <div key={i} onClick={() => !fading && goTo(i)}
-                style={{ width: 5, height: i === idx ? 16 : 5, borderRadius: 99,
-                  background: i === idx ? '#00d4aa' : 'rgba(255,255,255,0.22)',
-                  cursor: 'pointer', transition: 'all 0.3s' }} />
-            ))}
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* "Move to explore" hint */}
+      {/* Explore hint */}
       <div style={{ position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)',
         pointerEvents: 'none' }}>
-        <div style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(6px)',
+        <div style={{ background: 'rgba(0,0,0,0.52)', backdropFilter: 'blur(6px)',
           borderRadius: 20, padding: '4px 12px', fontSize: 10,
-          color: 'rgba(255,255,255,0.5)', fontFamily: "'JetBrains Mono',monospace",
+          color: 'rgba(255,255,255,0.45)', fontFamily: "'JetBrains Mono',monospace",
           whiteSpace: 'nowrap' }}>
-          drag to explore · auto-advances in 10s
+          drag to explore · changes every 10s
         </div>
       </div>
     </div>
