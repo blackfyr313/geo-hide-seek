@@ -16,10 +16,15 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   FiSend, FiMapPin, FiCheck, FiClock, FiUsers,
   FiAward, FiGlobe, FiEye, FiArrowRight, FiHome,
-  FiRefreshCw, FiRotateCcw, FiLogOut
+  FiRefreshCw, FiRotateCcw, FiLogOut, FiVolume2, FiVolumeX,
+  FiMessageSquare, FiList,
 } from 'react-icons/fi'
 import { useSocket } from '../context/SocketContext'
 import { useGame } from '../context/GameContext'
+import {
+  playTick, playUrgentTick, playPinDrop, playScoreReveal, playRoundStart,
+  setMuted as setSoundMuted,
+} from '../utils/sounds'
 
 const TEAM_COLORS = { red: '#ff4d6d', blue: '#4d9fff' }
 
@@ -90,8 +95,6 @@ function StreetView({ lat, lng, panoId: directPanoId, onLocationConfirmed, onNoS
     loadGoogleMaps(apiKey, () => {
       if (!ref.current || !window.google) return
 
-      // Spectator / reconnect path: panoId already known — load it directly so
-      // everyone sees the exact same panorama as the explorer, not a nearby one.
       if (directPanoId) {
         new window.google.maps.StreetViewPanorama(ref.current, {
           pano:             directPanoId,
@@ -104,7 +107,6 @@ function StreetView({ lat, lng, panoId: directPanoId, onLocationConfirmed, onNoS
         return
       }
 
-      // Explorer path: find the nearest panorama from the seed coords.
       const svc = new window.google.maps.StreetViewService()
       svc.getPanorama(
         { location: { lat, lng }, radius: 20000, preference: 'nearest',
@@ -125,7 +127,6 @@ function StreetView({ lat, lng, panoId: directPanoId, onLocationConfirmed, onNoS
             })
             if (!confirmedRef.current && onConfirmedRef.current) {
               confirmedRef.current = true
-              // Reverse-geocode to get city + country, then confirm
               const geocoder = new window.google.maps.Geocoder()
               geocoder.geocode({ location: { lat: actualLat, lng: actualLng } }, (results, gStatus) => {
                 let city = '', country = ''
@@ -287,7 +288,6 @@ function GoogleResultsMap({ location, results }) {
       })
       mapInstanceRef.current = map
 
-      // Target marker (teal)
       new window.google.maps.Marker({
         position: center, map,
         title: location.name,
@@ -299,14 +299,12 @@ function GoogleResultsMap({ location, results }) {
         zIndex: 10,
       })
 
-      // Pulse circle around target
       new window.google.maps.Circle({
         map, center, radius: 300000,
         strokeColor: '#00d4aa', strokeOpacity: 0.3, strokeWeight: 1,
         fillColor: '#00d4aa', fillOpacity: 0.05,
       })
 
-      // Guess markers + polylines
       results.forEach(r => {
         if (!r.guess) return
         const guessPos = { lat: r.guess.lat, lng: r.guess.lng }
@@ -332,13 +330,12 @@ function GoogleResultsMap({ location, results }) {
         })
       })
 
-      // Auto-fit bounds to include all markers
       const bounds = new window.google.maps.LatLngBounds()
       bounds.extend(center)
       results.forEach(r => { if (r.guess) bounds.extend({ lat: r.guess.lat, lng: r.guess.lng }) })
       if (results.some(r => r.guess)) map.fitBounds(bounds, 60)
     })
-  }, [])   // mounts fresh each time due to AnimatePresence unmount
+  }, [])
 
   if (!apiKey) {
     return (
@@ -352,11 +349,11 @@ function GoogleResultsMap({ location, results }) {
   return <div ref={mapRef} style={{ width: '100%', height: '100%', borderRadius: 16, overflow: 'hidden' }} />
 }
 
-// ─── Spectator live-guess map (read-only, updates as guesses arrive) ─────────
+// ─── Spectator live-guess map ─────────────────────────────────────────────────
 function SpectatorGuessMap({ location, guesses }) {
   const mapRef         = useRef(null)
   const mapInstanceRef = useRef(null)
-  const markersRef     = useRef({})   // playerId → { marker, line }
+  const markersRef     = useRef({})
   const [mapType, setMapType] = useState('roadmap')
   const apiKey         = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
 
@@ -364,7 +361,6 @@ function SpectatorGuessMap({ location, guesses }) {
     if (mapInstanceRef.current) mapInstanceRef.current.setMapTypeId(mapType)
   }, [mapType])
 
-  // Init map once on mount
   useEffect(() => {
     if (!apiKey || !mapRef.current) return
     loadGoogleMaps(apiKey, () => {
@@ -378,7 +374,6 @@ function SpectatorGuessMap({ location, guesses }) {
       })
       mapInstanceRef.current = map
 
-      // Target marker
       new window.google.maps.Marker({
         position: center, map, title: location.name, zIndex: 10,
         icon: {
@@ -395,7 +390,6 @@ function SpectatorGuessMap({ location, guesses }) {
     })
   }, [])
 
-  // Add / update guess markers whenever guesses change
   useEffect(() => {
     if (!mapInstanceRef.current || !window.google) return
     const map = mapInstanceRef.current
@@ -458,7 +452,7 @@ function SpectatorGuessMap({ location, guesses }) {
 }
 
 // ─── Shared header bar ───────────────────────────────────────────────────────
-function GameHeader({ room, secs, phase, roundResults, onLeave }) {
+function GameHeader({ room, secs, phase, roundResults, onLeave, muted, onToggleMute }) {
   const minutes  = Math.floor(secs / 60)
   const secsStr  = String(secs % 60).padStart(2, '0')
   const urgent   = secs <= 15 && secs > 0
@@ -469,7 +463,6 @@ function GameHeader({ room, secs, phase, roundResults, onLeave }) {
     finished: 'Game Over',
   }
 
-  // Use roundResults data when in results phase for accurate display
   const activeTeam  = roundResults?.currentTeamPlaying ?? room?.currentTeamPlaying
   const subRound    = roundResults?.round ?? room?.round ?? 0
   const teamRound   = Math.ceil(subRound / 2)
@@ -546,6 +539,17 @@ function GameHeader({ room, secs, phase, roundResults, onLeave }) {
         </div>
       )}
 
+      {/* Mute toggle */}
+      <button onClick={onToggleMute} title={muted ? 'Unmute sounds' : 'Mute sounds'}
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',
+          width: 32, height: 32, borderRadius: 8,
+          background: muted ? 'rgba(255,77,109,0.1)' : 'rgba(255,255,255,0.04)',
+          border: `1px solid ${muted ? 'rgba(255,77,109,0.3)' : '#1a2540'}`,
+          cursor: 'pointer', color: muted ? '#f87171' : '#94a3b8',
+          transition: 'all 0.2s', flexShrink: 0 }}>
+        {muted ? <FiVolumeX size={13} /> : <FiVolume2 size={13} />}
+      </button>
+
       {/* Leave */}
       <button onClick={onLeave}
         style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 13px',
@@ -560,13 +564,31 @@ function GameHeader({ room, secs, phase, roundResults, onLeave }) {
   )
 }
 
-// ─── Clue panel ──────────────────────────────────────────────────────────────
+// ─── Clue + Chat panel ────────────────────────────────────────────────────────
 function CluePanel({ clues, isExplorer, clueInput, setClueInput, onSubmitClue, onDone,
-                     guessCount, totalAgents, readOnly }) {
+                     guessCount, totalAgents, readOnly, chatMessages, onSendChat, myTeam }) {
   const safeClues = Array.isArray(clues) ? clues : []
   const inputRef  = useRef(null)
+  const chatEndRef = useRef(null)
   const isMobile  = useIsMobile()
+  const [tab, setTab] = useState('clues')
+  const [chatInput, setChatInput] = useState('')
+
   const handleKey = e => { if (e.key === 'Enter' && !readOnly) onSubmitClue() }
+  const handleChatKey = e => {
+    if (e.key === 'Enter' && chatInput.trim()) sendChat()
+  }
+  const sendChat = () => {
+    if (!chatInput.trim()) return
+    onSendChat(chatInput.trim())
+    setChatInput('')
+  }
+
+  useEffect(() => {
+    if (tab === 'chat') chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [chatMessages, tab])
+
+  const unreadCount = tab === 'clues' ? (chatMessages?.length ?? 0) : 0
 
   return (
     <div style={{
@@ -575,92 +597,173 @@ function CluePanel({ clues, isExplorer, clueInput, setClueInput, onSubmitClue, o
       borderLeft: isMobile ? 'none' : '1px solid #1a2540',
       borderTop: isMobile ? '1px solid #1a2540' : 'none',
       height: isMobile ? 'auto' : '100%',
-      maxHeight: isMobile ? 200 : 'none',
+      maxHeight: isMobile ? 220 : 'none',
     }}>
 
-      <div style={{ padding: '14px 18px', borderBottom: '1px solid #1a2540' }}>
-        <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono',monospace", color: '#94a3b8',
-          textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 3 }}>Clues</div>
-        <div style={{ fontSize: 11, color: '#94a3b8' }}>
-          {isExplorer ? 'Drop hints — no coords or country names!' : 'Decode the clues and find the spot.'}
-        </div>
+      {/* Tab switcher */}
+      <div style={{ display: 'flex', borderBottom: '1px solid #1a2540', flexShrink: 0 }}>
+        {[['clues', <FiList size={11} />, 'Clues'], ['chat', <FiMessageSquare size={11} />, 'Chat']].map(([id, icon, label]) => (
+          <button key={id} onClick={() => setTab(id)}
+            style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              padding: '10px 8px', border: 'none', cursor: 'pointer', fontSize: 11,
+              fontFamily: "'JetBrains Mono',monospace", letterSpacing: '0.06em',
+              background: tab === id ? 'rgba(0,212,170,0.07)' : 'transparent',
+              color: tab === id ? '#00d4aa' : '#475569',
+              borderBottom: tab === id ? '2px solid #00d4aa' : '2px solid transparent',
+              transition: 'all 0.15s', position: 'relative' }}>
+            {icon} {label}
+            {id === 'chat' && unreadCount > 0 && (
+              <span style={{ position: 'absolute', top: 6, right: 8, background: '#ff4d6d',
+                color: '#fff', borderRadius: 99, fontSize: 9, fontWeight: 700,
+                padding: '1px 5px', lineHeight: 1.4 }}>
+                {unreadCount}
+              </span>
+            )}
+          </button>
+        ))}
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '10px 18px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <AnimatePresence>
-          {safeClues.length === 0 && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              style={{ textAlign: 'center', color: '#475569', fontSize: 12, paddingTop: 20 }}>
-              {isExplorer ? 'No clues yet — add your first one!' : 'Waiting for the explorer…'}
-            </motion.div>
+      {/* ── CLUES TAB ── */}
+      {tab === 'clues' && (
+        <>
+          <div style={{ padding: '10px 16px 8px', borderBottom: '1px solid rgba(26,37,64,0.5)', flexShrink: 0 }}>
+            <div style={{ fontSize: 11, color: '#94a3b8' }}>
+              {isExplorer ? 'Drop hints — no coords or country names!' : 'Decode the clues and find the spot.'}
+            </div>
+          </div>
+
+          <div style={{ flex: 1, overflowY: 'auto', padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <AnimatePresence>
+              {safeClues.length === 0 && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                  style={{ textAlign: 'center', color: '#475569', fontSize: 12, paddingTop: 20 }}>
+                  {isExplorer ? 'No clues yet — add your first one!' : 'Waiting for the explorer…'}
+                </motion.div>
+              )}
+              {safeClues.map((c, i) => (
+                <motion.div key={i} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }}
+                  style={{ background: 'rgba(0,212,170,0.05)', border: '1px solid rgba(0,212,170,0.12)',
+                    borderRadius: 10, padding: '9px 11px' }}>
+                  <div style={{ fontSize: 13, color: '#e2e8f0', lineHeight: 1.5 }}>{c.text}</div>
+                  <div style={{ fontSize: 10, color: '#64748b', marginTop: 3,
+                    fontFamily: "'JetBrains Mono',monospace" }}>clue #{i + 1}</div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+
+          {isExplorer && !readOnly && (
+            <div style={{ padding: '10px 12px', borderTop: '1px solid #1a2540', display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0 }}>
+              <div style={{ display: 'flex', gap: 7 }}>
+                <input ref={inputRef} value={clueInput} onChange={e => setClueInput(e.target.value)}
+                  onKeyDown={handleKey} placeholder="Add a clue…" maxLength={80}
+                  style={{ flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid #1a2540',
+                    borderRadius: 10, padding: '8px 11px', color: '#fff', fontSize: 13, outline: 'none',
+                    fontFamily: "'DM Sans',sans-serif" }}
+                  onFocus={e => e.target.style.borderColor = 'rgba(0,212,170,0.4)'}
+                  onBlur={e => e.target.style.borderColor = '#1a2540'} />
+                <button onClick={onSubmitClue} disabled={!clueInput.trim()}
+                  style={{ width: 34, height: 34, borderRadius: 9, border: 'none',
+                    cursor: clueInput.trim() ? 'pointer' : 'not-allowed',
+                    background: clueInput.trim() ? '#00d4aa' : '#1a2540',
+                    color: clueInput.trim() ? '#050912' : '#334155',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0, transition: 'all 0.2s' }}>
+                  <FiSend size={13} />
+                </button>
+              </div>
+              <button onClick={onDone}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                  padding: '9px', borderRadius: 11, border: '1px solid rgba(0,212,170,0.3)',
+                  cursor: 'pointer', background: 'rgba(0,212,170,0.07)', color: '#00d4aa',
+                  fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 12, transition: 'all 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,212,170,0.14)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,212,170,0.07)'}>
+                <FiArrowRight size={13} /> Done Exploring
+              </button>
+            </div>
           )}
-          {safeClues.map((c, i) => (
-            <motion.div key={i} initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }}
-              style={{ background: 'rgba(0,212,170,0.05)', border: '1px solid rgba(0,212,170,0.12)',
-                borderRadius: 10, padding: '9px 11px' }}>
-              <div style={{ fontSize: 13, color: '#e2e8f0', lineHeight: 1.5 }}>{c.text}</div>
-              <div style={{ fontSize: 10, color: '#64748b', marginTop: 3,
-                fontFamily: "'JetBrains Mono',monospace" }}>clue #{i + 1}</div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
 
-      {isExplorer && !readOnly && (
-        <div style={{ padding: '12px 14px', borderTop: '1px solid #1a2540', display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <div style={{ display: 'flex', gap: 7 }}>
-            <input ref={inputRef} value={clueInput} onChange={e => setClueInput(e.target.value)}
-              onKeyDown={handleKey} placeholder="Add a clue…" maxLength={80}
+          {!isExplorer && (
+            <div style={{ padding: '10px 14px', borderTop: '1px solid #1a2540', flexShrink: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 11, color: '#94a3b8', fontFamily: "'JetBrains Mono',monospace" }}>Guesses</span>
+                <span style={{ fontSize: 13, fontWeight: 700,
+                  color: guessCount === totalAgents && totalAgents > 0 ? '#00d4aa' : '#fff' }}>
+                  {guessCount}/{totalAgents}
+                </span>
+              </div>
+              {guessCount === totalAgents && totalAgents > 0 && (
+                <div style={{ fontSize: 11, color: '#00d4aa', marginTop: 5,
+                  fontFamily: "'JetBrains Mono',monospace" }}>
+                  All guesses in — tallying…
+                </div>
+              )}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ── CHAT TAB ── */}
+      {tab === 'chat' && (
+        <>
+          <div style={{ flex: 1, overflowY: 'auto', padding: '10px 12px',
+            display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {(!chatMessages || chatMessages.length === 0) && (
+              <div style={{ textAlign: 'center', color: '#475569', fontSize: 12, paddingTop: 20 }}>
+                No messages yet — say hi!
+              </div>
+            )}
+            {chatMessages?.map((m, i) => {
+              const isMe = m.isMe
+              const teamColor = TEAM_COLORS[m.team] ?? '#94a3b8'
+              return (
+                <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                  style={{ display: 'flex', flexDirection: 'column',
+                    alignItems: isMe ? 'flex-end' : 'flex-start' }}>
+                  <div style={{ fontSize: 9, color: teamColor, fontFamily: "'JetBrains Mono',monospace",
+                    marginBottom: 2, fontWeight: 700 }}>
+                    {m.playerName}
+                  </div>
+                  <div style={{ maxWidth: '85%', padding: '7px 10px', borderRadius: 10,
+                    background: isMe ? 'rgba(0,212,170,0.12)' : 'rgba(255,255,255,0.05)',
+                    border: `1px solid ${isMe ? 'rgba(0,212,170,0.2)' : '#1a2540'}`,
+                    fontSize: 12, color: '#e2e8f0', lineHeight: 1.5, wordBreak: 'break-word' }}>
+                    {m.message}
+                  </div>
+                </motion.div>
+              )
+            })}
+            <div ref={chatEndRef} />
+          </div>
+
+          <div style={{ padding: '10px 12px', borderTop: '1px solid #1a2540',
+            display: 'flex', gap: 7, flexShrink: 0 }}>
+            <input value={chatInput} onChange={e => setChatInput(e.target.value)}
+              onKeyDown={handleChatKey} placeholder="Message team…" maxLength={200}
               style={{ flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid #1a2540',
                 borderRadius: 10, padding: '8px 11px', color: '#fff', fontSize: 13, outline: 'none',
                 fontFamily: "'DM Sans',sans-serif" }}
               onFocus={e => e.target.style.borderColor = 'rgba(0,212,170,0.4)'}
               onBlur={e => e.target.style.borderColor = '#1a2540'} />
-            <button onClick={onSubmitClue} disabled={!clueInput.trim()}
+            <button onClick={sendChat} disabled={!chatInput.trim()}
               style={{ width: 34, height: 34, borderRadius: 9, border: 'none',
-                cursor: clueInput.trim() ? 'pointer' : 'not-allowed',
-                background: clueInput.trim() ? '#00d4aa' : '#1a2540',
-                color: clueInput.trim() ? '#050912' : '#334155',
+                cursor: chatInput.trim() ? 'pointer' : 'not-allowed',
+                background: chatInput.trim() ? '#00d4aa' : '#1a2540',
+                color: chatInput.trim() ? '#050912' : '#334155',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 flexShrink: 0, transition: 'all 0.2s' }}>
               <FiSend size={13} />
             </button>
           </div>
-          <button onClick={onDone}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-              padding: '9px', borderRadius: 11, border: '1px solid rgba(0,212,170,0.3)',
-              cursor: 'pointer', background: 'rgba(0,212,170,0.07)', color: '#00d4aa',
-              fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 12, transition: 'all 0.2s' }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,212,170,0.14)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'rgba(0,212,170,0.07)'}>
-            <FiArrowRight size={13} /> Done Exploring
-          </button>
-        </div>
-      )}
-
-      {!isExplorer && (
-        <div style={{ padding: '12px 14px', borderTop: '1px solid #1a2540' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: 11, color: '#94a3b8', fontFamily: "'JetBrains Mono',monospace" }}>Guesses</span>
-            <span style={{ fontSize: 13, fontWeight: 700,
-              color: guessCount === totalAgents && totalAgents > 0 ? '#00d4aa' : '#fff' }}>
-              {guessCount}/{totalAgents}
-            </span>
-          </div>
-          {guessCount === totalAgents && totalAgents > 0 && (
-            <div style={{ fontSize: 11, color: '#00d4aa', marginTop: 5,
-              fontFamily: "'JetBrains Mono',monospace" }}>
-              All guesses in — tallying…
-            </div>
-          )}
-        </div>
+        </>
       )}
     </div>
   )
 }
 
 // ─── VIEW: Explorer hiding ────────────────────────────────────────────────────
-function ExplorerHiding({ room, location, activeClues }) {
+function ExplorerHiding({ room, location, activeClues, chatMessages, onSendChat }) {
   const { socket } = useSocket()
   const [clue, setClue] = useState('')
   const isMobile = useIsMobile()
@@ -695,13 +798,14 @@ function ExplorerHiding({ room, location, activeClues }) {
         clueInput={clue} setClueInput={setClue}
         onSubmitClue={submitClue} onDone={done}
         guessCount={0} totalAgents={0}
+        chatMessages={chatMessages} onSendChat={onSendChat}
       />
     </div>
   )
 }
 
 // ─── VIEW: Agent waiting (hiding phase) ──────────────────────────────────────
-function AgentWaiting({ room, activeClues }) {
+function AgentWaiting({ room, activeClues, chatMessages, onSendChat }) {
   const explorer = room.players?.find(p => p.role === 'explorer')
   const isMobile = useIsMobile()
 
@@ -731,13 +835,14 @@ function AgentWaiting({ room, activeClues }) {
       </div>
       <CluePanel clues={activeClues} isExplorer={false}
         clueInput="" setClueInput={() => {}} onSubmitClue={() => {}} onDone={() => {}}
-        guessCount={room.guessCount ?? 0} totalAgents={room.totalAgents ?? 0} />
+        guessCount={room.guessCount ?? 0} totalAgents={room.totalAgents ?? 0}
+        chatMessages={chatMessages} onSendChat={onSendChat} />
     </div>
   )
 }
 
 // ─── VIEW: Agent guessing ─────────────────────────────────────────────────────
-function AgentGuessing({ room, activeClues }) {
+function AgentGuessing({ room, activeClues, chatMessages, onSendChat }) {
   const { socket } = useSocket()
   const [guess,     setGuess]     = useState(null)
   const [submitted, setSubmitted] = useState(false)
@@ -747,6 +852,7 @@ function AgentGuessing({ room, activeClues }) {
     if (!guess || submitted) return
     socket.emit('submit_guess', { code: room.code, lat: guess.lat, lng: guess.lng }, () => {
       setSubmitted(true)
+      playPinDrop()
     })
   }, [guess, submitted, socket, room.code])
 
@@ -779,13 +885,14 @@ function AgentGuessing({ room, activeClues }) {
       </div>
       <CluePanel clues={activeClues} isExplorer={false}
         clueInput="" setClueInput={() => {}} onSubmitClue={() => {}} onDone={() => {}}
-        guessCount={room.guessCount ?? 0} totalAgents={room.totalAgents ?? 0} />
+        guessCount={room.guessCount ?? 0} totalAgents={room.totalAgents ?? 0}
+        chatMessages={chatMessages} onSendChat={onSendChat} />
     </div>
   )
 }
 
 // ─── VIEW: Explorer waiting (guessing phase) ──────────────────────────────────
-function ExplorerWaiting({ room, activeClues }) {
+function ExplorerWaiting({ room, activeClues, chatMessages, onSendChat }) {
   const guessCount  = room.guessCount  ?? 0
   const totalAgents = room.totalAgents ?? 0
   const isMobile = useIsMobile()
@@ -817,13 +924,14 @@ function ExplorerWaiting({ room, activeClues }) {
       </div>
       <CluePanel clues={activeClues} isExplorer={false}
         clueInput="" setClueInput={() => {}} onSubmitClue={() => {}} onDone={() => {}}
-        guessCount={guessCount} totalAgents={totalAgents} />
+        guessCount={guessCount} totalAgents={totalAgents}
+        chatMessages={chatMessages} onSendChat={onSendChat} />
     </div>
   )
 }
 
 // ─── VIEW: Spectator ──────────────────────────────────────────────────────────
-function SpectatorView({ room, activeClues, phase, location, spectatorGuesses }) {
+function SpectatorView({ room, activeClues, phase, location, spectatorGuesses, chatMessages, onSendChat }) {
   const guessCount  = room.guessCount  ?? 0
   const totalAgents = room.totalAgents ?? 0
   const isMobile    = useIsMobile()
@@ -858,7 +966,7 @@ function SpectatorView({ room, activeClues, phase, location, spectatorGuesses })
       {/* Main content area */}
       <div style={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', minHeight: 0 }}>
 
-        {/* Left panel — Street View (hiding) or live guess map (guessing) */}
+        {/* Left panel */}
         <div style={{ flex: 1, padding: isMobile ? 8 : 14, minWidth: 0, position: 'relative' }}>
           {phase === 'hiding' && location ? (
             <StreetView lat={location.lat} lng={location.lng} panoId={location.panoId} />
@@ -884,10 +992,11 @@ function SpectatorView({ room, activeClues, phase, location, spectatorGuesses })
           )}
         </div>
 
-        {/* Right panel — clue panel (read-only) */}
+        {/* Right panel */}
         <CluePanel clues={activeClues} isExplorer={false} readOnly
           clueInput="" setClueInput={() => {}} onSubmitClue={() => {}} onDone={() => {}}
-          guessCount={guessCount} totalAgents={totalAgents} />
+          guessCount={guessCount} totalAgents={totalAgents}
+          chatMessages={chatMessages} onSendChat={onSendChat} />
       </div>
     </div>
   )
@@ -895,12 +1004,19 @@ function SpectatorView({ room, activeClues, phase, location, spectatorGuesses })
 
 // ─── VIEW: Round results ──────────────────────────────────────────────────────
 function RoundResults({ data, room }) {
-  const { location, results, scores, round, totalRounds, currentTeamPlaying, phaseEndsAt } = data
+  const { location, results, scores, round, totalRounds, currentTeamPlaying, phaseEndsAt,
+          redTeamRoundsCompleted, blueTeamRoundsCompleted } = data
   const secs      = useCountdown(phaseEndsAt)
   const teamRound = Math.ceil(round / 2)
   const teamColor = TEAM_COLORS[currentTeamPlaying] ?? '#00d4aa'
   const teamEmoji = currentTeamPlaying === 'red' ? '🔴' : '🔵'
   const isMobile  = useIsMobile()
+
+  // Best guesser this round
+  const winner = results[0]
+  const maxScore = results.reduce((m, r) => Math.max(m, r.points), 0)
+
+  useEffect(() => { playScoreReveal() }, [])
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', minHeight: 0, gap: 0 }}>
@@ -908,32 +1024,71 @@ function RoundResults({ data, room }) {
         <GoogleResultsMap location={location} results={results} />
       </div>
 
-      <div style={{ width: isMobile ? '100%' : 320, flexShrink: 0, display: 'flex', flexDirection: 'column',
+      <div style={{ width: isMobile ? '100%' : 340, flexShrink: 0, display: 'flex', flexDirection: 'column',
         background: 'rgba(8,12,22,0.8)',
         borderLeft: isMobile ? 'none' : '1px solid #1a2540',
         borderTop: isMobile ? '1px solid #1a2540' : 'none',
-        overflowY: 'auto', maxHeight: isMobile ? 280 : 'none' }}>
+        overflowY: 'auto', maxHeight: isMobile ? 300 : 'none' }}>
 
         {/* Location reveal */}
-        <div style={{ padding: '18px 20px', borderBottom: '1px solid #1a2540',
-          background: 'rgba(0,212,170,0.04)' }}>
-          <div style={{ fontSize: 9, color: '#94a3b8', fontFamily: "'JetBrains Mono',monospace",
-            textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 5 }}>
+        <div style={{ padding: '20px 22px', borderBottom: '1px solid #1a2540',
+          background: 'linear-gradient(135deg, rgba(0,212,170,0.06), transparent)' }}>
+          <div style={{ fontSize: 9, color: '#64748b', fontFamily: "'JetBrains Mono',monospace",
+            textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 6 }}>
             📍 The Location Was
           </div>
-          <div style={{ fontSize: 17, fontWeight: 900, color: '#00d4aa',
-            fontFamily: "'Syne',sans-serif" }}>{location.name}</div>
-          <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{location.city}</div>
-          <div style={{ marginTop: 8, fontSize: 11, color: teamColor,
-            fontFamily: "'JetBrains Mono',monospace" }}>
-            {teamEmoji} {currentTeamPlaying?.charAt(0).toUpperCase()}{currentTeamPlaying?.slice(1)} Team — Round {teamRound}/{totalRounds}
+          <div style={{ fontSize: 22, fontWeight: 900, color: '#00d4aa',
+            fontFamily: "'Syne',sans-serif", lineHeight: 1.2, marginBottom: 3 }}>{location.name}</div>
+          {location.city && location.city !== 'Random Location' && (
+            <div style={{ fontSize: 13, color: '#94a3b8', marginBottom: 6 }}>{location.city}</div>
+          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ fontSize: 11, color: teamColor, fontFamily: "'JetBrains Mono',monospace",
+              background: `${teamColor}15`, border: `1px solid ${teamColor}30`,
+              borderRadius: 6, padding: '3px 10px' }}>
+              {teamEmoji} {currentTeamPlaying?.charAt(0).toUpperCase()}{currentTeamPlaying?.slice(1)} Team
+            </div>
+            <div style={{ fontSize: 11, color: '#475569', fontFamily: "'JetBrains Mono',monospace" }}>
+              Round {teamRound}/{totalRounds}
+            </div>
           </div>
         </div>
 
-        {/* Guess results */}
+        {/* Round winner badge */}
+        {winner && (
+          <div style={{ padding: '14px 22px', borderBottom: '1px solid #1a2540',
+            background: 'rgba(0,212,170,0.03)' }}>
+            <div style={{ fontSize: 9, color: '#64748b', fontFamily: "'JetBrains Mono',monospace",
+              textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>
+              🏅 Closest Guess
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+                background: TEAM_COLORS[winner.team] + '22',
+                border: `2px solid ${TEAM_COLORS[winner.team]}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: "'Syne',sans-serif", fontWeight: 900, fontSize: 14,
+                color: TEAM_COLORS[winner.team] }}>1</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#fff',
+                  fontFamily: "'Syne',sans-serif" }}>{winner.playerName}</div>
+                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 1 }}>
+                  {winner.distanceKm.toLocaleString()} km away
+                </div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: 20, fontWeight: 900, fontFamily: "'Syne',sans-serif",
+                  color: '#00d4aa' }}>+{winner.points.toLocaleString()}</div>
+                <div style={{ fontSize: 9, color: '#64748b', fontFamily: "'JetBrains Mono',monospace" }}>pts</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* All guesses */}
         <div style={{ padding: '14px 18px', borderBottom: '1px solid #1a2540' }}>
-          <div style={{ fontSize: 10, color: '#94a3b8', fontFamily: "'JetBrains Mono',monospace",
-            textTransform: 'uppercase', marginBottom: 10 }}>Round Guesses</div>
+          <div style={{ fontSize: 9, color: '#64748b', fontFamily: "'JetBrains Mono',monospace",
+            textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>All Guesses</div>
           {results.length === 0 && (
             <div style={{ color: '#94a3b8', fontSize: 12 }}>No guesses were submitted.</div>
           )}
@@ -941,53 +1096,75 @@ function RoundResults({ data, room }) {
             <motion.div key={r.playerId}
               initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.08 }}
-              style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 9,
-                padding: '9px 11px', borderRadius: 11,
-                background: i === 0 ? 'rgba(0,212,170,0.06)' : 'rgba(255,255,255,0.02)',
-                border: `1px solid ${i === 0 ? 'rgba(0,212,170,0.2)' : '#1a2540'}` }}>
-              <div style={{ width: 26, height: 26, borderRadius: '50%',
+              style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 8 }}>
+              <div style={{ width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: TEAM_COLORS[r.team] + '22',
-                border: `1.5px solid ${TEAM_COLORS[r.team]}`,
-                fontFamily: "'Syne',sans-serif", fontWeight: 900, fontSize: 11,
+                background: TEAM_COLORS[r.team] + '18',
+                border: `1px solid ${TEAM_COLORS[r.team]}66`,
+                fontFamily: "'Syne',sans-serif", fontWeight: 900, fontSize: 10,
                 color: TEAM_COLORS[r.team] }}>
                 {i + 1}
               </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0' }}>{r.playerName}</div>
-                <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 1 }}>
-                  {r.distanceKm.toLocaleString()} km away
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0',
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.playerName}</div>
+                <div style={{ height: 4, background: '#1a2540', borderRadius: 99, marginTop: 4, overflow: 'hidden' }}>
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: maxScore > 0 ? `${(r.points / maxScore) * 100}%` : '0%' }}
+                    transition={{ delay: i * 0.08 + 0.2, duration: 0.5 }}
+                    style={{ height: '100%', borderRadius: 99,
+                      background: TEAM_COLORS[r.team] ?? '#00d4aa' }} />
+                </div>
+                <div style={{ fontSize: 9, color: '#64748b', marginTop: 2 }}>
+                  {r.distanceKm.toLocaleString()} km
                 </div>
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 13, fontWeight: 900, fontFamily: "'Syne',sans-serif",
-                  color: '#00d4aa' }}>+{r.points.toLocaleString()}</div>
-                <div style={{ fontSize: 9, color: '#64748b', fontFamily: "'JetBrains Mono',monospace" }}>pts</div>
-              </div>
+              <div style={{ fontSize: 12, fontWeight: 900, fontFamily: "'Syne',sans-serif",
+                color: '#00d4aa', flexShrink: 0 }}>+{r.points.toLocaleString()}</div>
             </motion.div>
           ))}
         </div>
 
-        {/* Totals */}
+        {/* Team score progress bars */}
         <div style={{ padding: '14px 18px' }}>
-          <div style={{ fontSize: 10, color: '#94a3b8', fontFamily: "'JetBrains Mono',monospace",
-            textTransform: 'uppercase', marginBottom: 10 }}>Totals</div>
-          {['red', 'blue'].map(team => (
-            <div key={team} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '9px 12px', borderRadius: 11, marginBottom: 7,
-              background: team === 'red' ? 'rgba(255,77,109,0.07)' : 'rgba(77,159,255,0.07)',
-              border: `1px solid ${team === 'red' ? 'rgba(255,77,109,0.2)' : 'rgba(77,159,255,0.2)'}` }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: TEAM_COLORS[team] }}>
-                {team === 'red' ? '🔴' : '🔵'} {team.charAt(0).toUpperCase() + team.slice(1)} Team
-              </span>
-              <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 900, fontSize: 15, color: '#fff' }}>
-                {(scores[team] ?? 0).toLocaleString()}
-              </span>
-            </div>
-          ))}
+          <div style={{ fontSize: 9, color: '#64748b', fontFamily: "'JetBrains Mono',monospace",
+            textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Scoreboard</div>
+          {['red', 'blue'].map(team => {
+            const pts    = scores[team] ?? 0
+            const maxPts = Math.max(scores.red ?? 0, scores.blue ?? 0, 1)
+            const done   = team === 'red' ? redTeamRoundsCompleted : blueTeamRoundsCompleted
+            return (
+              <div key={team} style={{ marginBottom: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
+                  <span style={{ fontSize: 12, color: TEAM_COLORS[team], fontWeight: 700 }}>
+                    {team === 'red' ? '🔴' : '🔵'} {team.charAt(0).toUpperCase() + team.slice(1)}
+                    <span style={{ fontSize: 10, color: '#475569', fontWeight: 400, marginLeft: 6,
+                      fontFamily: "'JetBrains Mono',monospace" }}>
+                      {done}/{totalRounds} rounds
+                    </span>
+                  </span>
+                  <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 900, fontSize: 14,
+                    color: '#fff' }}>
+                    {pts.toLocaleString()}
+                  </span>
+                </div>
+                <div style={{ height: 6, background: '#1a2540', borderRadius: 99, overflow: 'hidden' }}>
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(pts / maxPts) * 100}%` }}
+                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                    style={{ height: '100%', borderRadius: 99,
+                      background: team === 'red'
+                        ? 'linear-gradient(90deg, #ff4d6d, #ff8fa3)'
+                        : 'linear-gradient(90deg, #4d9fff, #93c5fd)' }} />
+                </div>
+              </div>
+            )
+          })}
           {secs > 0 && (
-            <div style={{ textAlign: 'center', fontSize: 11, color: '#64748b',
-              fontFamily: "'JetBrains Mono',monospace", marginTop: 8 }}>
+            <div style={{ textAlign: 'center', fontSize: 11, color: '#475569',
+              fontFamily: "'JetBrains Mono',monospace", marginTop: 6 }}>
               Next in {secs}s…
             </div>
           )}
@@ -1004,7 +1181,6 @@ function GameOver({ data, room }) {
   const { pushNotification } = useUI()
   const { socket } = useSocket()
 
-  const me     = players?.find(p => p.id === room?.players?.find(pl => pl.isHost)?.id)
   const meInfo = room?.players?.find(p => p.id === socket?.id)
   const isHost = meInfo?.isHost
 
@@ -1136,8 +1312,15 @@ export default function GamePage() {
 
   const isMobile = useIsMobile()
 
-  // Live guesses visible to spectator + explorer during guessing phase
   const [spectatorGuesses, setSpectatorGuesses] = useState({})
+  const [chatMessages, setChatMessages]         = useState([])
+  const [muted, setMutedState]                  = useState(false)
+
+  const toggleMute = useCallback(() => {
+    const next = !muted
+    setMutedState(next)
+    setSoundMuted(next)
+  }, [muted])
 
   useEffect(() => {
     if (!socket) return
@@ -1152,11 +1335,16 @@ export default function GamePage() {
     const onReturnLobby      = () => {
       setGameOver(null); setRoundResults(null); setGameLocation(null)
       setSpectatorGuesses({})
+      setChatMessages([])
       setPage('lobby')
     }
     const onSpectatorGuesses = ({ guesses }) => setSpectatorGuesses(guesses)
     const onJoined           = ({ message }) => pushNotification(message, 'info')
     const onLeft             = ({ message }) => pushNotification(message, 'info')
+    const onChatMessage      = (msg) => {
+      const isMe = msg.playerId === socket.id
+      setChatMessages(prev => [...prev, { ...msg, isMe }])
+    }
 
     socket.on('room_updated',           onUpdate)
     socket.on('clue_added',             onClue)
@@ -1168,6 +1356,7 @@ export default function GamePage() {
     socket.on('spectator_guess_update', onSpectatorGuesses)
     socket.on('player_joined',          onJoined)
     socket.on('player_left',            onLeft)
+    socket.on('team_chat_message',      onChatMessage)
 
     return () => {
       socket.off('room_updated',           onUpdate)
@@ -1180,18 +1369,28 @@ export default function GamePage() {
       socket.off('spectator_guess_update', onSpectatorGuesses)
       socket.off('player_joined',          onJoined)
       socket.off('player_left',            onLeft)
+      socket.off('team_chat_message',      onChatMessage)
     }
   }, [socket, setRoom, setGameLocation, setRoundResults, setGameOver, setPage, pushNotification])
 
-  // Clear results + spectator state when a new round begins
+  // Clear results + spectator state when a new round begins, play round start sound
   useEffect(() => {
     if (room?.phase === 'hiding') {
       setRoundResults(null)
       setSpectatorGuesses({})
+      playRoundStart()
     }
   }, [room?.phase, setRoundResults])
 
   const headerSecs = useCountdown(room?.phaseEndsAt ?? 0)
+
+  // Urgent ticks in last 10 seconds of any timed phase
+  useEffect(() => {
+    const phase = gameOver ? 'finished' : (roundResults ? 'results' : room?.phase)
+    if (headerSecs > 0 && headerSecs <= 10 && (phase === 'hiding' || phase === 'guessing')) {
+      playUrgentTick()
+    }
+  }, [headerSecs])
 
   const leaveGame = useCallback(() => {
     socket.emit('leave_room', { code: room.code })
@@ -1199,12 +1398,16 @@ export default function GamePage() {
     setGameLocation(null); setRoundResults(null); setGameOver(null)
   }, [socket, room, setRoom, setPlayer, setPage, setGameLocation, setRoundResults, setGameOver])
 
+  const sendChat = useCallback((message) => {
+    if (!room?.code) return
+    socket.emit('team_chat', { code: room.code, message })
+  }, [socket, room?.code])
+
   if (!room || !player) return null
 
   const me          = room.players?.find(p => p.id === player.id)
   const phase       = gameOver ? 'finished' : (roundResults ? 'results' : room.phase)
   const role        = me?.role
-  // Active team's clues — shown to everyone (playing team + spectators)
   const activeClues = room.clues?.[room.currentTeamPlaying] ?? []
 
   return (
@@ -1223,7 +1426,8 @@ export default function GamePage() {
         <rect width="100%" height="100%" fill="url(#gg)" />
       </svg>
 
-      <GameHeader room={room} secs={headerSecs} phase={phase} roundResults={roundResults} onLeave={leaveGame} />
+      <GameHeader room={room} secs={headerSecs} phase={phase} roundResults={roundResults}
+        onLeave={leaveGame} muted={muted} onToggleMute={toggleMute} />
 
       <AnimatePresence mode="wait">
 
@@ -1275,7 +1479,8 @@ export default function GamePage() {
           <motion.div key="explorer-hiding"
             style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, position: 'relative' }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <ExplorerHiding room={room} location={gameLocation} activeClues={activeClues} />
+            <ExplorerHiding room={room} location={gameLocation} activeClues={activeClues}
+              chatMessages={chatMessages} onSendChat={sendChat} />
           </motion.div>
         )}
 
@@ -1283,7 +1488,8 @@ export default function GamePage() {
         {phase === 'hiding' && role === 'agent' && (
           <motion.div key="agent-waiting" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <AgentWaiting room={room} activeClues={activeClues} />
+            <AgentWaiting room={room} activeClues={activeClues}
+              chatMessages={chatMessages} onSendChat={sendChat} />
           </motion.div>
         )}
 
@@ -1291,7 +1497,8 @@ export default function GamePage() {
         {phase === 'guessing' && role === 'agent' && (
           <motion.div key="agent-guessing" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <AgentGuessing room={room} activeClues={activeClues} />
+            <AgentGuessing room={room} activeClues={activeClues}
+              chatMessages={chatMessages} onSendChat={sendChat} />
           </motion.div>
         )}
 
@@ -1299,11 +1506,12 @@ export default function GamePage() {
         {phase === 'guessing' && role === 'explorer' && (
           <motion.div key="explorer-waiting" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <ExplorerWaiting room={room} activeClues={activeClues} />
+            <ExplorerWaiting room={room} activeClues={activeClues}
+              chatMessages={chatMessages} onSendChat={sendChat} />
           </motion.div>
         )}
 
-        {/* Spectator: watching other team (full Street View + live guess map) */}
+        {/* Spectator */}
         {(phase === 'hiding' || phase === 'guessing') && role === 'spectator' && (
           <motion.div key={`spectator-${phase}`}
             style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}
@@ -1314,6 +1522,8 @@ export default function GamePage() {
               phase={phase}
               location={gameLocation}
               spectatorGuesses={spectatorGuesses}
+              chatMessages={chatMessages}
+              onSendChat={sendChat}
             />
           </motion.div>
         )}

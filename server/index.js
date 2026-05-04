@@ -51,11 +51,48 @@ const SV_ZONES = [
   [ 22,  26,  114,  122,  3], // Taiwan / Hong Kong
 ];
 
-function pickRandomCoords() {
-  const total = SV_ZONES.reduce((s, z) => s + z[4], 0);
+// Region-specific zone subsets for custom room settings
+const REGION_ZONES = {
+  americas: [
+    [ 25,  49, -124,  -67, 35],
+    [ 44,  60, -130,  -58,  8],
+    [ 15,  30, -117,  -87,  5],
+    [-35,   5,  -73,  -35,  8],
+    [-55, -22,  -73,  -53,  4],
+    [ -5,  12,  -80,  -60,  3],
+  ],
+  europe: [
+    [ 35,  60,  -11,   25, 28],
+    [ 50,  58,  -10,    2,  4],
+    [ 55,  71,    5,   32,  5],
+    [ 41,  56,   14,   40,  5],
+  ],
+  asia: [
+    [ 30,  46,  128,  145, 12],
+    [ 34,  38,  126,  130,  4],
+    [  8,  30,   68,   90,  7],
+    [  1,  22,   98,  140,  6],
+    [ 22,  42,  108,  125,  5],
+    [ 22,  26,  114,  122,  3],
+    [ 20,  38,   32,   62,  3],
+  ],
+  africa: [
+    [-35, -20,   16,   35,  4],
+    [-12,  12,   30,   45,  3],
+    [  4,  15,  -18,   15,  2],
+  ],
+  oceania: [
+    [-40, -10,  112,  153, 10],
+    [-47, -34,  166,  178,  3],
+  ],
+};
+
+function pickLocation(region = 'all') {
+  const zones = (region && region !== 'all' && REGION_ZONES[region]) ? REGION_ZONES[region] : SV_ZONES;
+  const total = zones.reduce((s, z) => s + z[4], 0);
   let r = Math.random() * total;
-  let zone = SV_ZONES[0];
-  for (const z of SV_ZONES) { r -= z[4]; if (r <= 0) { zone = z; break; } }
+  let zone = zones[0];
+  for (const z of zones) { r -= z[4]; if (r <= 0) { zone = z; break; } }
   const [latMin, latMax, lngMin, lngMax] = zone;
   const lat = +(latMin + Math.random() * (latMax - latMin)).toFixed(5);
   const lng = +(lngMin + Math.random() * (lngMax - lngMin)).toFixed(5);
@@ -94,16 +131,13 @@ function haversineKm(lat1, lng1, lat2, lng2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-function pickLocation() {
-  return pickRandomCoords();
-}
-
 function createRoom({ hostId, hostName, isPublic, totalRounds }) {
   const code = generateRoomCode();
   rooms[code] = {
     code,
     isPublic: isPublic ?? false,
     totalRounds: totalRounds ?? 3,   // rounds PER TEAM
+    settings: { hidingSecs: 90, guessSecs: 60, region: 'all' },
     status: "lobby",
     players: {},
     teams: { red: [], blue: [] },
@@ -177,6 +211,7 @@ function getRoomSnapshot(code) {
     phaseEndsAt: room.phaseEndsAt,
     explorerIds: room.explorerIds,
     explorersDone: room.explorersDone,
+    settings: room.settings,
     currentTeamPlaying: room.currentTeamPlaying,
     redTeamRoundsCompleted: room.redTeamRoundsCompleted,
     blueTeamRoundsCompleted: room.blueTeamRoundsCompleted,
@@ -210,7 +245,7 @@ function resetRoomToLobby(room) {
 // ─────────────────────────────────────────────
 const HIDING_SECS   = 90;
 const GUESSING_SECS = 60;
-const RESULTS_SECS  = 12;
+const RESULTS_SECS  = 18;
 
 function startRound(code) {
   const room = rooms[code];
@@ -228,9 +263,9 @@ function startRound(code) {
   room.guesses = {};
   room.roundResults = null;
   room.explorersDone = { red: false, blue: false };
-  room.currentLocation = pickLocation();
+  room.currentLocation = pickLocation(room.settings?.region);
   room.locationConfirmed = false;
-  room.phaseEndsAt = Date.now() + HIDING_SECS * 1000;
+  room.phaseEndsAt = Date.now() + (room.settings?.hidingSecs ?? HIDING_SECS) * 1000;
 
   // Use the pre-selected explorer for this team (set at game start)
   const explorerId = room.explorerIds[activeTeam];
@@ -265,7 +300,7 @@ function startRound(code) {
   console.log(`[Game] ${code} Round ${room.round} — Team: ${activeTeam} — Explorer: ${explorer?.name}, seed: ${room.currentLocation.name}`);
 
   clearTimeout(timers[code]);
-  timers[code] = setTimeout(() => transitionToGuessing(code), HIDING_SECS * 1000);
+  timers[code] = setTimeout(() => transitionToGuessing(code), (room.settings?.hidingSecs ?? HIDING_SECS) * 1000);
 }
 
 function transitionToGuessing(code) {
@@ -273,12 +308,12 @@ function transitionToGuessing(code) {
   if (!room || room.phase !== "hiding") return;
 
   room.phase = "guessing";
-  room.phaseEndsAt = Date.now() + GUESSING_SECS * 1000;
+  room.phaseEndsAt = Date.now() + (room.settings?.guessSecs ?? GUESSING_SECS) * 1000;
 
   io.to(code).emit("room_updated", getRoomSnapshot(code));
 
   clearTimeout(timers[code]);
-  timers[code] = setTimeout(() => transitionToResults(code), GUESSING_SECS * 1000);
+  timers[code] = setTimeout(() => transitionToResults(code), (room.settings?.guessSecs ?? GUESSING_SECS) * 1000);
 }
 
 function transitionToResults(code) {
@@ -731,7 +766,7 @@ io.on("connection", (socket) => {
     if (!room || room.phase !== "hiding") return;
     const player = room.players[socket.id];
     if (!player || player.role !== "explorer") return;
-    room.currentLocation = pickLocation();
+    room.currentLocation = pickLocation(room.settings?.region);
     room.locationConfirmed = false;
     socket.emit("location_assigned", { location: room.currentLocation });
     // Reset the spectator fallback timer
@@ -768,6 +803,49 @@ io.on("connection", (socket) => {
     io.to(code).emit("room_updated", getRoomSnapshot(code));
     io.to(code).emit("return_to_lobby", {});
     callback?.({ success: true });
+  });
+
+  // ── UPDATE SETTINGS (host only, lobby only) ──
+  socket.on("update_settings", ({ code, settings }, callback) => {
+    const room = rooms[code];
+    if (!room) return callback?.({ error: "Room not found." });
+    if (!room.players[socket.id]?.isHost) return callback?.({ error: "Only the host can change settings." });
+    if (room.status !== "lobby") return callback?.({ error: "Settings can only be changed in the lobby." });
+
+    const { hidingSecs, guessSecs, region } = settings ?? {};
+    const validHide   = [30, 60, 90, 120];
+    const validGuess  = [30, 45, 60, 90];
+    const validRegion = ['all', 'americas', 'europe', 'asia', 'africa', 'oceania'];
+
+    if (hidingSecs  !== undefined && !validHide.includes(hidingSecs))
+      return callback?.({ error: "Invalid hiding time." });
+    if (guessSecs   !== undefined && !validGuess.includes(guessSecs))
+      return callback?.({ error: "Invalid guessing time." });
+    if (region      !== undefined && !validRegion.includes(region))
+      return callback?.({ error: "Invalid region." });
+
+    if (hidingSecs  !== undefined) room.settings.hidingSecs  = hidingSecs;
+    if (guessSecs   !== undefined) room.settings.guessSecs   = guessSecs;
+    if (region      !== undefined) room.settings.region      = region;
+
+    io.to(code).emit("room_updated", getRoomSnapshot(code));
+    callback?.({ success: true });
+  });
+
+  // ── TEAM CHAT ────────────────────────────────
+  socket.on("team_chat", ({ code, message }, callback) => {
+    const room = rooms[code];
+    if (!room) return;
+    const player = room.players[socket.id];
+    if (!player || !message?.trim()) return;
+    io.to(code).emit("team_chat_message", {
+      playerId: socket.id,
+      playerName: player.name,
+      team: player.team,
+      message: message.trim().slice(0, 200),
+      ts: Date.now(),
+    });
+    if (callback) callback({ success: true });
   });
 
   // ── LEAVE ROOM ───────────────────────────────

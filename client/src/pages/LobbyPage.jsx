@@ -13,7 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   FiCopy, FiCheck, FiShield, FiLogOut,
   FiRefreshCw, FiPlay, FiClock, FiUsers, FiGlobe, FiEye,
-  FiShuffle
+  FiShuffle, FiSettings,
 } from 'react-icons/fi'
 import { useSocket } from '../context/SocketContext'
 import { useGame } from '../context/GameContext'
@@ -299,6 +299,70 @@ function LobbyGlobe() {
   )
 }
 
+/* ─── Room Settings ──────────────────────────────────────────────────── */
+function SettingPills({ label, options, value, onChange, disabled }) {
+  return (
+    <div style={{ marginBottom: 10 }}>
+      <div style={{ fontSize: 9, fontFamily: "'JetBrains Mono',monospace", color: '#64748b',
+        textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 5 }}>{label}</div>
+      <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+        {options.map(opt => {
+          const active = opt.value === value
+          return (
+            <button key={opt.value} onClick={() => !disabled && onChange(opt.value)}
+              style={{ padding: '4px 11px', borderRadius: 7, border: 'none', cursor: disabled ? 'default' : 'pointer',
+                fontFamily: "'JetBrains Mono',monospace", fontSize: 10, transition: 'all 0.15s',
+                background: active ? 'rgba(0,212,170,0.15)' : 'rgba(255,255,255,0.03)',
+                color: active ? '#00d4aa' : '#475569',
+                outline: active ? '1px solid rgba(0,212,170,0.35)' : '1px solid #1a2540',
+                opacity: disabled && !active ? 0.5 : 1 }}>
+              {opt.label}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function RoomSettings({ settings, isHost, onUpdateSettings }) {
+  if (!settings) return null
+  const HIDE_OPTIONS   = [30, 60, 90, 120].map(s => ({ value: s, label: `${s}s` }))
+  const GUESS_OPTIONS  = [30, 45, 60, 90].map(s => ({ value: s, label: `${s}s` }))
+  const REGION_OPTIONS = [
+    { value: 'all',      label: '🌍 World' },
+    { value: 'americas', label: '🌎 Americas' },
+    { value: 'europe',   label: '🌍 Europe' },
+    { value: 'asia',     label: '🌏 Asia' },
+    { value: 'africa',   label: '🌍 Africa' },
+    { value: 'oceania',  label: '🇦🇺 Oceania' },
+  ]
+
+  return (
+    <div style={{ padding: '14px 18px', borderRadius: 14, width: '100%', maxWidth: 440,
+      background: 'rgba(14,22,37,0.7)', border: '1px solid #1a2540', marginBottom: 14 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 12 }}>
+        <FiSettings size={12} style={{ color: '#00d4aa' }} />
+        <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono',monospace", color: '#94a3b8',
+          textTransform: 'uppercase', letterSpacing: '0.1em' }}>Room Settings</span>
+        {!isHost && (
+          <span style={{ marginLeft: 'auto', fontSize: 9, color: '#475569',
+            fontFamily: "'JetBrains Mono',monospace" }}>Host only</span>
+        )}
+      </div>
+      <SettingPills label="Hide time" options={HIDE_OPTIONS}
+        value={settings.hidingSecs} disabled={!isHost}
+        onChange={v => onUpdateSettings({ hidingSecs: v })} />
+      <SettingPills label="Guess time" options={GUESS_OPTIONS}
+        value={settings.guessSecs} disabled={!isHost}
+        onChange={v => onUpdateSettings({ guessSecs: v })} />
+      <SettingPills label="Region" options={REGION_OPTIONS}
+        value={settings.region} disabled={!isHost}
+        onChange={v => onUpdateSettings({ region: v })} />
+    </div>
+  )
+}
+
 /* ─── Lobby Page ──────────────────────────────────────────────────────── */
 export default function LobbyPage() {
   const isMobile = useIsMobile()
@@ -375,6 +439,11 @@ export default function LobbyPage() {
   }
   const startGame = () => {
     socket.emit('start_game', { code: room.code }, res => {
+      if (res?.error) pushNotification(res.error, 'error')
+    })
+  }
+  const updateSettings = (patch) => {
+    socket.emit('update_settings', { code: room.code, settings: patch }, res => {
       if (res?.error) pushNotification(res.error, 'error')
     })
   }
@@ -499,6 +568,9 @@ export default function LobbyPage() {
               <LobbyGlobe />
             </div>
           )}
+
+          {/* Room settings */}
+          <RoomSettings settings={room.settings} isHost={isHost} onUpdateSettings={updateSettings} />
 
           {/* How-to-play hint */}
           <div style={{ marginBottom: 14, padding: '12px 20px', borderRadius: 14,
