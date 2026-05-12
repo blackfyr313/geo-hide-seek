@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About GeoHiders — The Story Behind the Game</title>
+  <meta name="description" content="The story behind GeoHiders, a multiplayer Street View hide-and-seek game built by Adarsh Chauhan. Learn how it works, what inspired it, and what's next on the roadmap." />
+  <link rel="canonical" href="https://geohiders.com/about/" />
+  <meta name="robots" content="index, follow" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles/content.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="logo" href="/">GeoHiders</a>
+      <nav>
+        <a href="/">Play</a>
+        <a href="/how-to-play/">How to Play</a>
+        <a href="/about/">About</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/contact/">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <h1>About GeoHiders</h1>
+    <p class="subtitle">A free, real-time, multiplayer geography hide-and-seek game built for friends who love maps.</p>
+
+    <h2>What GeoHiders is</h2>
+    <p>GeoHiders is a multiplayer game played entirely in your browser. One player at a time becomes the <strong>hider</strong> — they pick any spot on Earth using Google Street View, write three short clues about where they are, and challenge the rest of the room to find them. The <strong>seekers</strong> read the clues, study the map of the world, and drop a pin where they think the hider is hiding. The closer your pin lands to the real location, the more points you score. After a few rounds, everyone takes a turn as the hider, and the player with the highest total score wins.</p>
+
+    <p>The game runs in real time over WebSockets, supports up to eight players in a private room, and works on any modern browser — desktop, tablet, or phone. There is no app to install, no account to create, and no email required. You make a room, share a six-character code with friends, and start playing in under a minute.</p>
+
+    <h2>Why it exists</h2>
+    <p>I built GeoHiders because I wanted to play a casual, low-stakes geography game with friends and family on movie nights — something easier to set up than GeoGuessr battles but more social than solo guessing. The idea is simple: turn the entire world into a hide-and-seek board, where Street View is the hiding place and clever clues are the breadcrumbs.</p>
+    <p>Most online geography games are competitive solo experiences with global leaderboards. GeoHiders is the opposite. It is a party game first — designed for laughter, terrible clues, lucky guesses, and the moment someone drops a pin three streets away from where the hider was actually standing. Strategy matters, but humor matters more.</p>
+
+    <h2>How it works under the hood</h2>
+    <p>For anyone curious about the tech, GeoHiders is built with a small, modern, web-only stack:</p>
+    <ul>
+      <li><strong>Front-end:</strong> React with Vite, animated with Framer Motion, deployed on Vercel as a static SPA.</li>
+      <li><strong>Back-end:</strong> Node.js with Socket.IO, deployed on Render. Game state lives entirely in memory — no database, no logins, no cloud bill spiraling out of control.</li>
+      <li><strong>Maps and imagery:</strong> Google Maps Platform powers the world map and Street View, the same imagery used across thousands of geography apps worldwide.</li>
+      <li><strong>Real-time sync:</strong> every action — a clue typed, a pin dropped, a chat sent — is broadcast over WebSockets to every player in the room within milliseconds.</li>
+    </ul>
+    <p>Because rooms are short-lived and rely on in-memory state, GeoHiders does not store gameplay data after a session ends. When everyone disconnects, your room is gone forever. That is by design — it keeps the privacy story simple and the infrastructure cheap.</p>
+
+    <h2>About the builder</h2>
+    <div class="card">
+      <p><strong>Adarsh Chauhan</strong> is a software developer who builds small, focused web products as a hobby in between bigger projects. GeoHiders started as a weekend experiment to see whether a real-time multiplayer game could be built end-to-end (front-end, back-end, game logic, hosting) in a single weekend. It could — barely — and the project kept growing from there.</p>
+      <p>You can reach Adarsh at <a href="mailto:adarshchauhan13@gmail.com">adarshchauhan13@gmail.com</a> with feedback, bug reports, feature ideas, or just to say hi.</p>
+    </div>
+
+    <h2>What's next</h2>
+    <p>GeoHiders is actively maintained. Features in active consideration include:</p>
+    <ul>
+      <li><strong>Public matchmaking</strong> — drop into a random global room without needing a code.</li>
+      <li><strong>Themed rounds</strong> — restrict hiders to specific regions (capitals only, islands only, train stations, etc.) for more focused gameplay.</li>
+      <li><strong>Solo practice mode</strong> — for when you want to sharpen your map skills without needing four friends online.</li>
+      <li><strong>Replay system</strong> — review the round after it ends, see where everyone guessed, and learn from the best clue-writers.</li>
+      <li><strong>Persistent profiles</strong> — entirely optional, for players who want to track their own stats over time.</li>
+    </ul>
+    <p>If any of these excite you — or if you have a wildly better idea — get in touch.</p>
+
+    <h2>Acknowledgements</h2>
+    <p>GeoHiders would not exist without the open-source tools and platforms it is built on: React, Vite, Socket.IO, Node.js, Framer Motion, Vercel, and Render. It also depends on the Google Maps Platform for its world map and Street View imagery, without which the entire game premise would be impossible.</p>
+
+    <div class="cta-row">
+      <a class="btn" href="/">Play Now</a>
+      <a class="btn secondary" href="/how-to-play/">Learn How to Play</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="links">
+      <a href="/">Home</a>
+      <a href="/about/">About</a>
+      <a href="/how-to-play/">How to Play</a>
+      <a href="/faq/">FAQ</a>
+      <a href="/privacy/">Privacy</a>
+      <a href="/terms/">Terms</a>
+      <a href="/contact/">Contact</a>
+    </div>
+    <div class="copy">© 2026 GeoHiders · Built by Adarsh Chauhan</div>
+  </footer>
+</body>
+</html>

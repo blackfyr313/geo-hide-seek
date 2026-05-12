@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/privacy",       "destination": "/privacy/index.html" },
+    { "source": "/terms",         "destination": "/terms/index.html" },
+    { "source": "/about",         "destination": "/about/index.html" },
+    { "source": "/how-to-play",   "destination": "/how-to-play/index.html" },
+    { "source": "/faq",           "destination": "/faq/index.html" },
+    { "source": "/contact",       "destination": "/contact/index.html" },
+    { "source": "/(.*)",          "destination": "/index.html" }
+  ]
+}

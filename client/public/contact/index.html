@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact GeoHiders — Get in Touch</title>
+  <meta name="description" content="Contact GeoHiders for feedback, bug reports, feature requests, partnership inquiries, or general questions. Run by Adarsh Chauhan." />
+  <link rel="canonical" href="https://geohiders.com/contact/" />
+  <meta name="robots" content="index, follow" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles/content.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <a class="logo" href="/">GeoHiders</a>
+      <nav>
+        <a href="/">Play</a>
+        <a href="/how-to-play/">How to Play</a>
+        <a href="/about/">About</a>
+        <a href="/faq/">FAQ</a>
+        <a href="/contact/">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <h1>Contact GeoHiders</h1>
+    <p class="subtitle">We read every message. Pick the channel that fits.</p>
+
+    <h2>General email</h2>
+    <p>The fastest way to reach us is by email. One person reads this inbox personally and tries to respond within a few business days.</p>
+    <div class="card">
+      <strong>Email:</strong> <a href="mailto:adarshchauhan13@gmail.com">adarshchauhan13@gmail.com</a><br />
+      <strong>Operator:</strong> Adarsh Chauhan<br />
+      <strong>Project:</strong> GeoHiders (<a href="https://geohiders.com/">geohiders.com</a>)
+    </div>
+
+    <h2>What to write about</h2>
+
+    <h3>Bug reports</h3>
+    <p>Found something broken? Please send an email with:</p>
+    <ul>
+      <li>What you were doing when the bug occurred (e.g., "creating a room", "during the seeking phase").</li>
+      <li>What you expected to happen, and what actually happened.</li>
+      <li>Your browser, operating system, and whether you were on mobile or desktop.</li>
+      <li>A screenshot or screen recording if you can capture one.</li>
+      <li>Your room code, if it's a multiplayer-state issue (optional — helps us reproduce).</li>
+    </ul>
+    <p>The more details you include, the faster we can fix it. Email <a href="mailto:adarshchauhan13@gmail.com?subject=GeoHiders%20Bug%20Report">adarshchauhan13@gmail.com</a> with the subject line "Bug Report".</p>
+
+    <h3>Feature requests and feedback</h3>
+    <p>Have an idea for a new game mode, a tweak to the scoring, a UI improvement, or just a vibe you want us to capture? We genuinely love these emails. There is no formal process — write us a paragraph or two explaining what you want and why, and we will read it carefully.</p>
+    <p>Email <a href="mailto:adarshchauhan13@gmail.com?subject=GeoHiders%20Feedback">adarshchauhan13@gmail.com</a> with the subject line "Feedback".</p>
+
+    <h3>Privacy and data requests</h3>
+    <p>For privacy questions, data access requests, or anything covered in our <a href="/privacy/">Privacy Policy</a>, write us at <a href="mailto:adarshchauhan13@gmail.com?subject=GeoHiders%20Privacy%20Request">adarshchauhan13@gmail.com</a> with "Privacy Request" in the subject. We will reply within 30 days as required by applicable law.</p>
+
+    <h3>Legal and copyright</h3>
+    <p>If you believe content on GeoHiders infringes your copyright or other rights, send a takedown notice to <a href="mailto:adarshchauhan13@gmail.com?subject=GeoHiders%20Legal%20Notice">adarshchauhan13@gmail.com</a> with "Legal Notice" in the subject. Include enough detail to identify the work in question, your contact details, and a statement that you are authorized to act on behalf of the rights holder.</p>
+
+    <h3>Press, partnerships, and advertising</h3>
+    <p>Writing an article about geography games or want to partner on something? Email <a href="mailto:adarshchauhan13@gmail.com?subject=GeoHiders%20Partnership">adarshchauhan13@gmail.com</a> with "Partnership" in the subject. Tell us who you are, what you have in mind, and any relevant links.</p>
+
+    <h2>Response time</h2>
+    <p>GeoHiders is a side project, not a company with a dedicated support team. We do our best to read everything within a few days and respond to most messages within a week. If your message is urgent (e.g., a security issue), please mark the subject line accordingly and we will prioritize it.</p>
+
+    <h2>What not to email about</h2>
+    <p>To save time, please don't email us about:</p>
+    <ul>
+      <li><strong>"Add me as an admin"</strong> — GeoHiders has no admin tier; the host of a room is the admin of that room.</li>
+      <li><strong>SEO services, link-building, or unsolicited marketing</strong> — these go straight to trash.</li>
+      <li><strong>Buying or selling display ad slots</strong> — all ads are managed by Google AdSense and we don't sell direct inventory.</li>
+    </ul>
+
+    <div class="cta-row" id="contact-actions">
+      <a class="btn" href="mailto:adarshchauhan13@gmail.com">Open Email App</a>
+      <a class="btn secondary" target="_blank" rel="noopener"
+         href="https://mail.google.com/mail/?view=cm&fs=1&to=adarshchauhan13@gmail.com">Open in Gmail</a>
+      <button type="button" class="btn secondary" id="copy-email-btn">Copy Email Address</button>
+      <a class="btn secondary" href="/">Back to Game</a>
+    </div>
+    <div id="copy-status" role="status" aria-live="polite" style="
+         margin-top: 10px; font-family: 'JetBrains Mono', monospace;
+         font-size: 12px; color: var(--accent); min-height: 18px;
+         opacity: 0; transition: opacity 0.2s;"></div>
+
+    <script>
+      (function () {
+        var btn = document.getElementById('copy-email-btn');
+        var status = document.getElementById('copy-status');
+        if (!btn || !status) return;
+        var email = 'adarshchauhan13@gmail.com';
+        btn.addEventListener('click', function () {
+          var done = function (ok) {
+            status.textContent = ok ? '✓ Copied ' + email + ' to clipboard' : 'Could not copy — please copy manually: ' + email;
+            status.style.opacity = '1';
+            setTimeout(function () { status.style.opacity = '0'; }, 3500);
+          };
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(email).then(function () { done(true); }, function () { done(false); });
+          } else {
+            try {
+              var ta = document.createElement('textarea');
+              ta.value = email;
+              ta.style.position = 'fixed';
+              ta.style.opacity = '0';
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand('copy');
+              document.body.removeChild(ta);
+              done(true);
+            } catch (e) { done(false); }
+          }
+        });
+      })();
+    </script>
+  </main>
+
+  <footer class="site-footer">
+    <div class="links">
+      <a href="/">Home</a>
+      <a href="/about/">About</a>
+      <a href="/how-to-play/">How to Play</a>
+      <a href="/faq/">FAQ</a>
+      <a href="/privacy/">Privacy</a>
+      <a href="/terms/">Terms</a>
+      <a href="/contact/">Contact</a>
+    </div>
+    <div class="copy">© 2026 GeoHiders · Built by Adarsh Chauhan</div>
+  </footer>
+</body>
+</html>

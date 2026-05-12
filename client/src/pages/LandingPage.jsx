@@ -1814,6 +1814,32 @@ export default function LandingPage() {
 
         <HowItWorks />
         {isMobile && <TypewriterSignature />}
+
+        {/* Footer with links to content pages (SEO + user navigation) */}
+        <footer style={{
+          marginTop: 32,
+          paddingTop: 20,
+          borderTop: '1px solid #1a2540',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 10,
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 11,
+          color: '#64748b',
+          letterSpacing: '0.05em',
+        }}>
+          <nav style={{ display: 'flex', flexWrap: 'wrap', gap: 18, justifyContent: isMobile ? 'center' : 'flex-start' }}>
+            <a href="/about/"       style={{ color: '#94a3b8', textDecoration: 'none' }}>About</a>
+            <a href="/how-to-play/" style={{ color: '#94a3b8', textDecoration: 'none' }}>How to Play</a>
+            <a href="/faq/"         style={{ color: '#94a3b8', textDecoration: 'none' }}>FAQ</a>
+            <a href="/contact/"     style={{ color: '#94a3b8', textDecoration: 'none' }}>Contact</a>
+            <a href="/privacy/"     style={{ color: '#94a3b8', textDecoration: 'none' }}>Privacy</a>
+            <a href="/terms/"       style={{ color: '#94a3b8', textDecoration: 'none' }}>Terms</a>
+          </nav>
+          <div style={{ textAlign: isMobile ? 'center' : 'left', textTransform: 'uppercase' }}>
+            © 2026 GeoHiders · Built by Adarsh Chauhan
+          </div>
+        </footer>
       </div>
 
       {/* ── RIGHT (Globe) ── */}
